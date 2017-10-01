@@ -14,6 +14,7 @@ Imports:
   miniUI (>= 0.1.1),
   rstudioapi,
   rjson,
-  httr
+  httr,
+  tmcRtestrunner
 Depends:
   testthat

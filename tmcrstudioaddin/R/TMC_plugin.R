@@ -54,6 +54,17 @@ loginGadget <- function() {
           # *Output function shows info from server
           textOutput(outputId = "courseDisplay")
         )
+      ),
+
+      miniTabPanel(
+        title = "Test & Submit",
+        icon = icon("check"),
+
+        miniContentPanel(
+          actionButton(inputId = "run_tests", label = "Run tests"),
+          actionButton(inputId = "submit", label = "Submit to server"),
+          actionButton(inputId = "exit", label = "Exit")
+        )
       )
     )
   )
@@ -79,8 +90,15 @@ loginGadget <- function() {
       }
       # showDialog() needs RStudion versio > 1.1.67
       showDialog(title = title, message = message, url = "")
-    }
-    )
+    })
+
+    observeEvent(input$run_tests, {
+      run_tests(project_path = getwd(), print = TRUE)
+    })
+
+    observeEvent(input$exit, {
+      stopApp()
+    })
     # render*-function renders UI content and corresponds to *Output-function in UI
     # Here the "textOutput(outputId = "courseDisplay")" in UI is declared to
     # render the value from "selectInput(inputId = "courseSelect", ...)"
@@ -88,5 +106,5 @@ loginGadget <- function() {
       input$courseSelect
     })
   }
-  runGadget(ui, server, viewer = dialogViewer("TMC login"))
+  runGadget(ui, server)
 }

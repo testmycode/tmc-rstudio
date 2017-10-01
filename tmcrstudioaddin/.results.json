@@ -1,0 +1,25 @@
+[
+    {
+        "status": "fail",
+        "name": "Authentication gives a token",
+        "message": "Failed with call: authenticate, rtest, asdasdasd\ncould not find function \"POST\"",
+        "backtrace": [
+
+        ],
+        "points": [
+
+        ]
+    },
+    {
+        "status": "fail",
+        "name": "False authentication fails",
+        "message": "Failed with call: expect_is, authenticate(\"sddsdaddsdsdadasads\", \"dsdasasdsdsdasdasdasd\"), list\ncould not find function \"POST\"",
+        "backtrace": [
+
+        ],
+        "points": [
+
+        ]
+    }
+]
+
