@@ -6,7 +6,8 @@ source("R/Authentication.R")
 tmc_gadget <- function() {
 
   ui <- miniPage(
-    gadgetTitleBar(title = "Login to TMC", left = NULL, right = NULL),
+    gadgetTitleBar(title = "TMC RStudio", right = NULL,
+                   left = miniTitleBarCancelButton(inputId = "exit", label = "Exit")),
 
     # Tabs on bottom
     miniTabstripPanel(
@@ -61,8 +62,7 @@ tmc_gadget <- function() {
 
         miniContentPanel(
           actionButton(inputId = "run_tests", label = "Run tests"),
-          actionButton(inputId = "submit", label = "Submit to server"),
-          actionButton(inputId = "exit", label = "Exit")
+          actionButton(inputId = "submit", label = "Submit to server")
         )
       )
     )
@@ -80,7 +80,7 @@ tmc_gadget <- function() {
       response <- tmcrstudioaddin::authenticate(input$username, input$password)
 
       # if Bearer token is retrieved login was successful
-      if (grepl("Bearer" ,response[1])) {
+      if (grepl("Bearer", response[1])) {
         title <- "Success!"
         message <- "Login successful!"
         # show error and error message

@@ -16,7 +16,7 @@ authenticate <- function(username, password) {
   if (status_code(req) == 200){
     # Extract the authentication token
     httr::stop_for_status(x = req, task = "Authenticate with TMC")
-    token <- paste("Bearer", content(req)$access_token)
+    token <- paste("Bearer", httr::content(req)$access_token)
     return(token)
   }
   else{
