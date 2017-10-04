@@ -1,0 +1,25 @@
+[
+    {
+        "status": "pass",
+        "name": "Authentication gives a token",
+        "message": "",
+        "backtrace": [
+
+        ],
+        "points": [
+
+        ]
+    },
+    {
+        "status": "pass",
+        "name": "False authentication fails",
+        "message": "",
+        "backtrace": [
+
+        ],
+        "points": [
+
+        ]
+    }
+]
+

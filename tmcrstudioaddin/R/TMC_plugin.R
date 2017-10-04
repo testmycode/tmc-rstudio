@@ -1,13 +1,13 @@
 # Need RStudio version > 1.1.67 for rstudioapi::showDialog()
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
-# use ?function_name to get information from function function_name
-
 source("R/Authentication.R")
-loginGadget <- function() {
+
+tmc_gadget <- function() {
 
   ui <- miniPage(
-    gadgetTitleBar(title = "Login to TMC", left = NULL, right = NULL),
+    gadgetTitleBar(title = "TMC RStudio", right = NULL,
+                   left = miniTitleBarCancelButton(inputId = "exit", label = "Exit")),
 
     # Tabs on bottom
     miniTabstripPanel(
@@ -38,7 +38,7 @@ loginGadget <- function() {
 
         miniContentPanel(
           selectInput(
-            inputId = "courseSelect",
+            inputId = "course_select",
             label = "Select course",
 
             choices = list(
@@ -52,7 +52,17 @@ loginGadget <- function() {
           ),
 
           # *Output function shows info from server
-          textOutput(outputId = "courseDisplay")
+          textOutput(outputId = "course_display")
+        )
+      ),
+
+      miniTabPanel(
+        title = "Test & Submit",
+        icon = icon("check"),
+
+        miniContentPanel(
+          actionButton(inputId = "run_tests", label = "Run tests"),
+          actionButton(inputId = "submit", label = "Submit to server")
         )
       )
     )
@@ -67,9 +77,10 @@ loginGadget <- function() {
     observeEvent(input$login, {
       message <- ""
       title <- ""
-      response = authenticate(input$username,input$password)
+      response <- tmcrstudioaddin::authenticate(input$username, input$password)
+
       # if Bearer token is retrieved login was successful
-      if (grepl('Bearer',response[1])) {
+      if (grepl("Bearer", response[1])) {
         title <- "Success!"
         message <- "Login successful!"
         # show error and error message
@@ -77,16 +88,25 @@ loginGadget <- function() {
         title <- response$error
         message <- response$error_description
       }
+
       # showDialog() needs RStudion versio > 1.1.67
-      showDialog(title = title, message = message, url = "")
-    }
-    )
+      rstudioapi::showDialog(title = title, message = message, url = "")
+    })
+
+    observeEvent(input$run_tests, {
+      tmcRtestrunner::run_tests(project_path = getwd(), print = TRUE)
+    })
+
+    observeEvent(input$exit, {
+      shiny::stopApp()
+    })
     # render*-function renders UI content and corresponds to *Output-function in UI
     # Here the "textOutput(outputId = "courseDisplay")" in UI is declared to
     # render the value from "selectInput(inputId = "courseSelect", ...)"
-    output$courseDisplay <- renderText({
-      input$courseSelect
+    output$course_display <- renderText({
+      input$course_select
     })
   }
-  runGadget(ui, server, viewer = dialogViewer("TMC login"))
+
+  shiny::runGadget(app = ui, server = server)
 }

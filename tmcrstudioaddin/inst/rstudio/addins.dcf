@@ -1,4 +1,4 @@
-Name: TMC login
+Name: TMC R 0.2
 Description: Enables login to TMC server
-Binding: loginGadget
+Binding: tmc_gadget
 Interactive: true
