@@ -2,75 +2,20 @@
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
 source("R/Authentication.R")
+source("R/Tabs.R")
 
 tmc_gadget <- function() {
-
   ui <- miniPage(
     gadgetTitleBar(title = "TMC RStudio", right = NULL,
                    left = miniTitleBarCancelButton(inputId = "exit", label = "Exit")),
 
-    # Tabs on bottom
     miniTabstripPanel(
-
-      # A single tab
-      miniTabPanel(
-
-        title = "Log in",
-        icon = icon("user-circle-o"),
-
-        # The main UI content
-        miniContentPanel(
-
-          h1("Log in"),
-
-          # inputId allows the server to access the values given by user
-          textInput("username", label = "Username", value = ""),
-          passwordInput("password", label = "Password", value = ""),
-
-          actionButton(inputId = "login", label = "Log in")
-        )
-      ),
-
-
-      miniTabPanel(
-        title = "Exercises",
-        icon = icon("folder-open"),
-
-        miniContentPanel(
-          selectInput(
-            inputId = "course_select",
-            label = "Select course",
-
-            choices = list(
-
-              "Introduction to Statistics and R I" = "Course 1",
-              "Introduction to Statistics and R II" = "Course 2",
-              "Data mining" = "Course 3"
-            ),
-
-            selected = 1
-          ),
-
-          # *Output function shows info from server
-          textOutput(outputId = "course_display")
-        )
-      ),
-
-      miniTabPanel(
-        title = "Test & Submit",
-        icon = icon("check"),
-
-        miniContentPanel(
-          actionButton(inputId = "run_tests", label = "Run tests"),
-          actionButton(inputId = "submit", label = "Submit to server"),
-          uiOutput(outputId = "test_results_display")
-        )
-      )
+      .log_in_tab,
+      .courses_and_excersises_tab,
+      .test_and_submit_tab
     )
   )
 
-  # input gives access to relevant data from UI
-  # Content to be shown in UI is given in output
   server <- function(input, output) {
     test_results <- eventReactive(input$run_tests, {
       tmcRtestrunner::run_tests(print = TRUE)
@@ -102,8 +47,8 @@ tmc_gadget <- function() {
     })
 
     # render*-function renders UI content and corresponds to *Output-function in UI
-    # Here the "textOutput(outputId = "courseDisplay")" in UI is declared to
-    # render the value from "selectInput(inputId = "courseSelect", ...)"
+    # Here the "textOutput(outputId = "course_display")" in UI is declared to
+    # render the value from "selectInput(inputId = "course_select", ...)"
     output$course_display <- renderText({
       input$course_select
     })
@@ -112,10 +57,17 @@ tmc_gadget <- function() {
       results <- test_results()
 
       test_result_output_list <- lapply(1:length(results), function(i) {
-        p(results[[i]]$name, ":", results[[i]]$status)
+        test_name <- results[[i]]$name
+        test_status <- results[[i]]$status
+
+        # Assign a color depending on test status
+        color <- ifelse(test = identical(x = test_status, y = "pass"), yes = "green", no = "red")
+
+        tags$p(paste(results[[i]]$name, ":", results[[i]]$status),
+               style = paste("color:", color, ";font-weight:bold"))
       })
 
-      tagList(test_result_output_list)
+      shiny::tagList(test_result_output_list)
     })
   }
 
