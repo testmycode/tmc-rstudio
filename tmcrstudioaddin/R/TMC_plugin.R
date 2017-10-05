@@ -62,7 +62,8 @@ tmc_gadget <- function() {
 
         miniContentPanel(
           actionButton(inputId = "run_tests", label = "Run tests"),
-          actionButton(inputId = "submit", label = "Submit to server")
+          actionButton(inputId = "submit", label = "Submit to server"),
+          uiOutput(outputId = "test_results_display")
         )
       )
     )
@@ -71,6 +72,9 @@ tmc_gadget <- function() {
   # input gives access to relevant data from UI
   # Content to be shown in UI is given in output
   server <- function(input, output) {
+    test_results <- eventReactive(input$run_tests, {
+      tmcRtestrunner::run_tests(print = TRUE)
+    })
 
     # Defining actions for buttons etc
     # UI elements and their actions are given as arguments
@@ -93,18 +97,25 @@ tmc_gadget <- function() {
       rstudioapi::showDialog(title = title, message = message, url = "")
     })
 
-    observeEvent(input$run_tests, {
-      tmcRtestrunner::run_tests(project_path = getwd(), print = TRUE)
-    })
-
     observeEvent(input$exit, {
       shiny::stopApp()
     })
+
     # render*-function renders UI content and corresponds to *Output-function in UI
     # Here the "textOutput(outputId = "courseDisplay")" in UI is declared to
     # render the value from "selectInput(inputId = "courseSelect", ...)"
     output$course_display <- renderText({
       input$course_select
+    })
+
+    output$test_results_display <- renderUI({
+      results <- test_results()
+
+      test_result_output_list <- lapply(1:length(results), function(i) {
+        p(results[[i]]$name, ":", results[[i]]$status)
+      })
+
+      tagList(test_result_output_list)
     })
   }
 
