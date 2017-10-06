@@ -40,7 +40,18 @@ source("R/Authentication.R")
       .create_test_result_element(i = i, test_results = test_results)
     })
 
-    return(shiny::tagList(test_result_output_list))
+    #TODO: show actual procentage in progress bar
+    html <- tags$html(tags$head(
+      tags$style(HTML(".progressBar { position: relative; width: 100%; top: 10px; background-color: red; }
+        .progress { width: 50%; height: 30px; background-color: green; }
+        .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}"))),
+      tags$body(
+        tags$div(class = "progressBar",
+          tags$div(class = "progressText", "50%"),
+          tags$div(class = "progress")),
+        test_result_output_list))
+
+    return(shiny::tagList(html))
   })
 }
 
