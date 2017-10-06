@@ -51,3 +51,16 @@ library(shiny)
     uiOutput(outputId = "test_results_display")
   )
 )
+
+.ui <- miniPage(
+  gadgetTitleBar(title = "TMC RStudio", right = NULL,
+                 left = miniTitleBarCancelButton(inputId = "exit", label = "Exit")),
+
+  miniTabstripPanel(
+    .log_in_tab,
+    .courses_and_excersises_tab,
+    .test_and_submit_tab
+  )
+)
+
+
