@@ -1,25 +1,31 @@
-[
-    {
-        "status": "pass",
-        "name": "Authentication gives a token",
-        "message": "",
-        "backtrace": [
+{
+    "runStatus": "success",
+    "backtrace": [
 
-        ],
-        "points": [
+    ],
+    "testResults": [
+        {
+            "status": "pass",
+            "name": "Authentication gives a token",
+            "message": "",
+            "backtrace": [
 
-        ]
-    },
-    {
-        "status": "pass",
-        "name": "False authentication fails",
-        "message": "",
-        "backtrace": [
+            ],
+            "points": [
 
-        ],
-        "points": [
+            ]
+        },
+        {
+            "status": "pass",
+            "name": "False authentication fails",
+            "message": "",
+            "backtrace": [
 
-        ]
-    }
-]
+            ],
+            "points": [
+
+            ]
+        }
+    ]
+}
 
