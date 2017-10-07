@@ -38,7 +38,8 @@ source("R/Authentication.R")
     # Tests are ran only when the run tests -button is pressed
     test_results <- run_testrunner()
 
-    # Reactively displays results depending on whether the show all results -checkbox is checked or not
+    # Reactively displays results depending on whether the
+    # show all results -checkbox is checked or not
     if (input$show_all_results) {
       test_result_output <- lapply(1:length(test_results), function(i) {
         test_result <- test_results[[i]]
@@ -78,9 +79,6 @@ source("R/Authentication.R")
 # Creates an HTML paragraph element for either the first failing test or a separate message
 # if all tests passed
 .create_single_result_display <- function(test_results) {
-  result_name <- ""
-  result_status <- ""
-
   for (i in 1:length(test_results)) {
     result <- test_results[[i]]
 
