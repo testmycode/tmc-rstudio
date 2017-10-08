@@ -48,6 +48,7 @@ library(shiny)
   miniContentPanel(
     actionButton(inputId = "run_tests", label = "Run tests"),
     actionButton(inputId = "submit", label = "Submit to server"),
+    checkboxInput(inputId = "show_all_results", label = "Show all results", value = FALSE),
     uiOutput(outputId = "test_results_display")
   )
 )
@@ -62,5 +63,3 @@ library(shiny)
     .test_and_submit_tab
   )
 )
-
-
