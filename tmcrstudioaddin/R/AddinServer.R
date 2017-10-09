@@ -35,6 +35,7 @@ source("R/Authentication.R")
   # Renders a list showing the test results
   output$test_results_display <- renderUI({
     test_results <- run_testrunner()
+    tests_passed_procentage = tests_passed_procentage(test_results)
 
     test_result_output_list <- lapply(1:length(test_results), function(i) {
       .create_test_result_element(i = i, test_results = test_results)
@@ -42,12 +43,12 @@ source("R/Authentication.R")
 
     #TODO: show actual procentage in progress bar
     html <- tags$html(tags$head(
-      tags$style(HTML(".progressBar { position: relative; width: 100%; top: 10px; background-color: red; }
-        .progress { width: 50%; height: 30px; background-color: green; }
-        .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}"))),
+      tags$style(HTML(paste(sep = "", ".progressBar { position: relative; width: 100%; top: 10px; background-color: red; border-radius: 0px; }
+        .progress { width:", tests_passed_procentage, "; height: 30px; background-color: green; border-radius: 0px; }
+        .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
       tags$body(
         tags$div(class = "progressBar",
-          tags$div(class = "progressText", "50%"),
+          tags$div(class = "progressText", tests_passed_procentage),
           tags$div(class = "progress")),
         test_result_output_list))
 
