@@ -37,6 +37,7 @@ source("R/Authentication.R")
   output$test_results_display <- renderUI({
     # Tests are ran only when the run tests -button is pressed
     test_results <- run_testrunner()
+    tests_passed_procentage = tests_passed_procentage(test_results)
 
     # Reactively displays results depending on whether the
     # show all results -checkbox is checked or not
@@ -49,7 +50,17 @@ source("R/Authentication.R")
       test_result_output <- .create_single_result_display(test_results = test_results)
     }
 
-    return(shiny::tagList(test_result_output))
+    html <- tags$html(tags$head(
+      tags$style(HTML(paste(sep = "", ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
+        .progress { width:", tests_passed_procentage, "; height: 30px; background-color: green; border-radius: 0px; }
+        .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
+      tags$body(
+        tags$div(class = "progressBar",
+          tags$div(class = "progressText", tests_passed_procentage),
+          tags$div(class = "progress")),
+        test_result_output))
+
+    return(shiny::tagList(html))
   })
 }
 
