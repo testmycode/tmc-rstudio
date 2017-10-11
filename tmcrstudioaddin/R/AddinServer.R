@@ -83,21 +83,23 @@ source("R/Authentication.R")
 .create_test_result_element <- function(name, status,index=NULL,message=NULL) {
   # Assign a color depending on test status
   color <- ifelse(test = grepl(x = status, pattern = "pass"), yes = "green", no = "red")
-  if(status=="pass"){
-    elements = tags$p(paste(name, ":", status),
-                      style = paste("color:", color, ";font-weight:bold"))
-  } else{
-    btn = tags$button(id=paste("button_",index,sep=""),"Show details")
-    message = tags$p(style = "display:none",paste("message:", message),id=paste("message_",index,sep=""))
-    script = tags$script(paste("$(\"#button_",index,"\").click(function(){$(\"#message_",index,"\").toggle()});",sep=""))
-    elements = list(tags$p(paste(name, ":", status),
-                           style = paste("color:", color, ";font-weight:bold")),
-                    message,
-                    btn,script)
+  elements = tags$p(paste(name, ":", status),
+             style = paste("color:", color, ";font-weight:bold"))
+  #if status is not pass add details
+  if(status!="pass"){
+    elements = list(elements,.create_detailed_message_with_button(index,message))
   }
   return(elements)
 }
-
+.create_detailed_message_with_button <- function(index=NULL,message=NULL){
+  btn = tags$button(id=paste("button_",index,sep=""),"Toggle details")
+  message = tags$p(style = "display:none",paste("message:", message),
+                   id=paste("message_",index,sep=""))
+  script = tags$script(paste("$(\"#button_",index,
+                             "\").click(function(){$(\"#message_",
+                             index,"\").toggle()});",sep=""))
+  return(list(message,btn,script))
+}
 # Creates an HTML paragraph element for either the first failing test or a separate message
 # if all tests passed
 .create_single_result_display <- function(test_results) {
