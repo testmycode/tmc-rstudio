@@ -6,7 +6,7 @@ test_that("tests_passed_procentage returns 100% on empty results.", {
 
 test_that("tests_passed_procentage returns 100% for results with all passed.", {
   test_results <- list(list(status = "pass"))
-  expect_equal(tests_passed_procentage(test_results), "101%")
+  expect_equal(tests_passed_procentage(test_results), "100%")
 
   test_results <- list(list(status = "pass"),
                        list(status = "pass"),
