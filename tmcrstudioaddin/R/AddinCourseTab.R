@@ -1,5 +1,5 @@
-.course_tab_UI <- function(id, label = "Course tab") {
-  ns <- NS(id)
+.course_tab_ui <- function(id, label = "Course tab") {
+  ns <- shiny::NS(id)
 
   miniTabPanel(
     title = "Exercises",

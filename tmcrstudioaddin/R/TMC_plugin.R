@@ -7,9 +7,9 @@ tmc_gadget <- function() {
                    left = miniTitleBarCancelButton(inputId = "exit", label = "Exit")),
 
     miniTabstripPanel(
-      .login_tab_UI(id = "login"),
-      .course_tab_UI(id = "courses"),
-      .submit_tab_UI(id = "test_and_submit")
+      .login_tab_ui(id = "login"),
+      .course_tab_ui(id = "courses"),
+      .submit_tab_ui(id = "test_and_submit")
     )
   )
 
@@ -19,9 +19,9 @@ tmc_gadget <- function() {
       return(shiny::stopApp())
     })
 
-    callModule(.login_tab, "login")
-    callModule(.course_tab, "courses")
-    callModule(.submit_tab, "test_and_submit")
+    shiny::callModule(.login_tab, "login")
+    shiny::callModule(.course_tab, "courses")
+    shiny::callModule(.submit_tab, "test_and_submit")
   }
 
   shiny::runGadget(app = ui, server = server)

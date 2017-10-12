@@ -1,6 +1,6 @@
-.login_tab_UI <- function(id, label = "Login tab") {
+.login_tab_ui <- function(id, label = "Login tab") {
   # Create a namespace function using the provided id
-  ns <- NS(id)
+  ns <- shiny::NS(id)
 
   miniTabPanel(
     title = "Log in",
@@ -22,22 +22,22 @@
     title_and_message <- .get_title_and_message(response = response)
 
     # showDialog() needs RStudion version > 1.1.67
-    return(rstudioapi::showDialog(title = title_and_message$title,
-                                  message = title_and_message$message,
-                                  url = ""))
+    rstudioapi::showDialog(title = title_and_message$title,
+                           message = title_and_message$message,
+                           url = "")
   })
+}
 
-  # Return a title and a message string for login dialog based on authentication results
-  .get_title_and_message <- function(response) {
-    # if Bearer token is retrieved login was successful
-    if (grepl("Bearer", response[1])) {
-      title <- "Success!"
-      message <- "Login successful!"
-    } else {
-      title <- response$error
-      message <- response$error_description
-    }
-
-    return(list("title" = title, "message" = message))
+# Return a title and a message string for login dialog based on authentication results
+.get_title_and_message <- function(response) {
+  # if Bearer token is retrieved login was successful
+  if (grepl("Bearer", response[1])) {
+    title <- "Success!"
+    message <- "Login successful!"
+  } else {
+    title <- response$error
+    message <- response$error_description
   }
+
+  return(list("title" = title, "message" = message))
 }
