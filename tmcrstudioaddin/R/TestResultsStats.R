@@ -1,4 +1,3 @@
-
 tests_passed_procentage <- function(test_results) {
   if (length(test_results) == 0) return("100%")
 
