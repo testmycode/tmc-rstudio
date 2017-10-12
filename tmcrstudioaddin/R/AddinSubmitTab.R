@@ -1,4 +1,4 @@
-.submit_tab_ui <- function (id, label = "Submit tab") {
+.submit_tab_ui <- function(id, label = "Submit tab") {
   ns <- shiny::NS(id)
 
   miniTabPanel(
@@ -14,7 +14,7 @@
   )
 }
 
-.submit_tab <- function (input, output, session) {
+.submit_tab <- function(input, output, session) {
   # This function is run when the Run tests -button is pressed
   run_testrunner <- eventReactive(input$run_tests, {
     tmcRtestrunner::run_tests(print = TRUE)
@@ -39,7 +39,8 @@
     }
 
     html <- tags$html(tags$head(
-      tags$style(HTML(paste(sep = "", ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
+      tags$style(HTML(paste(sep = "",
+        ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
         .progress { width:", tests_passed_procentage, "; height: 30px; background-color: green; border-radius: 0px; }
         .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
       tags$body(
@@ -69,12 +70,12 @@
 }
 
 .create_detailed_message_with_button <- function(index = NULL, message = NULL){
-  btn = tags$button(id = paste("button_", index, sep=""), "Toggle details")
-  message = tags$p(style = "display:none", paste("message:", message),
-                   id = paste("message_", index, sep=""))
-  script = tags$script(paste("$(\"#button_", index,
+  btn <- tags$button(id = paste("button_", index, sep = ""), "Toggle details")
+  message <- tags$p(style = "display:none", paste("message:", message),
+                   id = paste("message_", index, sep= ""))
+  script <- tags$script(paste("$(\"#button_", index,
                              "\").click(function(){$(\"#message_",
-                             index, "\").toggle()});", sep=""))
+                             index, "\").toggle()});", sep= ""))
   return(list(message, btn, script))
 }
 
@@ -86,7 +87,7 @@
 
     if (identical(x = result$status, y = "fail")) {
       return(.create_test_result_element(name = result$name, status = result$status,
-                                         index = i,message = result$message))
+                                         index = i, message = result$message))
     }
   }
 

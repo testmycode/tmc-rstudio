@@ -4,10 +4,10 @@ tests_passed_procentage <- function(test_results) {
   passed <- 0
   for (test_result in test_results) {
     if (test_result$status == "pass") {
-      passed = passed + 1
+      passed <- passed + 1
     }
   }
 
   passed_procentage <- round(passed / length(test_results), digit = 2)
-  return(paste(sep = "", toString(passed_procentage*100), "%"))
+  return(paste(sep = "", toString(passed_procentage * 100), "%"))
 }
