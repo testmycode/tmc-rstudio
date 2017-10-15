@@ -17,8 +17,7 @@ Imports:
   httr,
   tmcRtestrunner
 Depends:
-  testthat,
-  jsonlite
+  testthat
 Collate:
   'Authentication.R'
   'TestResultsStats.R'
