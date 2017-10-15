@@ -12,8 +12,6 @@ r_github_packages:
   - jimhester/lintr
 
 before_install:
-  - Rscript -e 'install.packages(c("devtools","testthat"),repos="http://cran.us.r-project.org")'
-  - Rscript -e 'devtools::install_github("RTMC/tmc-r-tester/tmcRtestrunner")'
   - cd tmcrstudioaddin
 
 after_success:
