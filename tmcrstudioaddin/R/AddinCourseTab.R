@@ -1,4 +1,4 @@
-.course_tab_ui <- function(id, label = "Course tab") {
+.courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
 
   miniTabPanel(
@@ -7,7 +7,7 @@
 
     miniContentPanel(
       selectInput(
-        inputId = ns("course_select"),
+        inputId = ns("courseSelect"),
         label = "Select course",
         choices = list(
           "Introduction to Statistics and R I" = "Course 1",
@@ -16,13 +16,13 @@
         ),
         selected = 1
       ),
-      textOutput(outputId = ns("course_display"))
+      textOutput(outputId = ns("courseDisplay"))
     )
   )
 }
 
-.course_tab <- function(input, output, session) {
-  output$course_display <- renderText({
-    input$course_select
+.courseTab <- function(input, output, session) {
+  output$courseDisplay <- renderText({
+    input$courseSelect
   })
 }

@@ -1,15 +1,15 @@
 # Need RStudio version > 1.1.67 for rstudioapi::showDialog()
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
-tmc_gadget <- function() {
+tmcGadget <- function() {
   ui <- miniPage(
     gadgetTitleBar(title = "TMC RStudio", right = NULL,
                    left = miniTitleBarCancelButton(inputId = "exit", label = "Exit")),
 
     miniTabstripPanel(
-      .login_tab_ui(id = "login"),
-      .course_tab_ui(id = "courses"),
-      .submit_tab_ui(id = "test_and_submit")
+      .loginTabUI(id = "login"),
+      .courseTabUI(id = "courses"),
+      .submitTabUI(id = "testAndSubmit")
     )
   )
 
@@ -19,9 +19,9 @@ tmc_gadget <- function() {
       return(shiny::stopApp())
     })
 
-    shiny::callModule(.login_tab, "login")
-    shiny::callModule(.course_tab, "courses")
-    shiny::callModule(.submit_tab, "test_and_submit")
+    shiny::callModule(.loginTab, "login")
+    shiny::callModule(.courseTab, "courses")
+    shiny::callModule(.submitTab, "testAndSubmit")
   }
 
   shiny::runGadget(app = ui, server = server)

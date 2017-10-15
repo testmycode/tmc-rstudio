@@ -1,4 +1,4 @@
-.login_tab_ui <- function(id, label = "Login tab") {
+.loginTabUI <- function(id, label = "Login tab") {
   # Create a namespace function using the provided id
   ns <- shiny::NS(id)
 
@@ -15,21 +15,21 @@
   )
 }
 
-.login_tab <- function(input, output, session) {
+.loginTab <- function(input, output, session) {
   observeEvent(input$login, {
     # Authenticate with the values from the username and password input fields
     response <- tmcrstudioaddin::authenticate(input$username, input$password)
-    title_and_message <- .get_title_and_message(response = response)
+    titleAndMessage <- .getTitleAndMessage(response = response)
 
     # showDialog() needs RStudion version > 1.1.67
-    rstudioapi::showDialog(title = title_and_message$title,
-                           message = title_and_message$message,
+    rstudioapi::showDialog(title = titleAndMessage$title,
+                           message = titleAndMessage$message,
                            url = "")
   })
 }
 
 # Return a title and a message string for login dialog based on authentication results
-.get_title_and_message <- function(response) {
+.getTitleAndMessage <- function(response) {
   # if Bearer token is retrieved login was successful
   if (grepl("Bearer", response[1])) {
     title <- "Success!"

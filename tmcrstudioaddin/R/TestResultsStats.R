@@ -1,13 +1,13 @@
-tests_passed_procentage <- function(test_results) {
-  if (length(test_results) == 0) return("100%")
+.testsPassedPercentage <- function(testResults) {
+  if (length(testResults) == 0) return("100%")
 
   passed <- 0
-  for (test_result in test_results) {
-    if (test_result$status == "pass") {
+  for (testResult in testResults) {
+    if (testResult$status == "pass") {
       passed <- passed + 1
     }
   }
 
-  passed_procentage <- round(passed / length(test_results), digit = 2)
-  return(paste(sep = "", toString(passed_procentage * 100), "%"))
+  passedPercentage <- round(passed / length(testResults), digit = 2)
+  return(paste(sep = "", toString(passedPercentage * 100), "%"))
 }
