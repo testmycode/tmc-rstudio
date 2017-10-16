@@ -19,9 +19,7 @@ Imports:
 Depends:
   testthat
 Collate:
-<<<<<<< HEAD
   'Authentication.R'
-  'AddinServer.R'
   'AddinUI.R'
   'AddinCourseTab.R'
   'AddinLoginTab.R'
