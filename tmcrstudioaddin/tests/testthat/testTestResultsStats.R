@@ -1,45 +1,45 @@
 
-test_that("tests_passed_procentage returns 100% on empty results.", {
-  test_results <- list()
-  expect_equal(tests_passed_procentage(test_results), "100%")
+test_that("testsPassedPercentage returns 100% on empty results.", {
+  testResults <- list()
+  expect_equal(.testsPassedPercentage(testResults), "100%")
 })
 
-test_that("tests_passed_procentage returns 100% for results with all passed.", {
-  test_results <- list(list(status = "pass"))
-  expect_equal(tests_passed_procentage(test_results), "100%")
+test_that("testsPassedPercentage returns 100% for results with all passed.", {
+  testResults <- list(list(status = "pass"))
+  expect_equal(.testsPassedPercentage(testResults), "100%")
 
-  test_results <- list(list(status = "pass"),
+  testResults <- list(list(status = "pass"),
                        list(status = "pass"),
                        list(status = "pass"))
-  expect_equal(tests_passed_procentage(test_results), "100%")
+  expect_equal(.testsPassedPercentage(testResults), "100%")
 })
 
-test_that("tests_passed_procentage returns 0% for results with all failed.", {
-  test_results <- list(list(status = "fail"))
-  expect_equal(tests_passed_procentage(test_results), "0%")
+test_that("testsPassedPercentage returns 0% for results with all failed.", {
+  testResults <- list(list(status = "fail"))
+  expect_equal(.testsPassedPercentage(testResults), "0%")
 
-  test_results <- list(list(status = "fail"),
+  testResults <- list(list(status = "fail"),
                        list(status = "fail"),
                        list(status = "fail"))
-  expect_equal(tests_passed_procentage(test_results), "0%")
+  expect_equal(.testsPassedPercentage(testResults), "0%")
 })
 
-test_that("tests_passed_procentage returns 50% with results with 1/2 passed.", {
-  test_results <- list(list(status = "pass"),
+test_that("testsPassedPercentage returns 50% with results with 1/2 passed.", {
+  testResults <- list(list(status = "pass"),
                        list(status = "fail"))
-  expect_equal(tests_passed_procentage(test_results), "50%")
+  expect_equal(.testsPassedPercentage(testResults), "50%")
 })
 
-test_that("tests_passed_procentage returns 33% with results with 1/3 passed.", {
-  test_results <- list(list(status = "pass"),
+test_that("testsPassedPercentage returns 33% with results with 1/3 passed.", {
+  testResults <- list(list(status = "pass"),
                        list(status = "fail"),
                        list(status = "fail"))
-  expect_equal(tests_passed_procentage(test_results), "33%")
+  expect_equal(.testsPassedPercentage(testResults), "33%")
 })
 
-test_that("tests_passed_procentage returns 67% with results with 2/3 passed.", {
-  test_results <- list(list(status = "pass"),
+test_that("testsPassedPercentage returns 67% with results with 2/3 passed.", {
+  testResults <- list(list(status = "pass"),
                        list(status = "pass"),
                        list(status = "fail"))
-  expect_equal(tests_passed_procentage(test_results), "67%")
+  expect_equal(.testsPassedPercentage(testResults), "67%")
 })

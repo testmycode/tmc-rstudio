@@ -1,8 +1,8 @@
 Package: tmcrstudioaddin
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.2.5
-Author: Who wrote it
+Version: 0.3.1
+Author: RTMC
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
@@ -19,9 +19,13 @@ Imports:
 Depends:
   testthat
 Collate:
+<<<<<<< HEAD
+  'Authentication.R'
   'AddinServer.R'
   'AddinUI.R'
-  'Authentication.R'
+  'AddinCourseTab.R'
+  'AddinLoginTab.R'
+  'AddinSubmitTab.R'
   'TestResultsStats.R'
   'TMC_plugin.R'
   'Zipper.R'

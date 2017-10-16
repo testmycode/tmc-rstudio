@@ -1,11 +1,10 @@
-library(rjson)
 library(httr)
 
 authenticate <- function(username, password) {
-  client_id <- "d56662a9898966d8275edb2e609bf1c52919ca7a4e3797bd663e40833522ab3b"
+  clientID <- "d56662a9898966d8275edb2e609bf1c52919ca7a4e3797bd663e40833522ab3b"
   secret <- "86ef820fe2e191c1dfd61ccd21c60c42ddbc4de9adba0743e07917adeeefb554"
   body <- paste(sep = "",
-                "grant_type=password&client_id=", client_id,
+                "grant_type=password&client_id=", clientID,
                 "&client_secret=", secret,
                 "&username=", username,
                 "&password=", password)
@@ -24,12 +23,8 @@ authenticate <- function(username, password) {
   }
 }
 
-# ?POST
-# ?stop_for_status
-# ?content
-
 # Temporary testing/example function that fetches the data of a single course from TMC
-temp_get_course <- function(token) {
+tempGetCourse <- function(token) {
   url <- "https://tmc.mooc.fi/api/v8/courses/199"
 
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
@@ -40,8 +35,8 @@ temp_get_course <- function(token) {
 }
 
 # note: ord_id is a string, not int
-temp_get_all_courses <- function(token, org_id) {
-  url <- paste("https://tmc.mooc.fi/api/v8/core/org/", org_id, "/courses", sep = "")
+tempGetAllCourses <- function(token, orgID) {
+  url <- paste("https://tmc.mooc.fi/api/v8/core/org/", orgID, "/courses", sep = "")
   # url <- "https://tmc.mooc.fi/api/v8/core/org/hy/courses"
   print(url)
 
