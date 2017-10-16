@@ -20,7 +20,6 @@ Depends:
   testthat
 Collate:
   'Authentication.R'
-  'AddinUI.R'
   'AddinCourseTab.R'
   'AddinLoginTab.R'
   'AddinSubmitTab.R'
