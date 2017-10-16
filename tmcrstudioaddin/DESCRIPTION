@@ -18,3 +18,11 @@ Imports:
   tmcRtestrunner
 Depends:
   testthat
+Collate:
+  'AddinServer.R'
+  'AddinUI.R'
+  'Authentication.R'
+  'TestResultsStats.R'
+  'TestResultsStats.R'
+  'TMC_plugin.R'
+  'Zipper.R'
