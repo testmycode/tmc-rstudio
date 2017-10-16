@@ -10,12 +10,13 @@ authenticate <- function(username, password) {
                 "&password=", password)
   # Authenticate
   req <- httr::POST(url = "https://tmc.mooc.fi/oauth/token", body = body)
-
   # if http status is ok return token
   if (status_code(req) == 200){
     # Extract the authentication token
     httr::stop_for_status(x = req, task = "Authenticate with TMC")
     token <- paste("Bearer", httr::content(req)$access_token)
+    credentials <- c(username,token)
+    saveCredentials(credentials)
     return(token)
   }
   else{
@@ -38,7 +39,6 @@ tempGetCourse <- function(token) {
 tempGetAllCourses <- function(token, orgID) {
   url <- paste("https://tmc.mooc.fi/api/v8/core/org/", orgID, "/courses", sep = "")
   # url <- "https://tmc.mooc.fi/api/v8/core/org/hy/courses"
-  print(url)
 
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
@@ -46,3 +46,18 @@ tempGetAllCourses <- function(token, orgID) {
 
   return(courses)
 }
+
+saveCredentials <- function(credentials){
+  write(credentials,".credentials")
+}
+
+getCredentials <- function(){
+  if(!file.exists(".credentials")){
+    return(NULL)
+  }
+  #read credentials from file, catch if file is corrupted
+  credentials<-tryCatch(scan(".credentials",what=character()),error=function(e)NULL)
+  return(credentials)
+}
+
+

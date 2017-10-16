@@ -1,21 +1,24 @@
 .loginTabUI <- function(id, label = "Login tab") {
   # Create a namespace function using the provided id
   ns <- shiny::NS(id)
-
+  credentials <-getCredentials()
   miniTabPanel(
     title = "Log in",
     icon = icon("user-circle-o"),
-
     miniContentPanel(
       h1("Log in"),
-      textInput(inputId = ns("username"), label = "Username", value = ""),
+      textInput(inputId = ns("username"), label = "Username", value =ifelse(!is.null(credentials)&&
+                                                                     length(credentials)>0,credentials[1],"")),
       passwordInput(inputId = ns("password"), label = "Password", value = ""),
       actionButton(inputId = ns("login"), label = "Log in")
     )
   )
+
 }
 
+
 .loginTab <- function(input, output, session) {
+
   observeEvent(input$login, {
     # Authenticate with the values from the username and password input fields
     response <- tmcrstudioaddin::authenticate(input$username, input$password)
@@ -27,7 +30,6 @@
                            url = "")
   })
 }
-
 # Return a title and a message string for login dialog based on authentication results
 .getTitleAndMessage <- function(response) {
   # if Bearer token is retrieved login was successful
