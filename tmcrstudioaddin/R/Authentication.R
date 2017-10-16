@@ -56,8 +56,6 @@ getCredentials <- function(){
     return(NULL)
   }
   #read credentials from file, catch if file is corrupted
-  credentials<-tryCatch(scan(".credentials",what=character()),error=function(e)NULL)
+  credentials<-tryCatch(scan(".credentials", what = character()), error = function(e) NULL)
   return(credentials)
 }
-
-

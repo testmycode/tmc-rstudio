@@ -1,7 +1,7 @@
 .loginTabUI <- function(id, label = "Login tab") {
   # Create a namespace function using the provided id
   ns <- shiny::NS(id)
-  credentials <-getCredentials()
+  credentials <-tmcrstudioaddin::getCredentials()
   miniTabPanel(
     title = "Log in",
     icon = icon("user-circle-o"),
