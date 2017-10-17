@@ -14,6 +14,7 @@ tmcGadget <- function() {
   )
 
   server <- function(input, output) {
+
     # Function for the exit button
     observeEvent(input$exit, {
       return(shiny::stopApp())
