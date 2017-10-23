@@ -1,8 +1,13 @@
-#Exercise_id is the identifier of the exercise. For example, 36463
-download_exercises <- function(token, exercise_id, target, exercise_directory) {
-  #This can be removed later
-
+#Exercise_id is the identifier of the exercise. For example, 36463.
+#Target is the place where zip-file is stored, if it's not deleted.
+download_exercises <- function(token, exercise_id,
+                        zip_target = getwd(),
+                        zip_name = "temp.zip",
+                        exercise_directory, remove_zip = TRUE) {
   base_url <- "https://tmc.mooc.fi/"
+
+  zip_path <- paste(sep = "", zip_target, "/", zip_name)
+
   exercises_url <- paste(sep = "", base_url, "api/v8/core/exercises/",
                         exercise_id, "/", "download")
 
@@ -10,11 +15,13 @@ download_exercises <- function(token, exercise_id, target, exercise_directory) {
 
   exercises_response <- httr::GET(exercises_url,
                               config = url_config,
-                              write_disk(target, overwrite = TRUE))
+                              write_disk(zip_path, overwrite = TRUE))
 
-  unzip(zipfile = target, exdir = exercise_directory)
+  unzip(zipfile = zip_path, exdir = exercise_directory)
 
-  file.remove(target)
+  if (remove_zip) {
+    file.remove(zip_path)
+  }
 
   return(exercises_response)
 }
@@ -23,7 +30,7 @@ download_exercises <- function(token, exercise_id, target, exercise_directory) {
 upload_exercises <- function(token, exercise_id, file_location) {
   base_url <- "https://tmc.mooc.fi/"
   exercises_url <- paste(sep = "", base_url, "api/v8/core/exercises/",
-                         exercise_id, "/submissions")
+                         exercise_id, "/", "submissions")
 
   url_config <- httr::add_headers(Authorization = token)
 
