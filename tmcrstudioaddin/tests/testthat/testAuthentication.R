@@ -14,3 +14,4 @@ test_that("False authentication fails and creates no file", {
   expect_is(authenticate("sddsdaddsdsdadasads", "dsdasasdsdsdasdasdasd"), "list")
   expect_true(!file.exists(".credentials"))
 })
+

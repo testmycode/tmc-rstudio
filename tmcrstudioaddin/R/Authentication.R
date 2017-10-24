@@ -47,6 +47,12 @@ tempGetAllCourses <- function(token, orgID) {
   return(courses)
 }
 
+deleteCredentials <- function(){
+  if(file.exists(".credentials")){
+    file.remove(".credentials")
+  }
+}
+
 saveCredentials <- function(credentials){
   write(credentials,".credentials")
 }

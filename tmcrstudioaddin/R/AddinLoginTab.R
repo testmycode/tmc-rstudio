@@ -6,30 +6,57 @@
     title = "Log in",
     icon = icon("user-circle-o"),
     miniContentPanel(
-      h1("Log in"),
-      textInput(inputId = ns("username"), label = "Username", value =ifelse(!is.null(credentials)&&
-                                                                     length(credentials)>0,credentials[1],"")),
-      passwordInput(inputId = ns("password"), label = "Password", value = ""),
-      actionButton(inputId = ns("login"), label = "Log in")
+      uiOutput(outputId=ns("loginPane"))
     )
   )
 
 }
-
+.loginPane <-function(ns){
+  return(tagList(
+    h1("Log in"),
+    textInput(inputId = ns("username"), label = "Username", value = ""),
+    passwordInput(inputId = ns("password"), label = "Password", value = ""),
+    actionButton(inputId = ns("login"), label = "Log in")
+  ))
+}
+.logoutPane <-function(ns){
+  return(tagList(h1("Log out"),
+                 actionButton(inputId = ns("logout"), label = "Log out")))
+}
 
 .loginTab <- function(input, output, session) {
-
+  ns <- shiny::NS("login")
+  output$loginPane<-renderUI({
+    if(is.null(tmcrstudioaddin::getCredentials())){
+      .loginPane(ns)
+    }
+    else{
+      .logoutPane(ns)
+    }})
   observeEvent(input$login, {
     # Authenticate with the values from the username and password input fields
     response <- tmcrstudioaddin::authenticate(input$username, input$password)
     titleAndMessage <- .getTitleAndMessage(response = response)
-
     # showDialog() needs RStudion version > 1.1.67
     rstudioapi::showDialog(title = titleAndMessage$title,
                            message = titleAndMessage$message,
                            url = "")
+    # If user has saved credentials update view
+    credentials<-tmcrstudioaddin::getCredentials()
+    if(!is.null(credentials)){
+      output$loginPane<-renderUI({
+        .logoutPane(ns)
+      })
+    }
+  })
+  observeEvent(input$logout,{
+    tmcrstudioaddin::deleteCredentials()
+    output$loginPane<-renderUI({
+      .loginPane(ns)
+    })
   })
 }
+
 # Return a title and a message string for login dialog based on authentication results
 .getTitleAndMessage <- function(response) {
   # if Bearer token is retrieved login was successful
