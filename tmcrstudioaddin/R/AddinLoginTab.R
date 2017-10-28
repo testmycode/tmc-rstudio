@@ -16,6 +16,7 @@
     h1("Log in"),
     textInput(inputId = ns("username"), label = "Username", value = ""),
     passwordInput(inputId = ns("password"), label = "Password", value = ""),
+    textInput(inputId = ns("serverAddress"),label="Server address", value=""),
     actionButton(inputId = ns("login"), label = "Log in")
   ))
 }
@@ -35,7 +36,7 @@
     }})
   observeEvent(input$login, {
     # Authenticate with the values from the username and password input fields
-    response <- tmcrstudioaddin::authenticate(input$username, input$password)
+    response <- tmcrstudioaddin::authenticate(input$username, input$password,input$serverAddress)
     titleAndMessage <- .getTitleAndMessage(response = response)
     # showDialog() needs RStudion version > 1.1.67
     rstudioapi::showDialog(title = titleAndMessage$title,
