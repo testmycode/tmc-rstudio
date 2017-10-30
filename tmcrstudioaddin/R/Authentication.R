@@ -5,6 +5,7 @@ authenticate <- function(username, password,serverAddress) {
   if(tryCatch(status_code(response)==200,error = function(e)FALSE)){
     clientID <- httr::content(response)$application_id
     secret <- httr::content(response)$secret
+    saveServerAddress(serverAddress)
     body <- paste(sep = "",
                 "grant_type=password&client_id=", clientID,
                 "&client_secret=", secret,
@@ -44,7 +45,6 @@ fetchClientIdAndSecret <-function(serverAddress){
 # Temporary testing/example function that fetches the data of a single course from TMC
 tempGetCourse <- function(token) {
   url <- "https://tmc.mooc.fi/api/v8/courses/199"
-
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
   course <- httr::content(req)
@@ -69,7 +69,17 @@ deleteCredentials <- function(){
     file.remove(".credentials")
   }
 }
-
+saveServerAddress <- function(serverAddress){
+  write(serverAddress,".server")
+}
+getServerAddress <- function(){
+  if(!file.exists(".server")){
+    return(NULL)
+  }
+  #read credentials from file, catch if file is corrupted
+  server<-tryCatch(scan(".server", what = character()), error = function(e) NULL)
+  return(server)
+}
 saveCredentials <- function(credentials){
   write(credentials,".credentials")
 }
