@@ -12,11 +12,13 @@
 
 }
 .loginPane <-function(ns){
+  serverAddress = tmcrstudioaddin::getServerAddress()
   return(tagList(
     h1("Log in"),
     textInput(inputId = ns("username"), label = "Username", value = ""),
     passwordInput(inputId = ns("password"), label = "Password", value = ""),
-    textInput(inputId = ns("serverAddress"),label="Server address", value=""),
+    textInput(inputId = ns("serverAddress"),label="Server address", value =
+                ifelse(!is.null(serverAddress),serverAddress,"")),
     actionButton(inputId = ns("login"), label = "Log in")
   ))
 }
