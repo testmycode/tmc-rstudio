@@ -1,33 +1,50 @@
 library(httr)
 
-authenticate <- function(username, password) {
-  clientID <- "d56662a9898966d8275edb2e609bf1c52919ca7a4e3797bd663e40833522ab3b"
-  secret <- "86ef820fe2e191c1dfd61ccd21c60c42ddbc4de9adba0743e07917adeeefb554"
-  body <- paste(sep = "",
+authenticate <- function(username, password,serverAddress) {
+  response <- fetchClientIdAndSecret(serverAddress)
+  if(tryCatch(status_code(response)==200,error = function(e)FALSE)){
+    clientID <- httr::content(response)$application_id
+    secret <- httr::content(response)$secret
+    saveServerAddress(serverAddress)
+    body <- paste(sep = "",
                 "grant_type=password&client_id=", clientID,
                 "&client_secret=", secret,
                 "&username=", username,
                 "&password=", password)
-  # Authenticate
-  req <- httr::POST(url = "https://tmc.mooc.fi/oauth/token", body = body)
-  # if http status is ok return token
-  if (status_code(req) == 200){
-    # Extract the authentication token
-    httr::stop_for_status(x = req, task = "Authenticate with TMC")
-    token <- paste("Bearer", httr::content(req)$access_token)
-    credentials <- c(username,token)
-    saveCredentials(credentials)
-    return(token)
+    # Authenticate
+    url = paste(serverAddress,"/oauth/token",sep="")
+    req <- httr::POST(url = url, body = body)
+    # if http status is ok return token
+    if (status_code(req) == 200){
+      # Extract the authentication token
+      httr::stop_for_status(x = req, task = "Authenticate with TMC")
+      token <- paste("Bearer", httr::content(req)$access_token)
+      credentials <- c(username,token,serverAddress)
+      saveCredentials(credentials)
+      return(token)
+      }
+    else{
+      response <-c()
+      response$error <- "Invalid credentials"
+      response$error_description <- "Check your username and/or password"
+      return(response)
+    }
   }
   else{
-    return(httr::content(req))
+    response <-c()
+    response$error <- "Invalid server address"
+    response$error_description <- "Check your server address"
+    return(response)
   }
 }
-
+fetchClientIdAndSecret <-function(serverAddress){
+  url = paste(serverAddress,"/api/v8/application/rstudio_plugin/credentials.json",sep="")
+  req <- tryCatch(httr::GET(url = url),error = function(e) NA)
+  return(req)
+}
 # Temporary testing/example function that fetches the data of a single course from TMC
 tempGetCourse <- function(token) {
   url <- "https://tmc.mooc.fi/api/v8/courses/199"
-
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
   course <- httr::content(req)
@@ -52,7 +69,17 @@ deleteCredentials <- function(){
     file.remove(".credentials")
   }
 }
-
+saveServerAddress <- function(serverAddress){
+  write(serverAddress,".server")
+}
+getServerAddress <- function(){
+  if(!file.exists(".server")){
+    return(NULL)
+  }
+  #read credentials from file, catch if file is corrupted
+  server<-tryCatch(scan(".server", what = character()), error = function(e) NULL)
+  return(server)
+}
 saveCredentials <- function(credentials){
   write(credentials,".credentials")
 }
