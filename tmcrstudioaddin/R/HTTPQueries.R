@@ -27,8 +27,8 @@ download_exercises <- function(token, exercise_id,
 }
 
 # Doesn't work yet! Also should add zipping.
-upload_exercises <- function(token, exercise_id, file_location) {
-  base_url <- "https://tmc.mooc.fi/"
+upload_exercises <- function(token, exercise_id, file_location, server_address) {
+  base_url <- server_address
   exercises_url <- paste(sep = "", base_url, "api/v8/core/exercises/",
                          exercise_id, "/", "submissions")
 
@@ -39,7 +39,7 @@ upload_exercises <- function(token, exercise_id, file_location) {
   exercises_response <- httr::POST(exercises_url,
                                   config = url_config,
                                   encode = "multipart",
-                                  body = submission_file)
+                                  body = list("submission[file]"=submission_file))
 
-  return(exercises_response)
+  return(httr::content(exercises_response))
 }
