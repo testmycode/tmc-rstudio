@@ -26,7 +26,6 @@ download_exercises <- function(token, exercise_id,
   return(exercises_response)
 }
 
-# Doesn't work yet! Also should add zipping.
 upload_exercises <- function(token, exercise_id, file_location, server_address) {
   base_url <- server_address
   exercises_url <- paste(sep = "", base_url, "api/v8/core/exercises/",
