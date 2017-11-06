@@ -19,7 +19,7 @@ authenticate <- function(username, password,serverAddress) {
       # Extract the authentication token
       httr::stop_for_status(x = req, task = "Authenticate with TMC")
       token <- paste("Bearer", httr::content(req)$access_token)
-      credentials <- c(username,token,serverAddress)
+      credentials <- c(username,token)
       saveCredentials(credentials)
       return(token)
       }
@@ -53,14 +53,17 @@ tempGetCourse <- function(token) {
 }
 
 # note: ord_id is a string, not int
-tempGetAllCourses <- function(token, orgID) {
-  url <- paste("https://tmc.mooc.fi/api/v8/core/org/", orgID, "/courses", sep = "")
+getAllCourses <- function(orgID) {
+  serverAddress <- getServerAddress()
+  credentials<-getCredentials()
+  token<-paste(credentials[2],credentials[3])
+  print(serverAddress)
+  url<- paste(serverAddress,"/api/v8/core/org/",orgID,"/courses",sep="")
+  req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   # url <- "https://tmc.mooc.fi/api/v8/core/org/hy/courses"
-
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
   courses <- httr::content(req)
-
   return(courses)
 }
 
