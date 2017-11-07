@@ -8,22 +8,37 @@
     miniContentPanel(
       actionButton(inputId = ns("runTests"), label = "Run tests"),
       actionButton(inputId = ns("submit"), label = "Submit to server"),
-      checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = FALSE),
+      checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
       uiOutput(outputId = ns("testResultsDisplay"))
     )
   )
 }
 
 .submitTab <- function(input, output, session) {
+  reactive <- reactiveValues(submitResults = NULL, testResults = NULL)
+
   # This function is run when the Run tests -button is pressed
-  runTestrunner <- eventReactive(input$runTests, {
-    tmcRtestrunner::run_tests(print = TRUE)
+  runTestrunner <- observeEvent(input$runTests, {
+    reactive$testResults <- tmcRtestrunner::run_tests(print = TRUE)
+    reactive$submitResults <- NULL
+  })
+
+  submitExercise <- observeEvent(input$submit, {
+    json <- list.files(pattern = "getsubmission.json")
+    output <- fromJSON(json, simplifyVector = FALSE)
+    submitRes <- list()
+    submitRes[["tests"]] <- processSubmission(output)
+    submitRes[["exercise_name"]] <- output$exercise_name
+    submitRes[["all_tests_passed"]] <- output$all_tests_passed
+    submitRes[["points"]] <- output$points
+    reactive$submitResults <- submitRes
+    reactive$testResults <- submitRes$tests
   })
 
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
-    # Tests are ran only when the run tests -button is pressed
-    testResults <- runTestrunner()
+    if (is.null(reactive$testResults)) return()
+    testResults = reactive$testResults
     testsPassedPercentage <- .testsPassedPercentage(testResults)
 
     # Reactively displays results depending on whether the
@@ -32,7 +47,7 @@
       testResultOutput <- lapply(1:length(testResults), function(i) {
         testResult <- testResults[[i]]
         .createTestResultElement(name = testResult$name, status = testResult$status,
-                                    index = i, message = testResult$message)
+                                 index = i, message = testResult$message)
       })
     } else {
       testResultOutput <- createSingleResultDisplay(testResults = testResults)
@@ -40,19 +55,45 @@
 
     html <- tags$html(tags$head(
       tags$style(HTML(paste(sep = "",
-        ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
-        .progress { width:", testsPassedPercentage, "; height: 30px; background-color: green; border-radius: 0px; }
-        .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
+                            ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
+                            .progress { width:", testsPassedPercentage, "; height: 30px; background-color: green; border-radius: 0px; }
+                            .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
       tags$body(
         tags$div(class = "progressBar",
                  tags$div(class = "progressText", testsPassedPercentage),
                  tags$div(class = "progress")),
         testResultOutput))
 
+    if (input$submit) {
+      submitResults = reactive$submitResults
+      if (!is.null(submitResults)) {
+        showMessage(submitResults)
+      }
+    }
+
     shiny::tagList(html)
   })
 }
 
+showMessage <- function(submitResults) {
+  message <- getDialogMessage(submitResults)
+  rstudioapi::showDialog(title = "Results",
+                         message = message,
+                         url = "")
+}
+
+getDialogMessage <- function(submitResults) {
+  message <- ""
+  if (submitResults$all_tests_passed) {
+    message <- paste0("<p>All tests passed on the server.<p><b>Points permanently awarded: ",
+                      submitResults$points, "</b><p>View model solution")
+  } else {
+    message <- paste0("<p>Exercise ", submitResults$exercise_name,
+                      " failed partially.<p><b>Points permanently awarded: ", submitResults$points,
+                      "</b><p>Some tests failed on the server.<p>Press OK to see failing tests")
+  }
+  return(message)
+}
 
 # Creates an individual HTML paragraph element for the list displaying test results
 .createTestResultElement <- function(name, status, index = NULL, message = NULL) {

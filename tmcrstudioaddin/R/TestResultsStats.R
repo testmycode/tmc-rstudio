@@ -2,7 +2,6 @@ library(jsonlite)
 
 .testsPassedPercentage <- function(testResults) {
   if (length(testResults) == 0) return("100%")
-
   passed <- 0
   for (testResult in testResults) {
     if (testResult$status == "pass") {
@@ -14,19 +13,16 @@ library(jsonlite)
   return(paste(sep = "", toString(passedPercentage * 100), "%"))
 }
 
-processSubmissionJson <- function(json) {
-  output <- fromJSON(json, simplifyVector = FALSE)
-  exercises <- list()
-
-  for (submission in output$submissions) {
+processSubmission <- function(output) {
+  tests <- list()
+  for (test_case in output$test_cases) {
     result <- list()
-    result[["name"]] <- submission$exercise_name
-    result[["status"]] <- .getStatusFromBoolean(submission$all_tests_passed)
-    result[["message"]] <- ""
-    result[["points"]] <- submission$points
-    exercises[[length(exercises) + 1]]  <- result
+    result[["name"]] <- test_case$name
+    result[["status"]] <- .getStatusFromBoolean(test_case$successful)
+    result[["message"]] <- test_case$message
+    tests[[length(tests) + 1]]  <- result
   }
-  return(exercises)
+  return(tests)
 }
 
 .getStatusFromBoolean <- function(bol) {
