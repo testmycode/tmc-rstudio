@@ -33,6 +33,7 @@
     submitRes[["points"]] <- output$points
     reactive$submitResults <- submitRes
     reactive$testResults <- submitRes$tests
+    showMessage(submitRes)
   })
 
   # Renders a list showing the test results
@@ -63,13 +64,6 @@
                  tags$div(class = "progressText", testsPassedPercentage),
                  tags$div(class = "progress")),
         testResultOutput))
-
-    if (input$submit) {
-      submitResults = reactive$submitResults
-      if (!is.null(submitResults)) {
-        showMessage(submitResults)
-      }
-    }
 
     shiny::tagList(html)
   })
