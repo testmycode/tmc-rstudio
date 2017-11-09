@@ -1,0 +1,2 @@
+[test] [test_gcd_iterative] gcd_ite
+[test] [test_gcd] gcr_rec

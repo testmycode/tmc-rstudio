@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://check.sourceforge.net/xml/check_unittest.xslt"?>
+<testsuites xmlns="http://check.sourceforge.net/ns">
+  <datetime>2017-09-04 10:35:09</datetime>
+  <suite>
+    <title>Test</title>
+    <test result="success">
+      <path>.</path>
+      <fn>test_mathfuncs.c:14</fn>
+      <id>test_gcd</id>
+      <iteration>0</iteration>
+      <duration>0.000010</duration>
+      <description>test_gcd</description>
+      <message>Passed</message>
+    </test>
+    <test result="success">
+      <path>.</path>
+      <fn>test_mathfuncs.c:24</fn>
+      <id>test_gcd_iterative</id>
+      <iteration>0</iteration>
+      <duration>0.000010</duration>
+      <description>test_gcd_iterative</description>
+      <message>Passed</message>
+    </test>
+  </suite>
+  <duration>0.000942</duration>
+</testsuites>
