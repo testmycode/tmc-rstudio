@@ -1,8 +1,7 @@
 #TODO Fix this
 test_that("Exercises are downloaded correctly", {
   token <- authenticate("rtest", "asdasdasd","https://tmc.mooc.fi")
-  download_all_exercises(token = token,
-                     exercise_id = "242")
+  download_all_exercises(token = token, "242")
 
   course_name <- "hy-C-programming-Open"
   user_home <- Sys.getenv("HOME")
