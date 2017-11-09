@@ -1,0 +1,138 @@
+* using log directory ‘/home/local/aleksisv/School_Projects/tmc-rstudio/tmcrstudioaddin.Rcheck’
+* using R version 3.2.3 (2015-12-10)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using options ‘--no-manual --as-cran’
+* checking for file ‘tmcrstudioaddin/DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘tmcrstudioaddin’ version ‘0.3.1’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... WARNING
+Found the following executable files:
+  test_downloads/hy-C-Programming-Open/Week0-0_0_helloworld/test
+  test_downloads/hy-C-Programming-Open/Week1-1_01_CountSum/test
+  test_downloads/hy-C-Programming-Open/Week1-1_02_VariousSums/test
+  test_downloads/hy-C-Programming-Open/Week1-1_03_PrintErrors/test
+  test_downloads/hy-C-Programming-Open/Week1-1_04_CalcAvg/test
+  test_downloads/hy-C-Programming-Open/Week1-1_05_MultiplicationMatrix/test
+  test_downloads/hy-C-Programming-Open/Week1-1_06_CorrectCode/test
+  test_downloads/hy-C-Programming-Open/Week1-1_07_Binary2Decimal/test
+  test_downloads/hy-C-Programming-Open/Week1-1_08_PrintTree/test
+  test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/test
+  test_downloads/hy-C-Programming-Open/Week1-1_10_capsLock/test
+  test_downloads/hy-C-Programming-Open/Week1-1_11_arraySmallest/test
+  test_downloads/hy-C-Programming-Open/Week1-1_12_calculator/test
+  tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/test/test
+  tests/testthat/resources/downloaded_exercises/test
+Source packages should not contain undeclared executable files.
+See section ‘Package structure’ in the ‘Writing R Extensions’ manual.
+* checking for hidden files and directories ... NOTE
+Found the following hidden files and directories:
+  .credentials
+  .lintr
+  .server
+  tests/testthat/.credentials
+  tests/testthat/.server
+These were most likely included in error. See section ‘Package
+structure’ in the ‘Writing R Extensions’ manual.
+* checking for portable file names ... NOTE
+Found the following non-portable file paths:
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_05_MultiplicationMatrix/configurations.xml
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_05_MultiplicationMatrix/tmc_available_points.txt
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_05_MultiplicationMatrix/tmc_test_results.xml
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_07_Binary2Decimal/tmc_available_points.txt
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/Package-Default.bash
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/configurations.xml
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/test_mathfuncs.c
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/tmc_available_points.txt
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/tmc_test_results.xml
+  tmcrstudioaddin/test_downloads/hy-C-Programming-Open/Week1-1_11_arraySmallest/tmc_available_points.txt
+  tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/nbproject/configurations.xml
+  tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/nbproject/project.xml
+  tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/test/test_source.c
+  tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/test/tmc_available_points.txt
+  tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/test/tmc_test_results.xml
+
+Tarballs are only required to store paths of up to 100 bytes and cannot
+store those of more than 256 bytes, with restrictions including to 100
+bytes for the final component.
+See section ‘Package structure’ in the ‘Writing R Extensions’ manual.
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘tmcrstudioaddin’ can be installed ... WARNING
+Found the following significant warnings:
+  Warning: replacing previous import by ‘jsonlite::validate’ when loading ‘tmcrstudioaddin’
+See ‘/home/local/aleksisv/School_Projects/tmc-rstudio/tmcrstudioaddin.Rcheck/00install.out’ for details.
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... WARNING
+Non-standard license specification:
+  What license is it under?
+Standardizable: FALSE
+* checking top-level files ... NOTE
+Non-standard files/directories found at top level:
+  ‘main’ ‘test_downloads’
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+Namespace in Imports field not imported from: ‘rjson’
+  All declared Imports should be used.
+Package in Depends field not imported from: ‘testthat’
+  These packages need to be imported from (in the NAMESPACE file)
+  for when this namespace is loaded but not attached.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+.testsPassedPercentage: warning in round(passed/length(testResults),
+  digit = 2): partial argument match of 'digit' to 'digits'
+.tmc_tar: warning in tar(tarfile = paste(sep = "", target, ".tar"),
+  file = files_to_tar): partial argument match of 'file' to 'files'
+.tmc_zip: warning in zip(zipfile = paste(sep = "", target, ".zip"),
+  file = files_to_zip): partial argument match of 'file' to 'files'
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  ‘authenticate’ ‘createSingleResultDisplay’ ‘create_exercise_metadata’
+  ‘deleteCredentials’ ‘download_all_exercises’ ‘download_exercise’
+  ‘fetchClientIdAndSecret’ ‘from_json_to_download’ ‘getCredentials’
+  ‘getServerAddress’ ‘saveCredentials’ ‘saveServerAddress’
+  ‘tempGetAllCourses’ ‘tempGetCourse’ ‘tmcGadget’
+  ‘upload_current_exercise’ ‘upload_exercise’
+All user-level objects in a package should have documentation entries.
+See chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking line endings in Makefiles ... OK
+* checking for GNU extensions in Makefiles ... WARNING
+Found the following file(s) containing GNU extensions:
+  test_downloads/hy-C-Programming-Open/Week0-0_0_helloworld/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_01_CountSum/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_02_VariousSums/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_03_PrintErrors/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_04_CalcAvg/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_05_MultiplicationMatrix/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_06_CorrectCode/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_07_Binary2Decimal/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_08_PrintTree/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_09_GreatestCommonDivisor/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_10_capsLock/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_11_arraySmallest/Makefile
+  test_downloads/hy-C-Programming-Open/Week1-1_12_calculator/Makefile
+  tests/testthat/resources/downloaded_exercises/Makefile
+  tests/testthat/resources/downloaded_exercises/Week1/1_12_calculator/test/Makefile
+Portable Makefiles do not use GNU extensions such as +=, :=, $(shell),
+$(wildcard), ifeq ... endif. See section ‘Writing portable packages’ in
+the ‘Writing R Extensions’ manual.
+* checking examples ... NONE
+* checking for unstated dependencies in ‘tests’ ...

@@ -1,0 +1,3 @@
+[test] [test_sum_of_characters] sum_char
+[test] [test_sum_of_rounded] sum_round
+[test] [test_sum_of_absolutes] sum_abs
