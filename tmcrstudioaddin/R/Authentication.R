@@ -1,28 +1,39 @@
 library(httr)
 
-authenticate <- function(username, password,serverAddress) {
+authenticate <- function(username, password, serverAddress) {
   response <- fetchClientIdAndSecret(serverAddress)
   if(tryCatch(status_code(response)==200,error = function(e)FALSE)){
+
     clientID <- httr::content(response)$application_id
+
     secret <- httr::content(response)$secret
+
     saveServerAddress(serverAddress)
+
     body <- paste(sep = "",
                 "grant_type=password&client_id=", clientID,
                 "&client_secret=", secret,
                 "&username=", username,
                 "&password=", password)
     # Authenticate
-    url = paste(serverAddress,"/oauth/token",sep="")
+    url = paste(serverAddress, "/", "oauth/token", sep = "")
+
     req <- httr::POST(url = url, body = body)
+
     # if http status is ok return token
     if (status_code(req) == 200){
       # Extract the authentication token
       httr::stop_for_status(x = req, task = "Authenticate with TMC")
+
       token <- paste("Bearer", httr::content(req)$access_token)
-      credentials <- c(username,token)
+
+      credentials <- c(username, token, serverAddress)
+
       saveCredentials(credentials)
+
       return(token)
-      }
+    }
+
     else{
       response <-c()
       response$error <- "Invalid credentials"
@@ -76,11 +87,14 @@ saveServerAddress <- function(serverAddress){
   write(serverAddress,".server")
 }
 getServerAddress <- function(){
+
   if(!file.exists(".server")){
     return(NULL)
   }
   #read credentials from file, catch if file is corrupted
-  server<-tryCatch(scan(".server", what = character()), error = function(e) NULL)
+  server <- tryCatch(scan(".server", what = character(), quiet = TRUE),
+    error = function(e) NULL)
+
   return(server)
 }
 saveCredentials <- function(credentials){
