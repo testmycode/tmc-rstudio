@@ -1,1 +1,0 @@
-[test] [test_binary_to_decimal] binary2decimal

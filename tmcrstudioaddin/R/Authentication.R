@@ -3,9 +3,13 @@ library(httr)
 authenticate <- function(username, password, serverAddress) {
   response <- fetchClientIdAndSecret(serverAddress)
   if(tryCatch(status_code(response)==200,error = function(e)FALSE)){
+
     clientID <- httr::content(response)$application_id
+
     secret <- httr::content(response)$secret
+
     saveServerAddress(serverAddress)
+
     body <- paste(sep = "",
                 "grant_type=password&client_id=", clientID,
                 "&client_secret=", secret,
@@ -13,16 +17,23 @@ authenticate <- function(username, password, serverAddress) {
                 "&password=", password)
     # Authenticate
     url = paste(serverAddress, "/", "oauth/token", sep = "")
+
     req <- httr::POST(url = url, body = body)
+
     # if http status is ok return token
     if (status_code(req) == 200){
       # Extract the authentication token
       httr::stop_for_status(x = req, task = "Authenticate with TMC")
+
       token <- paste("Bearer", httr::content(req)$access_token)
+
       credentials <- c(username, token, serverAddress)
+
       saveCredentials(credentials)
+
       return(token)
-      }
+    }
+
     else{
       response <-c()
       response$error <- "Invalid credentials"

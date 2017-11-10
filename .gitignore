@@ -5,5 +5,8 @@
 .DS_Store
 .credentials
 .server
+tmcrstudioaddin.Rcheck
 tmcRtestrunner.Rcheck/
 tmcrstudioaddin/test_downloads/
+tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/
+
