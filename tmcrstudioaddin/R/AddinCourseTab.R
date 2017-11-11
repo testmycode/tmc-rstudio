@@ -11,7 +11,7 @@
         choices = organizations,
         selected = 1
       ),
-      actionButton(inputId = ns("refresh"),label = "Refresh courses"),
+      actionButton(inputId = ns("refresh"), label = "Refresh courses"),
       selectInput(
         inputId = ns("courseSelect"),
         label = "Select course",
@@ -27,21 +27,21 @@
   output$courseDisplay <- renderText({
     input$courseSelect
   })
-  observeEvent(input$organizationSelect,{
+  observeEvent(input$organizationSelect, {
     organization <- input$organizationSelect
     courses <- tmcrstudioaddin::getAllCourses(organization)
-    updateSelectInput(session, "courseSelect", label = "Select course", choices = courses, selected = 1)
+    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = courses, selected = 1)
   })
-  observeEvent(input$refresh,{
+  observeEvent(input$refresh, {
     organization <- input$organizationSelect
     courses <- tmcrstudioaddin::getAllCourses(organization)
-    if(length(courses) == 0){
+    if (length(courses) == 0){
       credentials <- tmcrstudioaddin::getCredentials()
-      if(is.null(credentials$token)){
-        rstudioapi::showDialog("Not logged in", "Please log in to see courses","")
+      if (is.null(credentials$token)){
+        rstudioapi::showDialog("Not logged in", "Please log in to see courses", "")
       }
     }
-    updateSelectInput(session, "courseSelect", label = "Select course", choices = courses, selected = 1)
-  },ignoreInit = TRUE)
+    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = courses, selected = 1)
+  }, ignoreInit = TRUE)
 
 }

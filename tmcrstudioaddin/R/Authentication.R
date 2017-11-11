@@ -4,17 +4,17 @@ library(jsonlite)
 authenticate <- function(username, password, serverAddress) {
 
   tryCatch({
-    response <- fetchClientIdAndSecret(serverAddress)
+    response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
     status_code <- status_code(response)
     if(status_code == 200){
       clientID <- httr::content(response)$application_id
       secret <- httr::content(response)$secret
-      return(login(clientID, secret, username, password, serverAddress))
+      return(tmcrstudioaddin::login(clientID, secret, username, password, serverAddress))
     }
     else{
       stop()
     }
-  },error = function(e){
+  }, error = function(e){
     response <-list(error_description = "Invalid request", error = "Bad request")
     return(response)
   })
@@ -27,15 +27,15 @@ login <- function(clientID, secret, username, password, serverAddress){
                 "&username=", username,
                 "&password=", password)
   # Authenticate
-  url = paste(serverAddress, "/oauth/token", sep="")
+  url <- paste(serverAddress, "/oauth/token", sep = "")
   req <- httr::POST(url = url, body = body)
   # if http status is ok return token
   if (status_code(req) == 200){
     # Extract the authentication token
     httr::stop_for_status(x = req, task = "Authenticate with TMC")
     token <- paste("Bearer", httr::content(req)$access_token)
-    credentials <- list(username = username,token = token,serverAddress = serverAddress)
-    saveCredentials(credentials)
+    credentials <- list(username = username,token = token, serverAddress = serverAddress)
+    tmcrstudioaddin::saveCredentials(credentials)
     return(token)
   }
   else{
@@ -45,7 +45,7 @@ login <- function(clientID, secret, username, password, serverAddress){
 }
 
 fetchClientIdAndSecret <-function(serverAddress){
-  url <- paste(serverAddress, "/api/v8/application/rstudio_plugin/credentials.json", sep="")
+  url <- paste(serverAddress, "/api/v8/application/rstudio_plugin/credentials.json", sep = "")
   req <- httr::GET(url = url)
   return(req)
 }
@@ -59,7 +59,7 @@ tempGetCourse <- function(token) {
 }
 
 deleteCredentials <- function(){
-  if(file.exists(".credentials")){
+  if (file.exists(".credentials")){
     file.remove(".credentials")
   }
 }
@@ -70,6 +70,6 @@ getCredentials <- function(){
   credentials <- list()
   tryCatch({
     credentials <- readRDS(".credentials.rds")
-  },warning = function(e){})
+  }, warning = function(e){})
   return(credentials)
 }

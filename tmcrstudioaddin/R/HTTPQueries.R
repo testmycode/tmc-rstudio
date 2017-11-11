@@ -44,14 +44,14 @@ upload_exercises <- function(token, exercise_id, file_location) {
   return(exercises_response)
 }
 
-getAllOrganizations <-function(){
-  organizations<-tryCatch({
-    credentials <- getCredentials()
-    url <- paste(credentials$serverAddress, '/api/v8/org.json', sep="")
+getAllOrganizations <- function(){
+  organizations <- tryCatch({
+    credentials <- tmcrstudioaddin::getCredentials()
+    url <- paste(credentials$serverAddress, '/api/v8/org.json', sep = "")
     token <- credentials$token
     req <- httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json")
     jsonlite::fromJSON(httr::content(req, "text"))
-  },error=function(e){
+  }, error = function(e){
     list(slug = list())
   })
   return(organizations$slug)
@@ -59,14 +59,14 @@ getAllOrganizations <-function(){
 
 getAllCourses <- function(organization) {
   courses <- tryCatch({
-    credentials <- getCredentials()
+    credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
-    url <- paste(serverAddress,"/api/v8/core/org/", organization, "/courses", sep = "")
-    req <- stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
+    url <- paste(serverAddress, "/api/v8/core/org/", organization, "/courses", sep = "")
+    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
-  },error=function(e){
-    list(name=list())
+  }, error = function(e){
+    list(name = list())
   })
   return(courses$name)
 }
