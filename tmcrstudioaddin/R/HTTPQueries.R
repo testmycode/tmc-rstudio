@@ -101,7 +101,9 @@ from_json_to_download <- function(exercise_iteration,
                       exercise_directory = exercise_dir)
   }
 
-
+# Zips and uploads a single exercise, which is located in project_path.
+# Returns the response, which contains a field $submission_url containing
+# the details of the submission.
 upload_exercise <- function(token, exercise_id, project_path,
                              server_address, zip_name = "temp",
                              remove_zip = TRUE) {
@@ -122,6 +124,15 @@ upload_exercise <- function(token, exercise_id, project_path,
   if (remove_zip) {
     file.remove(paste(sep = "", zip_name, ".zip"))
   }
+
+  return(httr::content(exercises_response))
+}
+
+# Returns details of the submission in url
+get_submission_json <- function(token, url) {
+  url_config <- httr::add_headers(Authorization = token)
+
+  exercises_response <- httr::GET(url, config = url_config)
 
   return(httr::content(exercises_response))
 }
