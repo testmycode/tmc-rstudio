@@ -1,56 +1,52 @@
 library(httr)
-
+library(jsonlite)
+#authentication first fetches clientId and secret after that logs in with username and password
 authenticate <- function(username, password, serverAddress) {
-  response <- fetchClientIdAndSecret(serverAddress)
-  if(tryCatch(status_code(response)==200,error = function(e)FALSE)){
 
-    clientID <- httr::content(response)$application_id
-
-    secret <- httr::content(response)$secret
-
-    saveServerAddress(serverAddress)
-
-    body <- paste(sep = "",
+  tryCatch({
+    response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
+    status_code <- status_code(response)
+    if(status_code == 200){
+      clientID <- httr::content(response)$application_id
+      secret <- httr::content(response)$secret
+      return(tmcrstudioaddin::login(clientID, secret, username, password, serverAddress))
+    }
+    else{
+      stop()
+    }
+  }, error = function(e){
+    response <-list(error_description = "Invalid request", error = "Bad request")
+    return(response)
+  })
+}
+#actual login function
+login <- function(clientID, secret, username, password, serverAddress){
+  body <- paste(sep = "",
                 "grant_type=password&client_id=", clientID,
                 "&client_secret=", secret,
                 "&username=", username,
                 "&password=", password)
-    # Authenticate
-    url = paste(serverAddress, "/", "oauth/token", sep = "")
-
-    req <- httr::POST(url = url, body = body)
-
-    # if http status is ok return token
-    if (status_code(req) == 200){
-      # Extract the authentication token
-      httr::stop_for_status(x = req, task = "Authenticate with TMC")
-
-      token <- paste("Bearer", httr::content(req)$access_token)
-
-      credentials <- c(username, token, serverAddress)
-
-      saveCredentials(credentials)
-
-      return(token)
-    }
-
-    else{
-      response <-c()
-      response$error <- "Invalid credentials"
-      response$error_description <- "Check your username and/or password"
-      return(response)
-    }
+  # Authenticate
+  url <- paste(serverAddress, "/oauth/token", sep = "")
+  req <- httr::POST(url = url, body = body)
+  # if http status is ok return token
+  if (status_code(req) == 200){
+    # Extract the authentication token
+    httr::stop_for_status(x = req, task = "Authenticate with TMC")
+    token <- paste("Bearer", httr::content(req)$access_token)
+    credentials <- list(username = username,token = token, serverAddress = serverAddress)
+    tmcrstudioaddin::saveCredentials(credentials)
+    return(token)
   }
   else{
-    response <-c()
-    response$error <- "Invalid server address"
-    response$error_description <- "Check your server address"
+    response <- list(error_description = "Check your username and/or password",error = "Invalid credentials")
     return(response)
   }
 }
+
 fetchClientIdAndSecret <-function(serverAddress){
-  url = paste(serverAddress,"/api/v8/application/rstudio_plugin/credentials.json",sep="")
-  req <- tryCatch(httr::GET(url = url),error = function(e) NA)
+  url <- paste(serverAddress, "/api/v8/application/rstudio_plugin/credentials.json", sep = "")
+  req <- httr::GET(url = url)
   return(req)
 }
 # Temporary testing/example function that fetches the data of a single course from TMC
@@ -59,32 +55,13 @@ tempGetCourse <- function(token) {
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
   course <- httr::content(req)
-
   return(course)
 }
 
-# note: ord_id is a string, not int
-getAllCourses <- function(orgID) {
-  serverAddress <- getServerAddress()
-  credentials<-getCredentials()
-  token<-paste(credentials[2],credentials[3])
-  print(serverAddress)
-  url<- paste(serverAddress,"/api/v8/core/org/",orgID,"/courses",sep="")
-  req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
-  # url <- "https://tmc.mooc.fi/api/v8/core/org/hy/courses"
-  req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
-  httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
-  courses <- httr::content(req)
-  return(courses)
-}
-
 deleteCredentials <- function(){
-  if(file.exists(".credentials")){
+  if (file.exists(".credentials")){
     file.remove(".credentials")
   }
-}
-saveServerAddress <- function(serverAddress){
-  write(serverAddress,".server")
 }
 getServerAddress <- function(){
 
@@ -98,14 +75,12 @@ getServerAddress <- function(){
   return(server)
 }
 saveCredentials <- function(credentials){
-  write(credentials,".credentials")
+  saveRDS(credentials, ".credentials.rds")
 }
-
 getCredentials <- function(){
-  if(!file.exists(".credentials")){
-    return(NULL)
-  }
-  #read credentials from file, catch if file is corrupted
-  credentials<-tryCatch(scan(".credentials", what = character()), error = function(e) NULL)
+  credentials <- list()
+  tryCatch({
+    credentials <- readRDS(".credentials.rds")
+  }, warning = function(e){})
   return(credentials)
 }

@@ -134,3 +134,30 @@ upload_current_exercise <- function(token, exercise_id, server_address,
   upload_exercise(token = token, exercise_id = exercise_id, project_path = getwd(),
                    server_address = server_address, zip_name = zip_name, remove_zip = remove_zip)
 }
+
+getAllOrganizations <- function(){
+  organizations <- tryCatch({
+    credentials <- tmcrstudioaddin::getCredentials()
+    url <- paste(credentials$serverAddress, '/api/v8/org.json', sep = "")
+    token <- credentials$token
+    req <- httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json")
+    jsonlite::fromJSON(httr::content(req, "text"))
+  }, error = function(e){
+    list(slug = list())
+  })
+  return(organizations$slug)
+}
+
+getAllCourses <- function(organization) {
+  courses <- tryCatch({
+    credentials <- tmcrstudioaddin::getCredentials()
+    serverAddress <- credentials$serverAddress
+    token <- credentials$token
+    url <- paste(serverAddress, "/api/v8/core/org/", organization, "/courses", sep = "")
+    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
+    jsonlite::fromJSON(httr::content(req, "text"))
+  }, error = function(e){
+    list(name = list())
+  })
+  return(courses$name)
+}
