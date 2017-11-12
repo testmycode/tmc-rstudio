@@ -23,33 +23,52 @@
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
     # Tests are ran only when the run tests -button is pressed
-    testResults <- runTestrunner()
+    runResults <- runTestrunner()
+    testResults <- runResults$test_results
     testsPassedPercentage <- .testsPassedPercentage(testResults)
 
     # Reactively displays results depending on whether the
     # show all results -checkbox is checked or not
-    if (input$showAllResults) {
-      testResultOutput <- lapply(1:length(testResults), function(i) {
-        testResult <- testResults[[i]]
-        .createTestResultElement(name = testResult$name, status = testResult$status,
-                                    index = i, message = testResult$message)
-      })
+    if (runResults$run_status == "success") {
+      if (input$showAllResults) {
+        testResultOutput <- lapply(1:length(testResults), function(i) {
+          testResult <- testResults[[i]]
+          .createTestResultElement(
+            name = testResult$name,
+            status = testResult$status,
+            index = i,
+            message = testResult$message
+          )
+        })
+      } else {
+        testResultOutput <-
+          createSingleResultDisplay(testResults = testResults)
+      }
+
+      html <- tags$html(tags$head(tags$style(HTML(
+        paste(
+          sep = "",
+          ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
+          .progress { width:",
+          testsPassedPercentage,
+          "; height: 30px; background-color: green; border-radius: 0px; }
+          .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}"
+        )
+        ))),
+        tags$body(
+          tags$div(
+            class = "progressBar",
+            tags$div(class = "progressText", testsPassedPercentage),
+            tags$div(class = "progress")
+          ),
+          testResultOutput
+        ))
+
+
+      shiny::tagList(html)
     } else {
-      testResultOutput <- createSingleResultDisplay(testResults = testResults)
+      shiny::tagList(.createRunSourcingFailHtml(runResults))
     }
-
-    html <- tags$html(tags$head(
-      tags$style(HTML(paste(sep = "",
-        ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
-        .progress { width:", testsPassedPercentage, "; height: 30px; background-color: green; border-radius: 0px; }
-        .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
-      tags$body(
-        tags$div(class = "progressBar",
-                 tags$div(class = "progressText", testsPassedPercentage),
-                 tags$div(class = "progress")),
-        testResultOutput))
-
-    shiny::tagList(html)
   })
 }
 
@@ -92,4 +111,17 @@ createSingleResultDisplay <- function(testResults) {
   }
 
   return(.createTestResultElement(name = "All tests", status = "pass"))
+}
+
+# Creates html for runResult with run or sourcing fail
+.createRunSourcingFailHtml <- function(runResults) {
+  if (runResults$run_status == "sourcing_fail") {
+    fail_name = "Sourcing fail"
+  } else {
+    fail_name = "Run fail"
+  }
+  html <- tags$html(tags$p(fail_name,
+                           style = "color: red;font-weight:bold"),
+                    tags$p("TODO: traceback (runner doesnt return traceback yet)"))
+  return(html)
 }
