@@ -63,6 +63,17 @@ deleteCredentials <- function(){
     file.remove(".credentials")
   }
 }
+getServerAddress <- function(){
+
+  if(!file.exists(".server")){
+    return(NULL)
+  }
+  #read credentials from file, catch if file is corrupted
+  server <- tryCatch(scan(".server", what = character(), quiet = TRUE),
+    error = function(e) NULL)
+
+  return(server)
+}
 saveCredentials <- function(credentials){
   saveRDS(credentials, ".credentials.rds")
 }

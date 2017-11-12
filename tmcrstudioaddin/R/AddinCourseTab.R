@@ -5,6 +5,7 @@
     title = "Exercises",
     icon = icon("folder-open"),
     miniContentPanel(
+      actionButton(inputId = ns("refresh"), label = "Refresh courselist"),
       selectInput(
         inputId = ns("organizationSelect"),
         label = "Select organization",
@@ -24,6 +25,15 @@
 }
 
 .courseTab <- function(input, output, session) {
+  observeEvent(input$refresh, {
+    courses<-tmcrstudioaddin::getAllCourses('hy')
+      courseNames <- list()
+      for (course in courses){
+        courseNames<-c(courseNames,course$name)
+      }
+
+    choices <-courseNames
+  })
   output$courseDisplay <- renderText({
     input$courseSelect
   })
