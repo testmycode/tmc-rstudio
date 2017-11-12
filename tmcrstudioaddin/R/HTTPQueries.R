@@ -128,11 +128,16 @@ upload_exercise <- function(token, exercise_id, project_path,
 
 # Zips the current working directory and uploads it to the server
 # TODO:
-# -Dynamic exercise_id and server_address (currently hardcoded)
-upload_current_exercise <- function(token, exercise_id, server_address,
-                                     zip_name = "temp", remove_zip = TRUE) {
-  upload_exercise(token = token, exercise_id = exercise_id, project_path = getwd(),
-                   server_address = server_address, zip_name = zip_name, remove_zip = remove_zip)
+# -Dynamic server_address (currently hardcoded)
+upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE) {
+  json <- base::list.files(pattern = "metadata.json")
+  metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
+  id <- metadata$id[[1]]
+  address <- paste(sep = "", getServerAddress(), "/")
+
+  upload_exercise(token = token, exercise_id = id, project_path = getwd(),
+                   server_address = address, zip_name = zip_name,
+                  remove_zip = remove_zip)
 }
 
 getAllOrganizations <- function(){
