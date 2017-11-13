@@ -24,8 +24,15 @@
   })
 
   submitExercise <- observeEvent(input$submit, {
-    json <- list.files(pattern = "getsubmission.json")
-    output <- fromJSON(json, simplifyVector = FALSE)
+    credentials <- tmcrstudioaddin::getCredentials()
+    token <- credentials$token
+    path <- paste(sep = "", getwd(), "/hello_world")
+    url <- upload_current_exercise(token, project_path = path)
+    output <- get_submission_json(token, url$submission_url)
+    while (output$status == "processing") {
+      Sys.sleep(10)
+      output <- get_submission_json(token, url$submission_url)
+    }
     submitRes <- list()
     submitRes[["tests"]] <- processSubmission(output)
     submitRes[["exercise_name"]] <- output$exercise_name

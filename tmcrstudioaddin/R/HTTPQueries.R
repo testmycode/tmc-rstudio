@@ -140,15 +140,17 @@ get_submission_json <- function(token, url) {
 # Zips the current working directory and uploads it to the server
 # TODO:
 # -Dynamic server_address (currently hardcoded)
-upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE) {
-  json <- base::list.files(pattern = "metadata.json")
+upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE, project_path = path) {
+  json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)
   metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
   id <- metadata$id[[1]]
-  address <- paste(sep = "", getServerAddress(), "/")
+  credentials <- tmcrstudioaddin::getCredentials()
+  address <- paste(sep = "", credentials$serverAddress, "/")
 
-  upload_exercise(token = token, exercise_id = id, project_path = getwd(),
-                   server_address = address, zip_name = zip_name,
-                  remove_zip = remove_zip)
+  response <- upload_exercise(token = token, exercise_id = id,
+                              project_path = project_path, server_address = address,
+                              zip_name = zip_name, remove_zip = remove_zip)
+  return(response)
 }
 
 getAllOrganizations <- function(){

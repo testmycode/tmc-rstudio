@@ -27,9 +27,10 @@
 .courseTab <- function(input, output, session) {
   observeEvent(input$refresh, {
     courses<-tmcrstudioaddin::getAllCourses('hy')
+    print(courses)
       courseNames <- list()
       for (course in courses){
-        courseNames<-c(courseNames,course$name)
+        courseNames<-c(courseNames, course)
       }
 
     choices <-courseNames
