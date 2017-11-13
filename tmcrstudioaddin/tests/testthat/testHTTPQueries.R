@@ -48,7 +48,7 @@ test_that("courses associated with server and organization are fetched from the 
   authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
   courses<-getAllCourses("hy")
   expect_true(length(courses) > 0)
-  for (course in courses){
+  for (course in courses$name){
     expect_true(is.character(course))
   }
 
@@ -62,7 +62,8 @@ test_that("empty courses list is returned if failure", {
   }
   authenticate("rtest", "asdasdasd", "https://tmc.moasdoc.fi")
   courses <- getAllCourses("hy")
-  expect_true(length(courses) == 0)
+  print(courses)
+  expect_true(length(courses$name) == 0)
 
   if (file.exists(".credentials.rds")){
     file.remove(".credentials.rds")

@@ -1,57 +1,78 @@
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
-  organizations <- tmcrstudioaddin::getAllOrganizations()
   miniTabPanel(
     title = "Exercises",
     icon = icon("folder-open"),
     miniContentPanel(
-      actionButton(inputId = ns("refresh"), label = "Refresh courselist"),
+      actionButton(inputId = ns("refreshOrganizations"), label = "Refresh organizations"),
       selectInput(
         inputId = ns("organizationSelect"),
         label = "Select organization",
-        choices = organizations,
+        choices = list(),
         selected = 1
       ),
-      actionButton(inputId = ns("refresh"), label = "Refresh courses"),
+      actionButton(inputId = ns("refreshCourses"), label = "Refresh courses"),
       selectInput(
         inputId = ns("courseSelect"),
         label = "Select course",
         choices = list(),
         selected = 1
       ),
-      actionButton(inputId = ns("download"), label = "Download exercises")
+      actionButton(inputId = ns("download"), label = "Download exercises"),
+      checkboxGroupInput(inputId = ns("exercises"),label="",choices=list())
     )
   )
 }
 
 .courseTab <- function(input, output, session) {
-  observeEvent(input$refresh, {
-    courses<-tmcrstudioaddin::getAllCourses('hy')
-      courseNames <- list()
-      for (course in courses){
-        courseNames<-c(courseNames,course$name)
-      }
+  observeEvent(input$refreshOrganizations, {
+    choices <- tmcrstudioaddin::getAllOrganizations()
+    shiny::updateSelectInput(session, "organizationSelect", label = "Select organization", choices = choices, selected = 1)
+  })
 
-    choices <-courseNames
-  })
-  output$courseDisplay <- renderText({
-    input$courseSelect
-  })
   observeEvent(input$organizationSelect, {
     organization <- input$organizationSelect
     courses <- tmcrstudioaddin::getAllCourses(organization)
-    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = courses, selected = 1)
+    choices <- courses$id
+    names(choices) <- courses$name
+    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
   })
+
+  observeEvent(input$courseSelect, {
+    exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
+    choices <- exercises$id
+    names(choices)<-exercises$name
+    shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
+  }, ignoreInit=TRUE)
+
   observeEvent(input$refresh, {
     organization <- input$organizationSelect
     courses <- tmcrstudioaddin::getAllCourses(organization)
-    if (length(courses) == 0){
+    courses <- tmcrstudioaddin::getAllCourses(organization)
+    choices <- courses$id
+    names(choices) <- courses$name
+    if (length(choices) == 0){
       credentials <- tmcrstudioaddin::getCredentials()
       if (is.null(credentials$token)){
         rstudioapi::showDialog("Not logged in", "Please log in to see courses", "")
       }
     }
-    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = courses, selected = 1)
+    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
   }, ignoreInit = TRUE)
 
+  observeEvent(input$download, {
+    tryCatch({
+      organization <- input$organizationSelect
+      courses <- tmcrstudioaddin::getAllCourses(organization)
+      courseName <- courses$name[courses$id==input$courseSelect]
+      if(!dir.exists(courseName)){
+        dir.create(courseName)
+      }
+      for(exercise in input$exercises){
+        tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"), exercise_directory = courseName)
+      }
+    }, error = function(e){
+      rstudioapi::showDialog("Error","Something went wrong","")
+    })
+  })
 }
