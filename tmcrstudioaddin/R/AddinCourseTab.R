@@ -71,6 +71,7 @@
       for(exercise in input$exercises){
         tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"), exercise_directory = courseName)
       }
+      rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
     }, error = function(e){
       rstudioapi::showDialog("Error","Something went wrong","")
     })

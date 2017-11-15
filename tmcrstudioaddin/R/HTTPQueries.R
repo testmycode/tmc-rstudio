@@ -30,7 +30,7 @@ download_exercise <- function(exercise_id,
 
   exercises_response <- httr::GET(exercises_url,
                               config = url_config,
-                              write_disk(zip_path, overwrite = TRUE))
+                              write_disk(zip_path, overwrite = FALSE))
 
   .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
 
