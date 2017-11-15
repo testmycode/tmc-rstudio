@@ -15,65 +15,87 @@
 }
 
 .submitTab <- function(input, output, session) {
-  reactive <- reactiveValues(submitResults = NULL, testResults = NULL)
+  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, showAll = TRUE)
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    reactive$testResults <- tmcRtestrunner::run_tests(print = TRUE)
+    withProgress(message= 'Running tests', value = 1, {
+      reactive$testResults <- tmcRtestrunner::run_tests(print = TRUE)
+    })
     reactive$submitResults <- NULL
   })
 
   submitExercise <- observeEvent(input$submit, {
+    path <- paste0(getwd(), "/hello_world")
     credentials <- tmcrstudioaddin::getCredentials()
     token <- credentials$token
-    path <- paste(sep = "", getwd(), "/hello_world")
     url <- upload_current_exercise(token, project_path = path)
     output <- get_submission_json(token, url$submission_url)
     while (output$status == "processing") {
       Sys.sleep(10)
       output <- get_submission_json(token, url$submission_url)
     }
-    submitRes <- list()
-    submitRes[["tests"]] <- processSubmission(output)
-    submitRes[["exercise_name"]] <- output$exercise_name
-    submitRes[["all_tests_passed"]] <- output$all_tests_passed
-    submitRes[["points"]] <- output$points
+    submitRes <- processSubmissionJson(output)
     reactive$submitResults <- submitRes
     reactive$testResults <- submitRes$tests
     showMessage(submitRes)
+  })
+
+  showResults <- observeEvent(input$showAllResults, {
+    reactive$showAll = input$showAllResults
   })
 
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
     if (is.null(reactive$testResults)) return()
     testResults = reactive$testResults
-    testsPassedPercentage <- .testsPassedPercentage(testResults)
-
-    # Reactively displays results depending on whether the
-    # show all results -checkbox is checked or not
-    if (input$showAllResults) {
-      testResultOutput <- lapply(1:length(testResults), function(i) {
-        testResult <- testResults[[i]]
-        .createTestResultElement(name = testResult$name, status = testResult$status,
-                                 index = i, message = testResult$message)
-      })
-    } else {
-      testResultOutput <- createSingleResultDisplay(testResults = testResults)
-    }
-
-    html <- tags$html(tags$head(
-      tags$style(HTML(paste(sep = "",
-                            ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
-                            .progress { width:", testsPassedPercentage, "; height: 30px; background-color: green; border-radius: 0px; }
-                            .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
-      tags$body(
-        tags$div(class = "progressBar",
-                 tags$div(class = "progressText", testsPassedPercentage),
-                 tags$div(class = "progress")),
-        testResultOutput))
-
+    showAll <- reactive$showAll
+    html <- formatTestResults(testResults, showAll)
     shiny::tagList(html)
   })
+}
+
+formatTestResults <- function(testResults, showAll) {
+  testResultOutput <- getTestOutput(testResults, showAll)
+  html <- formatResultsWithBar(testResultOutput, .testsPassedPercentage(testResults))
+  return(html)
+}
+
+# Reactively displays results depending on whether the
+# show all results -checkbox is checked or not
+getTestOutput <- function(testResults, showAll) {
+  if (showAll) {
+    testResultOutput <- lapply(1:length(testResults), function(i) {
+      testResult <- testResults[[i]]
+      .createTestResultElement(name = testResult$name, status = testResult$status,
+                               index = i, message = testResult$message)
+    })
+  } else {
+    testResultOutput <- createSingleResultDisplay(testResults = testResults)
+  }
+}
+
+formatResultsWithBar <- function(testResultOutput, testsPassedPercentage) {
+  html <- tags$html(tags$head(
+    tags$style(HTML(paste(sep = "",
+                          ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
+                            .progress { width:", testsPassedPercentage, "; height: 30px; background-color: green; border-radius: 0px; }
+                            .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
+    tags$body(
+      tags$div(class = "progressBar",
+               tags$div(class = "progressText", testsPassedPercentage),
+               tags$div(class = "progress")),
+      testResultOutput))
+  return(html)
+}
+
+processSubmissionJson <- function(output) {
+  submitRes <- list()
+  submitRes[["tests"]] <- processSubmission(output)
+  submitRes[["exercise_name"]] <- output$exercise_name
+  submitRes[["all_tests_passed"]] <- output$all_tests_passed
+  submitRes[["points"]] <- output$points
+  return(submitRes)
 }
 
 showMessage <- function(submitResults) {
