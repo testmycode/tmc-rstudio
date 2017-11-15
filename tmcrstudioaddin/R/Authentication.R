@@ -52,6 +52,7 @@ fetchClientIdAndSecret <-function(serverAddress){
 # Temporary testing/example function that fetches the data of a single course from TMC
 tempGetCourse <- function(token) {
   url <- "https://tmc.mooc.fi/api/v8/courses/199"
+  token <- tmcrstudioaddin::getCredentials()$token
   req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
   httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
   course <- httr::content(req)
