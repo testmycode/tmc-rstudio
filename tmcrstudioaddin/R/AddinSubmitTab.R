@@ -27,14 +27,10 @@
 
   submitExercise <- observeEvent(input$submit, {
     path <- paste0(getwd(), "/hello_world")
-    credentials <- tmcrstudioaddin::getCredentials()
-    token <- credentials$token
-    url <- upload_current_exercise(token, project_path = path)
-    output <- get_submission_json(token, url$submission_url)
-    while (output$status == "processing") {
-      Sys.sleep(10)
-      output <- get_submission_json(token, url$submission_url)
-    }
+    output <- list()
+    withProgress(message= 'Submitting exercise', value = 0, {
+      output <- submitCurrent(path)
+    })
     submitRes <- processSubmissionJson(output)
     reactive$submitResults <- submitRes
     reactive$testResults <- submitRes$tests
@@ -59,6 +55,19 @@ formatTestResults <- function(testResults, showAll) {
   testResultOutput <- getTestOutput(testResults, showAll)
   html <- formatResultsWithBar(testResultOutput, .testsPassedPercentage(testResults))
   return(html)
+}
+
+submitCurrent <- function(path) {
+  credentials <- tmcrstudioaddin::getCredentials()
+  token <- credentials$token
+  url <- upload_current_exercise(token, project_path = path)
+  output <- get_submission_json(token, url$submission_url)
+  while (output$status == "processing") {
+    incProgress(1/3)
+    Sys.sleep(10)
+    output <- get_submission_json(token, url$submission_url)
+  }
+  return(output)
 }
 
 # Reactively displays results depending on whether the
