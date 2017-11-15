@@ -5,7 +5,7 @@
 }
 
 .tmc_unzip <- function(zipfile_name, target_folder) {
-  unzip(zipfile = zipfile_name, exdir = target_folder, junkpaths = TRUE)
+  unzip(zipfile = zipfile_name, exdir = target_folder)
 }
 
 .tmc_tar <- function(folder, target) {

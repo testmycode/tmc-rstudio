@@ -1,5 +1,5 @@
 create_exercise_metadata <- function(exercise_id, exercise_directory) {
-    course_directory_path <- file.path(exercise_directory, "metadata.json",
+    course_directory_path <- file.path(get_actual_project_path(exercise_directory), "metadata.json",
                               fsep = .Platform$file.sep)
     newfile <- file(course_directory_path)
 
@@ -10,6 +10,12 @@ create_exercise_metadata <- function(exercise_id, exercise_directory) {
     cat(export_json, file = newfile, sep = "\n")
     close(newfile)
 }
+
+get_actual_project_path <- function(exercise_directory) {
+  subfolder_path <- paste(sep = "/", exercise_directory, list.files(exercise_directory)[1])
+  project_path <- paste(sep = "/", subfolder_path, list.files(subfolder_path)[1])
+}
+
 
 #Exercise_id is the identifier of the exercise. For example, 36463.
 #Target is the place where zip-file is stored, if it's not deleted.
