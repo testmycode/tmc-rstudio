@@ -26,7 +26,6 @@
     runResults <- runTestrunner()
     testResults <- runResults$test_results
     testsPassedPercentage <- .testsPassedPercentage(testResults)
-
     # Reactively displays results depending on whether the
     # show all results -checkbox is checked or not
     if (runResults$run_status == "success") {
