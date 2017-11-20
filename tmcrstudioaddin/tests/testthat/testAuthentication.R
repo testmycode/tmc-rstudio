@@ -6,7 +6,9 @@ test_that("Authentication gives a token and saves credentials to file", {
   expect_is(token, "character")
   expect_true(file.exists(".credentials.rds"))
 
-  file.remove(".credentials.rds")
+  if (file.exists(".credentials.rds")){
+    file.remove(".credentials.rds")
+  }
 })
 
 test_that("False authentication (wrong username and password) fails and creates no file", {
@@ -16,7 +18,9 @@ test_that("False authentication (wrong username and password) fails and creates 
   expect_is(authenticate("sddsdaddsdsdadasads", "dsdasasdsdsdasdasdasd", "https://tmc.mooc.fi"), "list")
   expect_true(!file.exists(".credentials.rds"))
 
-  file.remove(".credentials.rds")
+  if (file.exists(".credentials.rds")){
+    file.remove(".credentials.rds")
+  }
 })
 
 test_that("False authentication (wrong server address) fails and creates no file", {
@@ -25,4 +29,8 @@ test_that("False authentication (wrong server address) fails and creates no file
   }
   expect_is(authenticate("rtest", "asdasdasd", "https://tmc.mo"), "list")
   expect_true(!file.exists(".credentials"))
+
+  if (file.exists(".credentials.rds")){
+    file.remove(".credentials.rds")
+  }
 })

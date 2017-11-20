@@ -19,23 +19,24 @@ get_actual_project_path <- function(exercise_directory) {
 
 #Exercise_id is the identifier of the exercise. For example, 36463.
 #Target is the place where zip-file is stored, if it's not deleted.
-download_exercise <- function(token, exercise_id,
+download_exercise <- function(exercise_id,
                         zip_target = getwd(),
                         zip_name = "temp.zip",
                         exercise_directory) {
-
-  base_url <- getServerAddress()
+  credentials <- tmcrstudioaddin::getCredentials()
+  token <- credentials$token
+  serverAddress <- credentials$serverAddress
 
   zip_path <- paste(sep = "", zip_target, "/", zip_name)
 
-  exercises_url <- paste(sep = "", base_url, "/", "api/v8/core/exercises/",
+  exercises_url <- paste(sep = "", serverAddress, "/", "api/v8/core/exercises/",
                         exercise_id, "/", "download")
 
   url_config <- httr::add_headers(Authorization = token)
 
   exercises_response <- httr::GET(exercises_url,
                               config = url_config,
-                              write_disk(zip_path, overwrite = TRUE))
+                              write_disk(zip_path, overwrite = FALSE))
 
   .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
 
@@ -103,7 +104,7 @@ from_json_to_download <- function(exercise_iteration,
     exercise_name <- json_exercises[exercise_iteration][[1]]$name
     exercise_dir <- paste(sep = "/", course_directory_path, exercise_name)
 
-    download_exercise(token, exercise_id, zip_target = course_directory_path,
+    download_exercise(exercise_id, zip_target = course_directory_path,
                       exercise_directory = exercise_dir)
   }
 
@@ -182,7 +183,20 @@ getAllCourses <- function(organization) {
     req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e){
-    list(name = list())
+    list(id=list(),name = list())
   })
-  return(courses$name)
+  return(list(id=courses$id,name=courses$name))
+}
+getAllExercises <- function(course){
+  exercises <- tryCatch({
+    credentials <- tmcrstudioaddin::getCredentials()
+    serverAddress <- credentials$serverAddress
+    token <- credentials$token
+    url <- paste(serverAddress, "/api/v8/courses/",course, "/exercises", sep = "")
+    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
+    jsonlite::fromJSON(httr::content(req, "text"))
+
+  }, error = function(e){
+      list()
+  })
 }

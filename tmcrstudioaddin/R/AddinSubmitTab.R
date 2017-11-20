@@ -45,7 +45,12 @@
     if (is.null(reactive$testResults)) return()
     testResults = reactive$testResults
     showAll <- reactive$showAll
-    html <- formatTestResults(testResults, showAll)
+    html <- ""
+    if (runResults$run_status == "success") {
+      html <- formatTestResults(testResults, showAll)
+    } else {
+      html <- .createRunSourcingFailHtml(runResults)
+    }
     shiny::tagList(html)
   })
 }
@@ -164,4 +169,17 @@ createSingleResultDisplay <- function(testResults) {
   }
 
   return(.createTestResultElement(name = "All tests", status = "pass"))
+}
+
+# Creates html for runResult with run or sourcing fail
+.createRunSourcingFailHtml <- function(runResults) {
+  if (runResults$run_status == "sourcing_fail") {
+    fail_name = "Sourcing fail"
+  } else {
+    fail_name = "Run fail"
+  }
+  html <- tags$html(tags$p(fail_name,
+                           style = "color: red;font-weight:bold"),
+                    tags$p("TODO: traceback (runner doesnt return traceback yet)"))
+  return(html)
 }
