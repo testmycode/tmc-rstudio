@@ -45,9 +45,8 @@
     shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
   }, ignoreInit=TRUE)
 
-  observeEvent(input$refresh, {
+  observeEvent(input$refreshCourses, {
     organization <- input$organizationSelect
-    courses <- tmcrstudioaddin::getAllCourses(organization)
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
     names(choices) <- courses$name
