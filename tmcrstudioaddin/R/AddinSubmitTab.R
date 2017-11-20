@@ -15,13 +15,15 @@
 }
 
 .submitTab <- function(input, output, session) {
-  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, showAll = TRUE)
+  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE)
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
     withProgress(message= 'Running tests', value = 1, {
-      reactive$testResults <- tmcRtestrunner::run_tests(print = TRUE)
+      runResults <- tmcRtestrunner::run_tests(print = TRUE)
     })
+    reactive$testResults <- runResults$test_results
+    reactive$runStatus <- runResults$run_status
     reactive$submitResults <- NULL
   })
 
@@ -33,6 +35,7 @@
     submitRes <- processSubmissionJson(output)
     reactive$submitResults <- submitRes
     reactive$testResults <- submitRes$tests
+    reactive$runStatus <- "success"
     showMessage(submitRes)
   })
 
@@ -46,7 +49,7 @@
     testResults = reactive$testResults
     showAll <- reactive$showAll
     html <- ""
-    if (runResults$run_status == "success") {
+    if (reactive$runStatus == "success") {
       html <- formatTestResults(testResults, showAll)
     } else {
       html <- .createRunSourcingFailHtml(runResults)
