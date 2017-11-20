@@ -1,5 +1,5 @@
 create_exercise_metadata <- function(exercise_id, exercise_directory) {
-    course_directory_path <- file.path(exercise_directory, "metadata.json",
+    course_directory_path <- file.path(get_actual_project_path(exercise_directory), "metadata.json",
                               fsep = .Platform$file.sep)
     newfile <- file(course_directory_path)
 
@@ -10,6 +10,12 @@ create_exercise_metadata <- function(exercise_id, exercise_directory) {
     cat(export_json, file = newfile, sep = "\n")
     close(newfile)
 }
+
+get_actual_project_path <- function(exercise_directory) {
+  subfolder_path <- paste(sep = "/", exercise_directory, list.files(exercise_directory)[1])
+  project_path <- paste(sep = "/", subfolder_path, list.files(subfolder_path)[1])
+}
+
 
 #Exercise_id is the identifier of the exercise. For example, 36463.
 #Target is the place where zip-file is stored, if it's not deleted.
@@ -102,7 +108,9 @@ from_json_to_download <- function(exercise_iteration,
                       exercise_directory = exercise_dir)
   }
 
-
+# Zips and uploads a single exercise, which is located in project_path.
+# Returns the response, which contains a field $submission_url containing
+# the details of the submission.
 upload_exercise <- function(token, exercise_id, project_path,
                              server_address, zip_name = "temp",
                              remove_zip = TRUE) {
@@ -127,13 +135,30 @@ upload_exercise <- function(token, exercise_id, project_path,
   return(httr::content(exercises_response))
 }
 
+# Returns details of the submission in url
+get_submission_json <- function(token, url) {
+  url_config <- httr::add_headers(Authorization = token)
+
+  exercises_response <- httr::GET(url, config = url_config)
+
+  return(httr::content(exercises_response))
+}
+
 # Zips the current working directory and uploads it to the server
-# TODO:
-# -Dynamic exercise_id and server_address (currently hardcoded)
-upload_current_exercise <- function(token, exercise_id, server_address,
-                                     zip_name = "temp", remove_zip = TRUE) {
-  upload_exercise(token = token, exercise_id = exercise_id, project_path = getwd(),
-                   server_address = server_address, zip_name = zip_name, remove_zip = remove_zip)
+# Uses the path of the currently active R-project by default
+# For testing purposes, you can provide some other file path
+upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE,
+                                    project_path = rstudioapi::getActiveProject()) {
+  json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)
+  metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
+  id <- metadata$id[[1]]
+  credentials <- tmcrstudioaddin::getCredentials()
+  address <- paste(sep = "", credentials$serverAddress, "/")
+
+  response <- upload_exercise(token = token, exercise_id = id,
+                              project_path = project_path, server_address = address,
+                              zip_name = zip_name, remove_zip = remove_zip)
+  return(response)
 }
 
 getAllOrganizations <- function(){
