@@ -26,10 +26,9 @@
   })
 
   submitExercise <- observeEvent(input$submit, {
-    path <- paste0(getwd(), "/hello_world")
     output <- list()
     withProgress(message= 'Submitting exercise', value = 0, {
-      output <- submitCurrent(path)
+      output <- submitCurrent()
     })
     submitRes <- processSubmissionJson(output)
     reactive$submitResults <- submitRes
@@ -57,10 +56,10 @@ formatTestResults <- function(testResults, showAll) {
   return(html)
 }
 
-submitCurrent <- function(path) {
+submitCurrent <- function() {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  url <- upload_current_exercise(token, project_path = path)
+  url <- upload_current_exercise(token)
   output <- get_submission_json(token, url$submission_url)
   while (output$status == "processing") {
     incProgress(1/3)

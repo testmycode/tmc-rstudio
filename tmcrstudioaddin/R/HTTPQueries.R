@@ -145,7 +145,7 @@ get_submission_json <- function(token, url) {
 
 # Zips the current working directory and uploads it to the server
 # Uses the path of the currently active R-project by default
-# For testing purposes, you can provide an another file path
+# For testing purposes, you can provide some other file path
 upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE,
                                     project_path = rstudioapi::getActiveProject()) {
   json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)

@@ -1,5 +1,3 @@
-library(jsonlite)
-
 .testsPassedPercentage <- function(testResults) {
   if (length(testResults) == 0) return("100%")
   passed <- 0
