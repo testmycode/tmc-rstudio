@@ -39,15 +39,19 @@
   })
 
   observeEvent(input$courseSelect, {
-    exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
+    shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
+    withProgress(message = "Fetching exercises", {
+      exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
+    })
     choices <- exercises$id
     names(choices)<-exercises$name
-    shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
+    if(length(choices)>0){
+      shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
+    }
   }, ignoreInit=TRUE)
 
-  observeEvent(input$refresh, {
+  observeEvent(input$refreshCourses, {
     organization <- input$organizationSelect
-    courses <- tmcrstudioaddin::getAllCourses(organization)
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
     names(choices) <- courses$name
@@ -68,9 +72,12 @@
       if(!dir.exists(courseName)){
         dir.create(courseName)
       }
-      for(exercise in input$exercises){
-        tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"), exercise_directory = courseName)
-      }
+      withProgress(message="Downloading exercises",{
+        for(exercise in input$exercises){
+          incProgress(1/length(input$exercises))
+          tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"), exercise_directory = courseName)
+        }
+      })
       rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
     }, error = function(e){
       rstudioapi::showDialog("Error","Something went wrong","")

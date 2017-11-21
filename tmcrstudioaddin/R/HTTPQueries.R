@@ -26,10 +26,11 @@ download_exercise <- function(exercise_id,
   exercises_url <- paste(sep = "", serverAddress, "/", "api/v8/core/exercises/",
                         exercise_id, "/", "download")
 
-  url_config <- httr::add_headers(Authorization = token)
+
 
   exercises_response <- httr::GET(exercises_url,
-                              config = url_config,
+                              httr::add_headers(Authorization = token),
+                              config = timeout(30),
                               write_disk(zip_path, overwrite = FALSE))
 
   .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
@@ -141,7 +142,7 @@ getAllOrganizations <- function(){
     credentials <- tmcrstudioaddin::getCredentials()
     url <- paste(credentials$serverAddress, '/api/v8/org.json', sep = "")
     token <- credentials$token
-    req <- httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json")
+    req <-  httr::stop_for_status(httr::GET(url = url,httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e){
     list(slug = list())
@@ -155,7 +156,7 @@ getAllCourses <- function(organization) {
     serverAddress <- credentials$serverAddress
     token <- credentials$token
     url <- paste(serverAddress, "/api/v8/core/org/", organization, "/courses", sep = "")
-    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
+    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json",timeout(30)))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e){
     list(id=list(),name = list())
@@ -168,7 +169,7 @@ getAllExercises <- function(course){
     serverAddress <- credentials$serverAddress
     token <- credentials$token
     url <- paste(serverAddress, "/api/v8/courses/",course, "/exercises", sep = "")
-    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json"))
+    req <- httr::stop_for_status(httr::GET(url = url,httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
 
   }, error = function(e){

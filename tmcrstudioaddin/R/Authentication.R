@@ -15,7 +15,7 @@ authenticate <- function(username, password, serverAddress) {
       stop()
     }
   }, error = function(e){
-    response <-list(error_description = "Invalid request", error = "Bad request")
+    response <-list(error = "Bad request", error_description = "Invalid request")
     return(response)
   })
 }
@@ -28,42 +28,36 @@ login <- function(clientID, secret, username, password, serverAddress){
                 "&password=", password)
   # Authenticate
   url <- paste(serverAddress, "/oauth/token", sep = "")
-  req <- httr::POST(url = url, body = body)
+  req <- httr::POST(url = url, body = body, config = timeout(30))
   # if http status is ok return token
   if (status_code(req) == 200){
-    # Extract the authentication token
-    httr::stop_for_status(x = req, task = "Authenticate with TMC")
     token <- paste("Bearer", httr::content(req)$access_token)
     credentials <- list(username = username,token = token, serverAddress = serverAddress)
     tmcrstudioaddin::saveCredentials(credentials)
     return(token)
   }
+  else if(status_code(req) == 401){
+    response <- list(error = "Invalid credentials", error_description = "Check your username and/or password")
+  }
   else{
-    response <- list(error_description = "Check your username and/or password",error = "Invalid credentials")
+    response <- list(error = "Error", error_description = "Something went wrong. Try again later")
     return(response)
   }
 }
 
 fetchClientIdAndSecret <-function(serverAddress){
   url <- paste(serverAddress, "/api/v8/application/rstudio_plugin/credentials.json", sep = "")
-  req <- httr::GET(url = url)
+  req <- httr::GET(url = url, config = timeout(30))
   return(req)
 }
-# Temporary testing/example function that fetches the data of a single course from TMC
-tempGetCourse <- function(token) {
-  url <- "https://tmc.mooc.fi/api/v8/courses/199"
-  token <- tmcrstudioaddin::getCredentials()$token
-  req <- httr::GET(url = url, config = httr::add_headers(Authorization = token))
-  httr::stop_for_status(x = req, task = "Fetching data from the TMC API")
-  course <- httr::content(req)
-  return(course)
-}
+
 
 deleteCredentials <- function(){
   if (file.exists(".credentials")){
     file.remove(".credentials")
   }
 }
+
 getServerAddress <- function(){
 
   if(!file.exists(".server")){
