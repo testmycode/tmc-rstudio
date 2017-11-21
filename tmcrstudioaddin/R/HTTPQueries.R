@@ -1,5 +1,6 @@
-create_exercise_metadata <- function(exercise_id, exercise_directory) {
-    course_directory_path <- file.path(get_actual_project_path(exercise_directory), "metadata.json",
+create_exercise_metadata <- function(exercise_id, exercise_directory, exercise_name) {
+    dir <- paste0(exercise_directory, "/", gsub("-", "/", exercise_name))
+    course_directory_path <- file.path(dir, "metadata.json",
                               fsep = .Platform$file.sep)
     newfile <- file(course_directory_path)
 
@@ -11,10 +12,7 @@ create_exercise_metadata <- function(exercise_id, exercise_directory) {
     close(newfile)
 }
 
-get_actual_project_path <- function(exercise_directory) {
-  subfolder_path <- paste(sep = "/", exercise_directory, list.files(exercise_directory)[1])
-  project_path <- paste(sep = "/", subfolder_path, list.files(subfolder_path)[1])
-}
+
 
 
 #Exercise_id is the identifier of the exercise. For example, 36463.
@@ -22,7 +20,8 @@ get_actual_project_path <- function(exercise_directory) {
 download_exercise <- function(exercise_id,
                         zip_target = getwd(),
                         zip_name = "temp.zip",
-                        exercise_directory) {
+                        exercise_directory,
+                        exercise_name) {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   serverAddress <- credentials$serverAddress
@@ -42,7 +41,7 @@ download_exercise <- function(exercise_id,
 
   file.remove(zip_path)
 
-  create_exercise_metadata(exercise_id, exercise_directory)
+  create_exercise_metadata(exercise_id, exercise_directory, exercise_name)
 
 
   return(exercises_response)
@@ -105,7 +104,7 @@ from_json_to_download <- function(exercise_iteration,
     exercise_dir <- paste(sep = "/", course_directory_path, exercise_name)
 
     download_exercise(exercise_id, zip_target = course_directory_path,
-                      exercise_directory = exercise_dir)
+                      exercise_directory = exercise_dir, exercise_name = exercise_name)
   }
 
 # Zips and uploads a single exercise, which is located in project_path.
