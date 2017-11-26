@@ -16,7 +16,8 @@ Imports:
   rjson,
   httr,
   tmcRtestrunner,
-  jsonlite
+  jsonlite,
+  shinyjs
 Depends:
   testthat,
   httptest
