@@ -41,13 +41,19 @@
   exercise_map <<- list()
 
   observeEvent(input$courseSelect, {
-    exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
+    shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
+    withProgress(message = "Fetching exercises", {
+      exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
+    })
     choices <- exercises$id
     names(choices)<-exercises$name
-    exercise_map <<- list()
     exercise_map <<- exercises$id
     names(exercise_map) <<- exercises$name
-    shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
+
+    if(length(choices)>0){
+
+      shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
+    }
   }, ignoreInit=TRUE)
 
   observeEvent(input$refreshCourses, {
@@ -66,16 +72,24 @@
 
   observeEvent(input$download, {
     tryCatch({
-      organization <- input$organizationSelect
-      courses <- tmcrstudioaddin::getAllCourses(organization)
-      courseName <- courses$name[courses$id==input$courseSelect]
-      if(!dir.exists(courseName)){
-        dir.create(courseName)
-      }
-      for(exercise in input$exercises){
-        name <- returnItem(exercise, exercise_map)
-        tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"), exercise_directory = courseName, exercise_name = name)
-      }
+      withProgress(message="Downloading exercises",{
+
+        organization <- input$organizationSelect
+        courses <- tmcrstudioaddin::getAllCourses(organization)
+        courseName <- courses$name[courses$id==input$courseSelect]
+
+        if(!dir.exists(courseName)){
+          dir.create(courseName)
+        }
+
+        for(exercise in input$exercises){
+          name <- returnItem(exercise, exercise_map)
+          tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"),
+                                             exercise_directory = courseName,
+                                             exercise_name = name)
+          incProgress(1/length(input$exercises))
+        }
+      })
       rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
     }, error = function(e){
       rstudioapi::showDialog("Error","Something went wrong","")
