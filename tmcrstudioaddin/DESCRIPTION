@@ -18,7 +18,8 @@ Imports:
   tmcRtestrunner,
   jsonlite
 Depends:
-  testthat
+  testthat,
+  httptest
 Collate:
   'Authentication.R'
   'AddinCourseTab.R'

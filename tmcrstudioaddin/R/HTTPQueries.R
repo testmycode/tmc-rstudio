@@ -4,16 +4,13 @@ create_exercise_metadata <- function(exercise_id, exercise_directory, exercise_n
                               fsep = .Platform$file.sep)
     newfile <- file(course_directory_path)
 
-    export_json <- toJSON(list(id = exercise_id,
+    export_json <- jsonlite::toJSON(list(id = exercise_id,
                     name = basename(exercise_directory)),
                     pretty = TRUE)
 
     cat(export_json, file = newfile, sep = "\n")
     close(newfile)
 }
-
-
-
 
 #Exercise_id is the identifier of the exercise. For example, 36463.
 #Target is the place where zip-file is stored, if it's not deleted.
@@ -34,9 +31,14 @@ download_exercise <- function(exercise_id,
 
 
   exercises_response <- httr::GET(exercises_url,
+<<<<<<< HEAD
                               httr::add_headers(Authorization = token),
                               config = timeout(30),
                               write_disk(zip_path, overwrite = FALSE))
+=======
+                              config = url_config,
+                              httr::write_disk(zip_path, overwrite = TRUE))
+>>>>>>> master
 
   .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
 
@@ -132,7 +134,7 @@ upload_exercise <- function(token, exercise_id, project_path,
     file.remove(paste(sep = "", zip_name, ".zip"))
   }
 
-  return(httr::content(exercises_response))
+  return(exercises_response)
 }
 
 # Returns details of the submission in url
@@ -141,7 +143,7 @@ get_submission_json <- function(token, url) {
 
   exercises_response <- httr::GET(url, config = url_config)
 
-  return(httr::content(exercises_response))
+  return(exercises_response)
 }
 
 # Zips the current working directory and uploads it to the server
@@ -187,6 +189,7 @@ getAllCourses <- function(organization) {
   })
   return(list(id=courses$id,name=courses$name))
 }
+
 getAllExercises <- function(course){
   exercises <- tryCatch({
     credentials <- tmcrstudioaddin::getCredentials()
