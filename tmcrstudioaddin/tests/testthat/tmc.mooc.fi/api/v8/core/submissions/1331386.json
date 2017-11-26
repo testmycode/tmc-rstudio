@@ -1,0 +1,33 @@
+{
+    "api_version": 7,
+    "all_tests_passed": true,
+    "user_id": 17447,
+    "login": "rtest",
+    "course": "hy-C-Programming-Open",
+    "exercise_name": "Week0-0_0_helloworld",
+    "status": "ok",
+    "points": [
+        "hello"
+    ],
+    "validations": null,
+    "valgrind": "",
+    "solution_url": "https://tmc.mooc.fi/exercises/36451/solution",
+    "submitted_at": "2017-11-12T18:48:46.003+02:00",
+    "processing_time": 6,
+    "reviewed": false,
+    "requests_review": false,
+    "paste_url": null,
+    "message_for_paste": null,
+    "missing_review_points": [],
+    "test_cases": [
+        {
+            "name": "hello-world test_hello",
+            "successful": true,
+            "message": "Passed",
+            "exception": null,
+            "detailed_message": null
+        }
+    ],
+    "feedback_questions": [],
+    "feedback_answer_url": "https://tmc.mooc.fi/submissions/1331386/feedback_answers.json"
+}

@@ -16,6 +16,7 @@ authenticate <- function(username, password, serverAddress) {
     }
   }, error = function(e){
     response <-list(error_description = "Invalid request", error = "Bad request")
+
     return(response)
   })
 }
@@ -29,6 +30,7 @@ login <- function(clientID, secret, username, password, serverAddress){
   # Authenticate
   url <- paste(serverAddress, "/oauth/token", sep = "")
   req <- httr::POST(url = url, body = body)
+
   # if http status is ok return token
   if (status_code(req) == 200){
     # Extract the authentication token
@@ -36,6 +38,7 @@ login <- function(clientID, secret, username, password, serverAddress){
     token <- paste("Bearer", httr::content(req)$access_token)
     credentials <- list(username = username,token = token, serverAddress = serverAddress)
     tmcrstudioaddin::saveCredentials(credentials)
+
     return(token)
   }
   else{
