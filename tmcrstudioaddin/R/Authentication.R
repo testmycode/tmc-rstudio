@@ -6,21 +6,19 @@ authenticate <- function(username, password, serverAddress) {
   tryCatch({
     response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
     status_code <- status_code(response)
-    if(status_code == 200){
+    if (status_code == 200){
       clientID <- httr::content(response)$application_id
       secret <- httr::content(response)$secret
-      return(tmcrstudioaddin::login(clientID, secret, username, password, serverAddress))
-    }
-    else{
-      stop()
-    }
-  }, error = function(e){
-<<<<<<< HEAD
-    response <-list(error = "Bad request", error_description = "Invalid request")
-=======
-    response <-list(error_description = "Invalid request", error = "Bad request")
+      return(tmcrstudioaddin::login(clientID,
+          secret, username, password, serverAddress))
+    } else{
+        stop()
+      }
+    },
+    error = function(e){
+    response <- list(error = "Bad request",
+        error_description = "Invalid request")
 
->>>>>>> master
     return(response)
   })
 }
@@ -33,12 +31,7 @@ login <- function(clientID, secret, username, password, serverAddress){
                 "&password=", password)
   # Authenticate
   url <- paste(serverAddress, "/oauth/token", sep = "")
-<<<<<<< HEAD
   req <- httr::POST(url = url, body = body, config = timeout(30))
-=======
-  req <- httr::POST(url = url, body = body)
-
->>>>>>> master
   # if http status is ok return token
   if (status_code(req) == 200){
     token <- paste("Bearer", httr::content(req)$access_token)

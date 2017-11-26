@@ -47,7 +47,6 @@
     })
     choices <- exercises$id
     names(choices)<-exercises$name
-    exercise_map <<- list()
     exercise_map <<- exercises$id
     names(exercise_map) <<- exercises$name
 

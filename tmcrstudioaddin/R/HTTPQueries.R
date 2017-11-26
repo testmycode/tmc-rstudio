@@ -31,14 +31,9 @@ download_exercise <- function(exercise_id,
 
 
   exercises_response <- httr::GET(exercises_url,
-<<<<<<< HEAD
-                              httr::add_headers(Authorization = token),
+                               httr::add_headers(Authorization = token),
                               config = timeout(30),
                               write_disk(zip_path, overwrite = FALSE))
-=======
-                              config = url_config,
-                              httr::write_disk(zip_path, overwrite = TRUE))
->>>>>>> master
 
   .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
 
