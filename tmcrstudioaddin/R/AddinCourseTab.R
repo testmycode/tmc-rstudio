@@ -78,14 +78,21 @@
         courses <- tmcrstudioaddin::getAllCourses(organization)
         courseName <- courses$name[courses$id==input$courseSelect]
 
-        if(!dir.exists(courseName)){
-          dir.create(courseName)
+        user_home <- Sys.getenv("HOME")
+        r_home <- file.path(user_home, "tmcr-projects")
+
+        course_directory_path <- file.path(r_home, courseName,
+          fsep = .Platform$file.sep)
+
+
+        if(!dir.exists(course_directory_path)){
+          dir.create(course_directory_path)
         }
 
         for(exercise in input$exercises){
           name <- returnItem(exercise, exercise_map)
           tmcrstudioaddin::download_exercise(exercise,zip_name=paste(exercise,".zip"),
-                                             exercise_directory = courseName,
+                                             exercise_directory = course_directory_path,
                                              exercise_name = name)
           incProgress(1/length(input$exercises))
         }
