@@ -1,11 +1,16 @@
-.submitTabUI <- function(id, label = "Submit tab") {
-  ns <- shiny::NS(id)
 
+.submitTabUI <- function(id, label = "Submit tab") {
+  #init selected exercise:
+  selectedExercise <<- exerciseFromWd()
+
+  ns <- shiny::NS(id)
   miniTabPanel(
     title = "Test & Submit",
     icon = icon("check"),
 
     miniContentPanel(
+      selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercises(),
+                  selected = selectedExercise),
       actionButton(inputId = ns("runTests"), label = "Run tests"),
       actionButton(inputId = ns("submit"), label = "Submit to server"),
       checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
@@ -20,8 +25,10 @@
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
     withProgress(message= 'Running tests', value = 1, {
-      runResults <- tmcRtestrunner::run_tests(print = TRUE)
+      runResults <- tmcRtestrunner::run_tests(project_path = getExercisePath(selectedExercise),
+                                              print = TRUE)
     })
+    reactive$runResults <- runResults
     reactive$testResults <- runResults$test_results
     reactive$runStatus <- runResults$run_status
     reactive$submitResults <- NULL
@@ -43,10 +50,17 @@
     reactive$showAll = input$showAllResults
   })
 
+  selectedExercises <- observeEvent(input$selectExercise, {
+    selectedExercise <<- input$selectExercise
+  })
+
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
-    if (is.null(reactive$testResults)) return()
+    if (is.null(reactive$testResults)) {
+      return()
+    }
     testResults = reactive$testResults
+    runResults <- reactive$runResults
     showAll <- reactive$showAll
     html <- ""
     if (reactive$runStatus == "success") {
@@ -176,7 +190,7 @@ createSingleResultDisplay <- function(testResults) {
 
 # Creates html for runResult with run or sourcing fail
 .createRunSourcingFailHtml <- function(runResults) {
-  if (runResults$run_status == "sourcing_fail") {
+  if (runResults$run_status == "sourcing_failed") {
     fail_name = "Sourcing fail"
   } else {
     fail_name = "Run fail"

@@ -24,6 +24,7 @@ Collate:
   'AddinCourseTab.R'
   'AddinLoginTab.R'
   'AddinSubmitTab.R'
+  'Exercises.R'
   'HTTPQueries.R'
   'TestResultsStats.R'
   'TMC_plugin.R'
