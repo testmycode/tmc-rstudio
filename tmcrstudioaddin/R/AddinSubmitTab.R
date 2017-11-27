@@ -64,33 +64,6 @@ formatTestResults <- function(testResults, showAll) {
   return(html)
 }
 
-submitCurrent <- function() {
-  credentials <- tmcrstudioaddin::getCredentials()
-  token <- credentials$token
-  url <- httr::content(upload_current_exercise(token))
-  output <- httr::content(get_submission_json(token, url$submission_url))
-  while (output$status == "processing") {
-    incProgress(1/3)
-    Sys.sleep(10)
-    output <- get_submission_json(token, url$submission_url)
-  }
-  return(output)
-}
-
-# Reactively displays results depending on whether the
-# show all results -checkbox is checked or not
-getTestOutput <- function(testResults, showAll) {
-  if (showAll) {
-    testResultOutput <- lapply(1:length(testResults), function(i) {
-      testResult <- testResults[[i]]
-      .createTestResultElement(name = testResult$name, status = testResult$status,
-                               index = i, message = testResult$message)
-    })
-  } else {
-    testResultOutput <- createSingleResultDisplay(testResults = testResults)
-  }
-}
-
 formatResultsWithBar <- function(testResultOutput, testsPassedPercentage) {
   html <- tags$html(tags$head(
     tags$style(HTML(paste(sep = "",
@@ -103,22 +76,6 @@ formatResultsWithBar <- function(testResultOutput, testsPassedPercentage) {
                tags$div(class = "progress")),
       testResultOutput))
   return(html)
-}
-
-processSubmissionJson <- function(output) {
-  submitRes <- list()
-  submitRes[["tests"]] <- processSubmission(output)
-  submitRes[["exercise_name"]] <- output$exercise_name
-  submitRes[["all_tests_passed"]] <- output$all_tests_passed
-  submitRes[["points"]] <- output$points
-  return(submitRes)
-}
-
-showMessage <- function(submitResults) {
-  message <- getDialogMessage(submitResults)
-  rstudioapi::showDialog(title = "Results",
-                         message = message,
-                         url = "")
 }
 
 getDialogMessage <- function(submitResults) {
