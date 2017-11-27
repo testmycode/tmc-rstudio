@@ -80,7 +80,7 @@ getDialogMessage <- function(submitResults) {
   message[["title"]] <- "Results"
   if (is.null(submitResults)) {
     message[["title"]] <- "Error"
-    message[["text"]] <- "Could not submit exercise.<p>Current project is not a tmc project."
+    message[["text"]] <- "Could not submit exercise."
   } else if (submitResults$all_tests_passed) {
     message[["text"]] <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
                       submitResults$points, "</b><p>View model solution")

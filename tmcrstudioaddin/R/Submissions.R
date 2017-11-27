@@ -1,8 +1,6 @@
 submitExercise <- function() {
   output <- list()
-  withProgress(message= 'Submitting exercise', value = 0, {
-    output <- submitCurrent()
-  })
+  output <- submitCurrent()
   submitRes <- NULL
   if(!is.null(output)) {
     submitRes <- processSubmissionJson(output)
@@ -16,17 +14,30 @@ submitCurrent <- function() {
   token <- credentials$token
   response <- upload_current_exercise(token)
   if(!is.null(response)) {
+    output <- getExerciseFromServer(response, token)
+    return(output)
+  } else {
+    return(NULL)
+  }
+}
+
+getExerciseFromServer <- function(response, token) {
+  output <- tryCatch({
     url <- httr::content(response)
-    output <- httr::content(get_submission_json(token, url$submission_url))
+    httr::content(get_submission_json(token, url$submission_url))
+    }, error = function(e) {
+      if(!is.null(url$error)) print(url$error)
+      print(e)
+      NULL
+    })
+  if (!is.null(output)) {
     while (output$status == "processing") {
       incProgress(1/3)
       Sys.sleep(10)
       output <- httr::content(get_submission_json(token, url$submission_url))
     }
-    return(output)
-  } else {
-    return(NULL)
   }
+  return(output)
 }
 
 processSubmissionJson <- function(output) {
@@ -63,4 +74,14 @@ showMessage <- function(submitResults) {
   rstudioapi::showDialog(title = message[["title"]],
                          message = message[["text"]],
                          url = "")
+}
+
+signalQueryError <- function(error) {
+  queryError <- simpleError("")
+  class(queryError) <- c("queryError", class(queryError))
+  signalCondition(queryError)
+}
+
+queryErrorOutput <- function(error) {
+  return(NULL)
 }
