@@ -11,6 +11,7 @@
     miniContentPanel(
       selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercises(),
                   selected = selectedExercise),
+      actionButton(inputId = ns("source"), label = "Source"),
       actionButton(inputId = ns("runTests"), label = "Run tests"),
       actionButton(inputId = ns("submit"), label = "Submit to server"),
       checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
@@ -52,6 +53,10 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     selectedExercise <<- input$selectExercise
+  })
+
+  sourceExercise <- observeEvent(input$source, {
+    sourceExercise(selectedExercise)
   })
 
   # Renders a list showing the test results

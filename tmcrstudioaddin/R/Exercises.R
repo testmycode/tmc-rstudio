@@ -22,3 +22,12 @@ downloadedExercises <- function() {
 getExercisePath <- function(exercise) {
   return(paste0(projectsDir, "/", exercise))
 }
+
+sourceExercise <- function(exercise) {
+  env <- new.env()
+  for (file in list.files(pattern = "[.]R$", path = paste0(getExercisePath(exercise), "/R"),
+                          full.names = TRUE)) {
+    cat("Sourcing file: ", file, "\n\n")
+    source(file, env, print.eval = TRUE)
+  }
+}
