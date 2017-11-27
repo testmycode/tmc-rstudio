@@ -1,14 +1,32 @@
+submitExercise <- function() {
+  output <- list()
+  withProgress(message= 'Submitting exercise', value = 0, {
+    output <- submitCurrent()
+  })
+  submitRes <- NULL
+  if(!is.null(output)) {
+    submitRes <- processSubmissionJson(output)
+  }
+  showMessage(submitRes)
+  return(submitRes)
+}
+
 submitCurrent <- function() {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  url <- httr::content(upload_current_exercise(token))
-  output <- httr::content(get_submission_json(token, url$submission_url))
-  while (output$status == "processing") {
-    incProgress(1/3)
-    Sys.sleep(10)
-    output <- get_submission_json(token, url$submission_url)
+  response <- upload_current_exercise(token)
+  if(!is.null(response)) {
+    url <- httr::content(response)
+    output <- httr::content(get_submission_json(token, url$submission_url))
+    while (output$status == "processing") {
+      incProgress(1/3)
+      Sys.sleep(10)
+      output <- httr::content(get_submission_json(token, url$submission_url))
+    }
+    return(output)
+  } else {
+    return(NULL)
   }
-  return(output)
 }
 
 processSubmissionJson <- function(output) {
@@ -42,7 +60,7 @@ processSubmission <- function(output) {
 
 showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
-  rstudioapi::showDialog(title = "Results",
-                         message = message,
+  rstudioapi::showDialog(title = message[["title"]],
+                         message = message[["text"]],
                          url = "")
 }

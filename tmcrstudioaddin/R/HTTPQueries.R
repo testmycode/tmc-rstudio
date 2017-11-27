@@ -73,15 +73,19 @@ get_submission_json <- function(token, url) {
 upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE,
                                     project_path = rstudioapi::getActiveProject()) {
   json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)
-  metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
-  id <- metadata$id[[1]]
-  credentials <- tmcrstudioaddin::getCredentials()
-  address <- paste(sep = "", credentials$serverAddress, "/")
+  if (length(json) != 0) {
+    metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
+    id <- metadata$id[[1]]
+    credentials <- tmcrstudioaddin::getCredentials()
+    address <- paste(sep = "", credentials$serverAddress, "/")
 
-  response <- upload_exercise(token = token, exercise_id = id,
-                              project_path = project_path, server_address = address,
-                              zip_name = zip_name, remove_zip = remove_zip)
-  return(response)
+    response <- upload_exercise(token = token, exercise_id = id,
+                                project_path = project_path, server_address = address,
+                                zip_name = zip_name, remove_zip = remove_zip)
+    return(response)
+  } else {
+    return(NULL)
+  }
 }
 
 getAllOrganizations <- function(){

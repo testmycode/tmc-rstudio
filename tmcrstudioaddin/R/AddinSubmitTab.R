@@ -28,15 +28,12 @@
   })
 
   submitExercise <- observeEvent(input$submit, {
-    output <- list()
-    withProgress(message= 'Submitting exercise', value = 0, {
-      output <- submitCurrent()
-    })
-    submitRes <- processSubmissionJson(output)
-    reactive$submitResults <- submitRes
-    reactive$testResults <- submitRes$tests
-    reactive$runStatus <- "success"
-    showMessage(submitRes)
+    submitRes <- submitExercise()
+    if(!is.null(submitRes)) {
+      reactive$submitResults <- submitRes
+      reactive$testResults <- submitRes$tests
+      reactive$runStatus <- "success"
+    }
   })
 
   showResults <- observeEvent(input$showAllResults, {
@@ -79,12 +76,16 @@ formatResultsWithBar <- function(testResultOutput, testsPassedPercentage) {
 }
 
 getDialogMessage <- function(submitResults) {
-  message <- ""
-  if (submitResults$all_tests_passed) {
-    message <- paste0("<p>All tests passed on the server.<p><b>Points permanently awarded: ",
+  message <- list()
+  message[["title"]] <- "Results"
+  if (is.null(submitResults)) {
+    message[["title"]] <- "Error"
+    message[["text"]] <- "Could not submit exercise.<p>Current project is not a tmc project."
+  } else if (submitResults$all_tests_passed) {
+    message[["text"]] <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
                       submitResults$points, "</b><p>View model solution")
   } else {
-    message <- paste0("<p>Exercise ", submitResults$exercise_name,
+    message[["text"]] <- paste0("Exercise ", submitResults$exercise_name,
                       " failed partially.<p><b>Points permanently awarded: ", submitResults$points,
                       "</b><p>Some tests failed on the server.<p>Press OK to see failing tests")
   }
