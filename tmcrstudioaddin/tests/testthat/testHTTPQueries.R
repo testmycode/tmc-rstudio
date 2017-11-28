@@ -65,9 +65,9 @@ httptest::with_mock_API({
     login("a", "b", "c", "d", "tmc.mooc.fi")
     organizations <- tmcrstudioaddin::getAllOrganizations()
 
-    expect_true(length(organizations) > 0)
+    expect_true(length(organizations$name) > 0)
 
-    for (organization in organizations){
+    for (organization in organizations$name){
       expect_true(is.character(organization))
     }
 
@@ -86,9 +86,9 @@ httptest::with_mock_API({
 
     organizations <- tmcrstudioaddin::getAllOrganizations()
 
-    expect_true(length(organizations) > 0)
+    expect_true(length(organizations$name) > 0)
 
-    for (organization in organizations){
+    for (organization in organizations$name){
       expect_true(is.character(organization))
     }
 
@@ -144,7 +144,8 @@ httptest::with_mock_API({
 
     authenticate("rtest", "asdasdasd", "https://tmc.mooasdc.fi")
     organizations <- tmcrstudioaddin::getAllOrganizations()
-    expect_true(length(organizations) == 0)
+    expect_true(length(organizations$slug) == 0)
+    expect_true(length(organizations$name) == 0)
 
     if (file.exists(".credentials.rds")){
       file.remove(".credentials.rds")

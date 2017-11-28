@@ -1,5 +1,9 @@
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
+  organizations <- tmcrstudioaddin::getAllOrganizations()
+  choices <- organizations$slug
+  credentials<-tmcrstudioaddin::getCredentials()
+  names(choices) <- organizations$name
   miniTabPanel(
     title = "Exercises",
     icon = icon("folder-open"),
@@ -15,8 +19,8 @@
       selectInput(
         inputId = ns("courseSelect"),
         label = "Select course",
-        choices = list(),
-        selected = 1
+        choices = choices,
+        selected = credentials$organization
       ),
       actionButton(inputId = ns("download"), label = "Download exercises"),
       checkboxGroupInput(inputId = ns("exercises"),label="",choices=list())
@@ -26,12 +30,17 @@
 
 .courseTab <- function(input, output, session) {
   observeEvent(input$refreshOrganizations, {
-    choices <- tmcrstudioaddin::getAllOrganizations()
+    organizations <- tmcrstudioaddin::getAllOrganizations()
+    choices <- organizations$slug
+    names(choices) <- organizations$name
     shiny::updateSelectInput(session, "organizationSelect", label = "Select organization", choices = choices, selected = 1)
   })
 
   observeEvent(input$organizationSelect, {
     organization <- input$organizationSelect
+    credentials <- tmcrstudioaddin::getCredentials()
+    credentials$organization <- organization
+    tmcrstudioaddin::saveCredentials(credentials)
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
     names(choices) <- courses$name

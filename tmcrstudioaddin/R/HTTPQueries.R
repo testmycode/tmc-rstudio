@@ -92,9 +92,9 @@ getAllOrganizations <- function(){
     req <-  httr::stop_for_status(httr::GET(url = url,httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e){
-    list(slug = list())
+    list(name = list(),slug = list())
   })
-  return(organizations$slug)
+  return(organizations)
 }
 
 getAllCourses <- function(organization) {
