@@ -12,15 +12,15 @@
       selectInput(
         inputId = ns("organizationSelect"),
         label = "Select organization",
-        choices = list(),
-        selected = 1
+        choices = choices,
+        selected = credentials$organization
       ),
       actionButton(inputId = ns("refreshCourses"), label = "Refresh courses"),
       selectInput(
         inputId = ns("courseSelect"),
         label = "Select course",
         choices = choices,
-        selected = credentials$organization
+        selected = 1
       ),
       actionButton(inputId = ns("download"), label = "Download exercises"),
       checkboxGroupInput(inputId = ns("exercises"),label="",choices=list())
