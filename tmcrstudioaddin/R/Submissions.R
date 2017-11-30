@@ -22,19 +22,16 @@ submitCurrent <- function() {
 }
 
 getExerciseFromServer <- function(response, token) {
-  output <- tryCatch({
-    url <- httr::content(response)
-    httr::content(get_submission_json(token, url$submission_url))
-    }, error = function(e) {
-      if(!is.null(url$error)) print(url$error)
-      print(e)
-      NULL
-    })
+  output <- get_json_from_submission_url(response, token)
   if (!is.null(output)) {
     while (output$status == "processing") {
       incProgress(1/3)
       Sys.sleep(10)
-      output <- httr::content(get_submission_json(token, url$submission_url))
+      output <- get_json_from_submission_url(response, token)
+    }
+    if (output$status == "error") {
+      print(output$error)
+      output <- NULL
     }
   }
   return(output)
@@ -74,14 +71,4 @@ showMessage <- function(submitResults) {
   rstudioapi::showDialog(title = message[["title"]],
                          message = message[["text"]],
                          url = "")
-}
-
-signalQueryError <- function(error) {
-  queryError <- simpleError("")
-  class(queryError) <- c("queryError", class(queryError))
-  signalCondition(queryError)
-}
-
-queryErrorOutput <- function(error) {
-  return(NULL)
 }

@@ -72,9 +72,14 @@ get_submission_json <- function(token, url) {
 # For testing purposes, you can provide some other file path
 upload_current_exercise <- function(token, zip_name = "temp", remove_zip = TRUE,
                                     project_path = rstudioapi::getActiveProject()) {
-  json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)
-  if (length(json) != 0) {
-    metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
+  metadata <- tryCatch({
+    json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)
+    jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
+  }, error = function(e){
+    print(e)
+    NULL
+  })
+  if (!is.null(metadata$id[[1]])) {
     id <- metadata$id[[1]]
     credentials <- tmcrstudioaddin::getCredentials()
     address <- paste(sep = "", credentials$serverAddress, "/")
@@ -127,4 +132,16 @@ getAllExercises <- function(course){
   }, error = function(e){
       list()
   })
+}
+
+get_json_from_submission_url <- function(response, token) {
+  output <- tryCatch({
+    url <- httr::content(response)
+    httr::content(get_submission_json(token, url$submission_url))
+  }, error = function(e) {
+    if(!is.null(url$error)) print(url$error)
+    print(e)
+    NULL
+  })
+  return(output)
 }

@@ -28,7 +28,10 @@
   })
 
   submitExercise <- observeEvent(input$submit, {
-    submitRes <- submitExercise()
+    submitRes <- NULL
+    withProgress(message = 'Submitting exercise', value = 0, {
+      submitRes <- submitExercise()
+    })
     if(!is.null(submitRes)) {
       reactive$submitResults <- submitRes
       reactive$testResults <- submitRes$tests
