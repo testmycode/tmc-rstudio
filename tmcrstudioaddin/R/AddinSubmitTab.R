@@ -21,18 +21,27 @@
 }
 
 .submitTab <- function(input, output, session) {
-  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE)
+  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE,
+                             sourcing = FALSE)
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    withProgress(message= 'Running tests', value = 1, {
-      runResults <- tmcRtestrunner::run_tests(project_path = getExercisePath(selectedExercise),
-                                              print = TRUE)
+    runResults <- withProgress(message= 'Running tests', value = 1, {
+      tryCatch({
+        #error("lel")
+        return(tmcRtestrunner::run_tests(project_path = getExercisePath(selectedExercise),
+                                                print = TRUE))
+      }, error = function(e) {
+        rstudioapi::showDialog("Cannot run tests", "tmcRtestrunner errored while running tests")
+        return(list(run_results = list(), run_status = "run_failed"))
+      })
+
     })
     reactive$runResults <- runResults
     reactive$testResults <- runResults$test_results
     reactive$runStatus <- runResults$run_status
     reactive$submitResults <- NULL
+    reactive$sourcing <- FALSE
   })
 
   submitExercise <- observeEvent(input$submit, {
@@ -45,6 +54,7 @@
     reactive$testResults <- submitRes$tests
     reactive$runStatus <- "success"
     showMessage(submitRes)
+    reactive$sourcing <- FALSE
   })
 
   showResults <- observeEvent(input$showAllResults, {
@@ -56,28 +66,42 @@
   })
 
   sourceExercise <- observeEvent(input$source, {
-    sourceExercise(selectedExercise)
+    tryCatch({
+      sourceExercise(selectedExercise)
+      reactive$sourcing <- TRUE
+    }, error = function(e) {
+      rstudioapi::showDialog("Sourcing failed", "Error while sourcing exercise.")
+    })
   })
 
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
-    if (is.null(reactive$testResults)) {
+    if (is.null(reactive$testResults) & !reactive$sourcing) {
       return()
     }
-    testResults = reactive$testResults
-    runResults <- reactive$runResults
-    showAll <- reactive$showAll
-    html <- ""
-    if (reactive$runStatus == "success") {
-      html <- formatTestResults(testResults, showAll)
+
+    if (reactive$sourcing) {
+      html <- tags$p("Sourced exercise to console.")
     } else {
-      html <- .createRunSourcingFailHtml(runResults)
+      testResults = reactive$testResults
+      runResults <- reactive$runResults
+      showAll <- reactive$showAll
+      html <- ""
+      if (reactive$runStatus == "success") {
+        html <- formatTestResults(testResults, showAll)
+      } else {
+        html <- .createRunSourcingFailHtml(runResults)
+      }
     }
     shiny::tagList(html)
   })
 }
 
 formatTestResults <- function(testResults, showAll) {
+  if (length(testResults) == 0) {
+    return (tags$p("No tests for exercise.",
+            style = "color: red;font-weight:bold"))
+  }
   testResultOutput <- getTestOutput(testResults, showAll)
   html <- formatResultsWithBar(testResultOutput, .testsPassedPercentage(testResults))
   return(html)
