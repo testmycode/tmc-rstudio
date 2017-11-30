@@ -23,7 +23,10 @@
         selected = 1
       ),
       actionButton(inputId = ns("download"), label = "Download exercises"),
-      checkboxGroupInput(inputId = ns("exercises"),label="",choices=list())
+      hidden(
+        checkboxInput(inputId = ns("all_exercises"), label = "Download all exercises")
+      ),
+      checkboxGroupInput(inputId = ns("exercises"),label = "",choices = list())
     )
   )
 }
@@ -50,18 +53,17 @@
   exercise_map <<- list()
 
   observeEvent(input$courseSelect, {
+    hide("all_exercises")
     shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
     withProgress(message = "Fetching exercises", {
       exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
     })
-    choices <- exercises$id
-    names(choices)<-exercises$name
     exercise_map <<- exercises$id
     names(exercise_map) <<- exercises$name
 
-    if(length(choices)>0){
-
-      shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = choices)
+    if(length(exercise_map)>0){
+      show("all_exercises")
+      shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = exercise_map)
     }
   }, ignoreInit=TRUE)
 
@@ -78,7 +80,16 @@
     }
     shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
   }, ignoreInit = TRUE)
-
+  observeEvent(input$all_exercises, {
+    disable("all_exercises")
+    if(input$all_exercises){
+      shiny::updateCheckboxGroupInput(session,"exercises",choices = exercise_map,selected = exercise_map)
+    }
+    else{
+      shiny::updateCheckboxGroupInput(session,"exercises",choices = exercise_map,selected = list())
+    }
+    enable("all_exercises")
+  })
   observeEvent(input$download, {
     tryCatch({
       withProgress(message="Downloading exercises",{
