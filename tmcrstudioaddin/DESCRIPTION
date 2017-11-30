@@ -16,15 +16,18 @@ Imports:
   rjson,
   httr,
   tmcRtestrunner,
-  jsonlite
+  jsonlite,
+  shinyjs
 Depends:
-  testthat
+  testthat,
+  httptest
 Collate:
   'Authentication.R'
   'AddinCourseTab.R'
   'AddinLoginTab.R'
   'AddinSubmitTab.R'
   'Exercises.R'
+  'ExerciseDataHandler.R'
   'HTTPQueries.R'
   'TestResultsStats.R'
   'TMC_plugin.R'

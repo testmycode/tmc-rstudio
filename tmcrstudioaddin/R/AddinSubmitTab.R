@@ -110,8 +110,8 @@ formatTestResults <- function(testResults, showAll) {
 submitCurrent <- function() {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  url <- upload_current_exercise(token)
-  output <- get_submission_json(token, url$submission_url)
+  url <- httr::content(upload_current_exercise(token, getExercisePath(selectedExercise)))
+  output <- httr::content(get_submission_json(token, url$submission_url))
   while (output$status == "processing") {
     incProgress(1/3)
     Sys.sleep(10)

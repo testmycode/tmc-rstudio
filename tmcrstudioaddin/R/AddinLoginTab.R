@@ -18,9 +18,11 @@
     h1("Log in"),
     textInput(inputId = ns("username"), label = "Username", value = ""),
     passwordInput(inputId = ns("password"), label = "Password", value = ""),
-    textInput(inputId = ns("serverAddress"), label = "Server address", value =
-                ifelse(!is.null(serverAddress), serverAddress, "")),
-    actionButton(inputId = ns("login"), label = "Log in")
+    div(style = "position:relative;", actionButton(inputId = ns("login"), label = "Log in")),
+    div(style = "margin-top:30px;", textInput(inputId = ns("serverAddress"), label = "Server address", value =
+                ifelse(!is.null(serverAddress), serverAddress, ""))),
+    div(style = "position:relative", checkboxInput(inputId = ns("changeServer"), label = "Change server address", value = FALSE), 
+      actionButton(inputId = ns("resetServer"), label = "Reset server address"))
   ))
 }
 .logoutPane <- function(ns){
@@ -30,6 +32,9 @@
 
 .loginTab <- function(input, output, session) {
   ns <- shiny::NS("login")
+
+  .suggestServer()
+
   output$loginPane <- renderUI({
     credentials <- tmcrstudioaddin::getCredentials()
     #if token is not defined, user is not logged in
@@ -38,7 +43,9 @@
     }
     else{
       .logoutPane(ns)
-    }})
+    }
+  })
+  
   observeEvent(input$login, {
     # Authenticate with the values from the username and password input fields
     response <- tmcrstudioaddin::authenticate(input$username, input$password, input$serverAddress)
@@ -55,6 +62,7 @@
       })
     }
   })
+  
   observeEvent(input$logout, {
     #overwrite credentials, so that they contain only the last login address
     tryCatch({
@@ -66,6 +74,35 @@
       .loginPane(ns)
     })
   })
+
+  observeEvent(input$resetServer, {
+    updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
+    disable("serverAddress")
+    updateCheckboxInput(session, "changeServer", value = FALSE)
+  })
+
+  observe({
+    shinyjs::toggleState("serverAddress", input$changeServer == TRUE)
+  })
+
+}
+
+# Sets "https://tmc.mooc.fi" as the suggested server address
+.suggestServer <- function() {
+  tryCatch({
+    credentials <- tmcrstudioaddin::getCredentials()
+    
+    if (is.null(credentials$serverAddress)) {
+      defaultServerAddress <- "https://tmc.mooc.fi"
+
+      # these two should be null, but fetched anyway in case they aren't
+      username <- credentials$username
+      token <- credentials$token
+
+      credentials <- list(username = username, token = token, serverAddress = defaultServerAddress)
+      saveCredentials(credentials)
+    }
+  }, warning = function(e){})
 }
 
 # Return a title and a message string for login dialog based on authentication results
