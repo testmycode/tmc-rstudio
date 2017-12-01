@@ -33,8 +33,12 @@ context("Fetching data")
 
 httptest::with_mock_API({
   test_that("courses associated with server and organization are fetched from the server", {
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+
+    credentials_path <- paste(get_tmcr_directory(),
+        ".credentials.rds", sep = .Platform$file.sep)
+
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
 
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
@@ -51,14 +55,16 @@ httptest::with_mock_API({
       expect_true(is.integer(id))
     }
 
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
   })
 
   test_that("organizations are fetched from the server", {
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+    credentials_path <- paste(get_tmcr_directory(),
+        ".credentials.rds", sep = .Platform$file.sep)
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
 
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
@@ -71,14 +77,17 @@ httptest::with_mock_API({
       expect_true(is.character(organization))
     }
 
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
   })
 
   test_that("organizations are fetched from the server", {
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+    credentials_path <- paste(get_tmcr_directory(),
+        ".credentials.rds", sep = .Platform$file.sep)
+
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
 
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
@@ -92,8 +101,8 @@ httptest::with_mock_API({
       expect_true(is.character(organization))
     }
 
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
   })
 

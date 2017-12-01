@@ -74,12 +74,15 @@ getServerAddress <- function(){
   return(server)
 }
 saveCredentials <- function(credentials){
-  saveRDS(credentials, ".credentials.rds")
+  credentials_path <- paste(get_tmcr_directory(), ".credentials.rds",
+    sep = .Platform$file.sep)
+  saveRDS(credentials, credentials_path)
 }
 getCredentials <- function(){
   credentials <- list()
   tryCatch({
-    credentials <- readRDS(".credentials.rds")
+    credentials <- readRDS(paste(get_tmcr_directory(), ".credentials.rds",
+      sep = .Platform$file.sep))
   }, warning = function(e){})
   return(credentials)
 }

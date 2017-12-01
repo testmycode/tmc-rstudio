@@ -71,7 +71,7 @@ get_submission_json <- function(token, url) {
 # Uses the path of the currently active R-project by default
 # For testing purposes, you can provide some other file path
 upload_current_exercise <- function(token, project_path, zip_name = "temp", remove_zip = TRUE) {
-  json <- base::list.files(path = project_path, pattern = "metadata.json", full.names = TRUE)
+  json <- base::list.files(path = project_path, pattern = ".metadata.json", full.names = TRUE)
   metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
   id <- metadata$id[[1]]
   credentials <- tmcrstudioaddin::getCredentials()
@@ -88,7 +88,8 @@ getAllOrganizations <- function(){
     credentials <- tmcrstudioaddin::getCredentials()
     url <- paste(credentials$serverAddress, '/api/v8/org.json', sep = "")
     token <- credentials$token
-    req <-  httr::stop_for_status(httr::GET(url = url,httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
+    req <-  httr::stop_for_status(httr::GET(url = url,
+      httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e){
     list(name = list(),slug = list())
