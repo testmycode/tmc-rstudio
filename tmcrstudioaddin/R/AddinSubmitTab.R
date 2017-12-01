@@ -1,11 +1,17 @@
-.submitTabUI <- function(id, label = "Submit tab") {
-  ns <- shiny::NS(id)
 
+.submitTabUI <- function(id, label = "Submit tab") {
+  #init selected exercise:
+  selectedExercise <<- exerciseFromWd()
+
+  ns <- shiny::NS(id)
   miniTabPanel(
     title = "Test & Submit",
     icon = icon("check"),
 
     miniContentPanel(
+      selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercises(),
+                  selected = selectedExercise),
+      actionButton(inputId = ns("source"), label = "Source"),
       actionButton(inputId = ns("runTests"), label = "Run tests"),
       actionButton(inputId = ns("submit"), label = "Submit to server"),
       checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
@@ -15,16 +21,27 @@
 }
 
 .submitTab <- function(input, output, session) {
-  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE)
+  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE,
+                             sourcing = FALSE)
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    withProgress(message= 'Running tests', value = 1, {
-      runResults <- tmcRtestrunner::run_tests(print = TRUE)
+    runResults <- withProgress(message= 'Running tests', value = 1, {
+      tryCatch({
+        #error("lel")
+        return(tmcRtestrunner::run_tests(project_path = getExercisePath(selectedExercise),
+                                                print = TRUE))
+      }, error = function(e) {
+        rstudioapi::showDialog("Cannot run tests", "tmcRtestrunner errored while running tests")
+        return(list(run_results = list(), run_status = "run_failed"))
+      })
+
     })
+    reactive$runResults <- runResults
     reactive$testResults <- runResults$test_results
     reactive$runStatus <- runResults$run_status
     reactive$submitResults <- NULL
+    reactive$sourcing <- FALSE
   })
 
   submitExercise <- observeEvent(input$submit, {
@@ -37,28 +54,54 @@
     reactive$testResults <- submitRes$tests
     reactive$runStatus <- "success"
     showMessage(submitRes)
+    reactive$sourcing <- FALSE
   })
 
   showResults <- observeEvent(input$showAllResults, {
     reactive$showAll = input$showAllResults
   })
 
+  selectedExercises <- observeEvent(input$selectExercise, {
+    selectedExercise <<- input$selectExercise
+  })
+
+  sourceExercise <- observeEvent(input$source, {
+    tryCatch({
+      sourceExercise(selectedExercise)
+      reactive$sourcing <- TRUE
+    }, error = function(e) {
+      rstudioapi::showDialog("Sourcing failed", "Error while sourcing exercise.")
+    })
+  })
+
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
-    if (is.null(reactive$testResults)) return()
-    testResults = reactive$testResults
-    showAll <- reactive$showAll
-    html <- ""
-    if (reactive$runStatus == "success") {
-      html <- formatTestResults(testResults, showAll)
+    if (is.null(reactive$testResults) & !reactive$sourcing) {
+      return()
+    }
+
+    if (reactive$sourcing) {
+      html <- tags$p("Sourced exercise to console.")
     } else {
-      html <- .createRunSourcingFailHtml(runResults)
+      testResults = reactive$testResults
+      runResults <- reactive$runResults
+      showAll <- reactive$showAll
+      html <- ""
+      if (reactive$runStatus == "success") {
+        html <- formatTestResults(testResults, showAll)
+      } else {
+        html <- .createRunSourcingFailHtml(runResults)
+      }
     }
     shiny::tagList(html)
   })
 }
 
 formatTestResults <- function(testResults, showAll) {
+  if (length(testResults) == 0) {
+    return (tags$p("No tests for exercise.",
+            style = "color: red;font-weight:bold"))
+  }
   testResultOutput <- getTestOutput(testResults, showAll)
   html <- formatResultsWithBar(testResultOutput, .testsPassedPercentage(testResults))
   return(html)
@@ -67,7 +110,7 @@ formatTestResults <- function(testResults, showAll) {
 submitCurrent <- function() {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  url <- httr::content(upload_current_exercise(token))
+  url <- httr::content(upload_current_exercise(token, getExercisePath(selectedExercise)))
   output <- httr::content(get_submission_json(token, url$submission_url))
   while (output$status == "processing") {
     incProgress(1/3)
@@ -176,7 +219,7 @@ createSingleResultDisplay <- function(testResults) {
 
 # Creates html for runResult with run or sourcing fail
 .createRunSourcingFailHtml <- function(runResults) {
-  if (runResults$run_status == "sourcing_fail") {
+  if (runResults$run_status == "sourcing_failed") {
     fail_name = "Sourcing fail"
   } else {
     fail_name = "Run fail"

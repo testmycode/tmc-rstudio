@@ -26,6 +26,7 @@ Collate:
   'AddinCourseTab.R'
   'AddinLoginTab.R'
   'AddinSubmitTab.R'
+  'Exercises.R'
   'ExerciseDataHandler.R'
   'HTTPQueries.R'
   'PropertiesHandler.R'
