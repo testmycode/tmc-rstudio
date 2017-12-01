@@ -72,7 +72,7 @@ get_submission_json <- function(token, url) {
 # For testing purposes, you can provide some other file path
 upload_current_exercise <- function(token, project_path, zip_name = "temp", remove_zip = TRUE) {
   metadata <- tryCatch({
-    json <- base::list.files(path = project_path, pattern = ".metadata.json", full.names = TRUE)
+    json <- base::list.files(path = project_path, pattern = ".metadata.json", all.files = TRUE, full.names = TRUE)
     jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
   }, error = function(e){
     print(e)
