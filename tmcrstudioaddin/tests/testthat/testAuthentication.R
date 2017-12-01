@@ -11,8 +11,10 @@ httptest::with_mock_API({
   })
 
   test_that("Login gives a token and saves credentials to file", {
-    if (file.exists(".credentials.rds")){
-      file.remove(".credentials.rds")
+    credentials_path <- paste(get_tmcr_directory(),
+      ".credentials.rds", sep = .Platform$file.sep)
+    if (file.exists(credentials_path)){
+      file.remove(credentials_path)
     }
 
     response <- login("a", "b", "c", "d", "tmc.mooc.fi")
@@ -20,9 +22,9 @@ httptest::with_mock_API({
     expect_is(response, "character")
     expect_equal(substr(response, 0, 6), "Bearer")
 
-    expect_true(file.exists(".credentials.rds"))
+    expect_true(file.exists(credentials_path))
 
-    file.remove(".credentials.rds")
+    file.remove(credentials_path)
   })
 
   test_that("False authentication (wrong username and password) fails and creates no file", {
