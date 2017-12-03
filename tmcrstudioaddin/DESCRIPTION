@@ -29,6 +29,7 @@ Collate:
   'Exercises.R'
   'ExerciseDataHandler.R'
   'HTTPQueries.R'
+  'InputToggle.R'
   'PropertiesHandler.R'
   'TestResultsStats.R'
   'TMC_plugin.R'

@@ -21,7 +21,7 @@
     div(style = "position:relative;", actionButton(inputId = ns("login"), label = "Log in")),
     div(style = "margin-top:30px;", textInput(inputId = ns("serverAddress"), label = "Server address", value =
                 ifelse(!is.null(serverAddress), serverAddress, ""))),
-    div(style = "position:relative", checkboxInput(inputId = ns("changeServer"), label = "Change server address", value = FALSE), 
+    div(style = "position:relative", checkboxInput(inputId = ns("changeServer"), label = "Change server address", value = FALSE),
       actionButton(inputId = ns("resetServer"), label = "Reset server address"))
   ))
 }
@@ -45,8 +45,12 @@
       .logoutPane(ns)
     }
   })
-  
+
   observeEvent(input$login, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_login_tab()
+
     # Authenticate with the values from the username and password input fields
     response <- tmcrstudioaddin::authenticate(input$username, input$password, input$serverAddress)
     titleAndMessage <- .getTitleAndMessage(response = response)
@@ -56,26 +60,34 @@
                            url = "")
     # If user has saved credentials update view
     credentials <- tmcrstudioaddin::getCredentials()
+
     if (!is.null(credentials$token)){
       output$loginPane <- renderUI({
         .logoutPane(ns)
       })
     }
+
+    tmcrstudioaddin::enable_login_tab()
   })
-  
+
   observeEvent(input$logout, {
+    if(UI_disabled) return()
+
     #overwrite credentials, so that they contain only the last login address
     tryCatch({
       credentials <- tmcrstudioaddin::getCredentials()
       credentials <- list(serverAddress=credentials$serverAddress)
       tmcrstudioaddin::saveCredentials(credentials)
     })
+
     output$loginPane <- renderUI({
       .loginPane(ns)
     })
   })
 
   observeEvent(input$resetServer, {
+    if(UI_disabled) return()
+
     updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
     disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)
@@ -91,7 +103,7 @@
 .suggestServer <- function() {
   tryCatch({
     credentials <- tmcrstudioaddin::getCredentials()
-    
+
     if (is.null(credentials$serverAddress)) {
       defaultServerAddress <- "https://tmc.mooc.fi"
 

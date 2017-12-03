@@ -26,6 +26,9 @@
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_submit_tab()
     runResults <- withProgress(message= 'Running tests', value = 1, {
       tryCatch({
         #error("lel")
@@ -42,9 +45,13 @@
     reactive$runStatus <- runResults$run_status
     reactive$submitResults <- NULL
     reactive$sourcing <- FALSE
+    tmcrstudioaddin::enable_submit_tab()
   })
 
   submitExercise <- observeEvent(input$submit, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_submit_tab()
     output <- list()
     withProgress(message= 'Submitting exercise', value = 0, {
       output <- submitCurrent()
@@ -55,23 +62,34 @@
     reactive$runStatus <- "success"
     showMessage(submitRes)
     reactive$sourcing <- FALSE
+    tmcrstudioaddin::enable_submit_tab()
   })
 
   showResults <- observeEvent(input$showAllResults, {
+    if(UI_disabled) return()
+
     reactive$showAll = input$showAllResults
   })
 
   selectedExercises <- observeEvent(input$selectExercise, {
+    if(UI_disabled) return()
+
     selectedExercise <<- input$selectExercise
   })
 
   sourceExercise <- observeEvent(input$source, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_submit_tab()
+
     tryCatch({
       sourceExercise(selectedExercise)
       reactive$sourcing <- TRUE
     }, error = function(e) {
       rstudioapi::showDialog("Sourcing failed", "Error while sourcing exercise.")
     })
+
+    tmcrstudioaddin::enable_submit_tab()
   })
 
   # Renders a list showing the test results
