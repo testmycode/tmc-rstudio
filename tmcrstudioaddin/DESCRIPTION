@@ -31,6 +31,8 @@ Collate:
   'HTTPQueries.R'
   'InputToggle.R'
   'PropertiesHandler.R'
+  'RunResultHtml.R'
+  'Submissions.R'
   'TestResultsStats.R'
   'TMC_plugin.R'
   'Zipper.R'
