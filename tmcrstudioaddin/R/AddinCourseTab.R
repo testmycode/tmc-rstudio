@@ -8,25 +8,56 @@
     title = "Exercises",
     icon = icon("folder-open"),
     miniContentPanel(
-      actionButton(inputId = ns("refreshOrganizations"), label = "Refresh organizations"),
-      selectInput(
-        inputId = ns("organizationSelect"),
-        label = "Select organization",
-        choices = choices,
-        selected = credentials$organization
+      fluidPage(style="padding:0px;margin:0px;",
+        fluidRow(
+            column(6,class="col-xs-6",
+              selectInput(
+                inputId = ns("organizationSelect"),
+                label = "Select organization",
+                choices = choices,
+                selected = credentials$organization
+              )
+            ),
+            column(6,class="col-xs-6",
+              actionButton(
+                 inputId = ns("refreshOrganizations"),
+                 label = "Refresh organizations",
+                 style="margin-top:25px;"
+              )
+            )
+        ),
+        fluidRow(
+          column(6,class="col-xs-6",
+            selectInput(
+              inputId = ns("courseSelect"),
+              label = "Select course",
+              choices = choices,
+              selected = 1
+            )
+          ),
+          column(6,class="col-xs-6",
+            actionButton(
+              inputId = ns("refreshCourses"),
+              label = "Refresh courses",
+              style="margin-top:25px;"
+            )
+          )
+        )
       ),
-      actionButton(inputId = ns("refreshCourses"), label = "Refresh courses"),
-      selectInput(
-        inputId = ns("courseSelect"),
-        label = "Select course",
-        choices = choices,
-        selected = 1
-      ),
-      actionButton(inputId = ns("download"), label = "Download exercises"),
-      hidden(
-        checkboxInput(inputId = ns("all_exercises"), label = "Download all exercises")
-      ),
-      checkboxGroupInput(inputId = ns("exercises"),label = "",choices = list())
+      actionButton(
+        inputId = ns("download"),
+        label = "Download exercises"),
+        hidden(
+          checkboxInput(
+            inputId = ns("all_exercises"),
+            label = "Download all exercises"
+          )
+        ),
+      checkboxGroupInput(
+        inputId = ns("exercises"),
+        label = "",
+        choices = list()
+      )
     )
   )
 }
