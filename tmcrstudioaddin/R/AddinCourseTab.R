@@ -98,10 +98,6 @@
         courses <- tmcrstudioaddin::getAllCourses(organization)
         courseName <- courses$name[courses$id==input$courseSelect]
 
-        if(!check_if_properties_exist()) {
-          create_properties_file()
-        }
-
         course_directory_path <- file.path(get_projects_folder(), courseName,
           fsep = .Platform$file.sep)
 
