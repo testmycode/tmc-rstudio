@@ -41,6 +41,10 @@ get_projects_folder <- function() {
 }
 
 read_properties <- function() {
+  if (!check_if_properties_exist()) {
+    create_properties_file()
+  }
+
   properties_path <- paste(tmcrstudioaddin::get_tmcr_directory(),
       ".properties.rds", sep = .Platform$file.sep)
   return(readRDS(properties_path))

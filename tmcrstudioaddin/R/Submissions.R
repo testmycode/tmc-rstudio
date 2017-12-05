@@ -72,3 +72,20 @@ showMessage <- function(submitResults) {
                          message = message[["text"]],
                          url = "")
 }
+
+getDialogMessage <- function(submitResults) {
+  message <- list()
+  message[["title"]] <- "Results"
+  if (is.null(submitResults)) {
+    message[["title"]] <- "Error"
+    message[["text"]] <- "Could not submit exercise."
+  } else if (submitResults$all_tests_passed) {
+    message[["text"]] <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
+                                submitResults$points, "</b><p>View model solution")
+  } else {
+    message[["text"]] <- paste0("Exercise ", submitResults$exercise_name,
+                                " failed partially.<p><b>Points permanently awarded: ", submitResults$points,
+                                "</b><p>Some tests failed on the server.<p>Press OK to see failing tests")
+  }
+  return(message)
+}

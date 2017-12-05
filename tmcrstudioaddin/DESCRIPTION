@@ -29,6 +29,7 @@ Collate:
   'Exercises.R'
   'ExerciseDataHandler.R'
   'HTTPQueries.R'
+  'RunResultHtml.R'
   'PropertiesHandler.R'
   'Submissions.R'
   'TestResultsStats.R'
