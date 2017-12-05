@@ -18,6 +18,8 @@ tmcGadget <- function() {
   server <- function(input, output, session) {
     # Function for the exit button
     observeEvent(input$exit, {
+      if(UI_disabled) return()
+
       return(shiny::stopApp())
     })
 
