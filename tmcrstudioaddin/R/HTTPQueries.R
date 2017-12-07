@@ -44,7 +44,7 @@ upload_exercise <- function(token, exercise_id, project_path,
   url_config <- httr::add_headers(Authorization = token)
 
   .tmc_zip(project_path, zip_name)
-  zipped_file <- paste(sep = "", getwd(), "/", zip_name, ".zip")
+  zipped_file <- paste(sep = "", project_path, "/", zip_name, ".zip")
   submission_file <- httr::upload_file(zipped_file)
 
   exercises_response <- tryCatch({
@@ -58,7 +58,7 @@ upload_exercise <- function(token, exercise_id, project_path,
     exercises_response
   })
   if (remove_zip) {
-    file.remove(paste(sep = "", zip_name, ".zip"))
+    file.remove(zipped_file)
   }
 
   return(exercises_response)
