@@ -1,5 +1,3 @@
-assign(x = "UI_disabled", value = FALSE, envir = .GlobalEnv)
-
 disable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, function(i) {shinyjs::disable(i)})

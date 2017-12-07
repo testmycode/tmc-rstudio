@@ -2,6 +2,9 @@
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
 tmcGadget <- function() {
+  # Assign the UI_disabled variable as a global variable
+  assign(x = "UI_disabled", value = FALSE, envir = .GlobalEnv)
+
   ui <- miniPage(
     shinyjs::useShinyjs(),
 
