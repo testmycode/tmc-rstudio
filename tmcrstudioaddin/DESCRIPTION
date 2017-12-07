@@ -17,7 +17,8 @@ Imports:
   httr,
   tmcRtestrunner,
   jsonlite,
-  shinyjs
+  shinyjs,
+  mockery
 Depends:
   testthat,
   httptest

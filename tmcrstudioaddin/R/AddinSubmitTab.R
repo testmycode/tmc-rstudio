@@ -54,11 +54,11 @@
     tmcrstudioaddin::disable_submit_tab()
     submitRes <- NULL
     withProgress(message = 'Submitting exercise', value = 0, {
-      submitRes <- submitExercise()
+      submitRes <- submitExercise(getExercisePath(selectedExercise))
     })
-    if(!is.null(submitRes)) {
-      reactive$submitResults <- submitRes
-      reactive$testResults <- submitRes$tests
+    if(is.null(submitRes$error)) {
+      reactive$submitResults <- submitRes$data
+      reactive$testResults <- submitRes$data$tests
       reactive$runStatus <- "success"
       reactive$sourcing <- FALSE
     }
