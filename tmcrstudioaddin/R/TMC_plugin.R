@@ -2,6 +2,9 @@
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
 tmcGadget <- function() {
+  # Assign the UI_disabled variable as a global variable
+  assign(x = "UI_disabled", value = FALSE, envir = .GlobalEnv)
+
   ui <- miniPage(
     shinyjs::useShinyjs(),
 
@@ -18,6 +21,8 @@ tmcGadget <- function() {
   server <- function(input, output, session) {
     # Function for the exit button
     observeEvent(input$exit, {
+      if(UI_disabled) return()
+
       return(shiny::stopApp())
     })
 

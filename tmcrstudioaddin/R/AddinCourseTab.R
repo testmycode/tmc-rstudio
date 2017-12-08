@@ -64,13 +64,21 @@
 
 .courseTab <- function(input, output, session) {
   observeEvent(input$refreshOrganizations, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_course_tab()
     organizations <- tmcrstudioaddin::getAllOrganizations()
     choices <- organizations$slug
     names(choices) <- organizations$name
-    shiny::updateSelectInput(session, "organizationSelect", label = "Select organization", choices = choices, selected = 1)
+    shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
+                             choices = choices, selected = 1)
+    tmcrstudioaddin::enable_course_tab()
   })
 
   observeEvent(input$organizationSelect, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_course_tab()
     organization <- input$organizationSelect
     credentials <- tmcrstudioaddin::getCredentials()
     credentials$organization <- organization
@@ -79,11 +87,15 @@
     choices <- courses$id
     names(choices) <- courses$name
     shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
+    tmcrstudioaddin::enable_course_tab()
   })
 
   exercise_map <<- list()
 
   observeEvent(input$courseSelect, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_course_tab()
     hide("all_exercises")
     shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
     withProgress(message = "Fetching exercises", {
@@ -96,23 +108,34 @@
       show("all_exercises")
       shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = exercise_map)
     }
+
+    tmcrstudioaddin::enable_course_tab()
   }, ignoreInit=TRUE)
 
   observeEvent(input$refreshCourses, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_course_tab()
     organization <- input$organizationSelect
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
     names(choices) <- courses$name
+
     if (length(choices) == 0){
       credentials <- tmcrstudioaddin::getCredentials()
+
       if (is.null(credentials$token)){
         rstudioapi::showDialog("Not logged in", "Please log in to see courses", "")
       }
     }
+
     shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
+    tmcrstudioaddin::enable_course_tab()
   }, ignoreInit = TRUE)
+
   observeEvent(input$all_exercises, {
     disable("all_exercises")
+
     if(input$all_exercises){
       shiny::updateCheckboxGroupInput(session,"exercises",choices = exercise_map,selected = exercise_map)
     }
@@ -121,7 +144,12 @@
     }
     enable("all_exercises")
   })
+
   observeEvent(input$download, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_course_tab()
+
     tryCatch({
       withProgress(message="Downloading exercises",{
 
@@ -148,6 +176,8 @@
     }, error = function(e){
       rstudioapi::showDialog("Error","Something went wrong","")
     })
+
+    tmcrstudioaddin::enable_course_tab()
   })
 }
 
