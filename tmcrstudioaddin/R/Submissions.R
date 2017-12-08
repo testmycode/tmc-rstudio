@@ -12,7 +12,7 @@ submitExercise <- function() {
 submitCurrent <- function() {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  response <- upload_current_exercise(token, project_path = getExercisePath(selectedExercise))
+  response <- upload_current_exercise(token, project_path = selectedExercisePath)
   if(!is.null(response)) {
     output <- getExerciseFromServer(response, token)
     return(output)
