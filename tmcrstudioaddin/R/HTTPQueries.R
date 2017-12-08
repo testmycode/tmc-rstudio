@@ -117,7 +117,7 @@ getAllCourses <- function(organization) {
   }, error = function(e){
     list(id=list(),name = list())
   })
-  return(list(id=courses$id,name=courses$name))
+  return(list(id=courses$id,name=courses$title))
 }
 
 getAllExercises <- function(course){
