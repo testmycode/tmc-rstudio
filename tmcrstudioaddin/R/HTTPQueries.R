@@ -115,9 +115,9 @@ getAllCourses <- function(organization) {
     req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json",timeout(30)))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e){
-    list(id=list(),name = list())
+    list(id=list(),name = list(),title = list())
   })
-  return(list(id=courses$id,name=courses$name))
+  return(list(id = courses$id, name = courses$name, title = courses$title))
 }
 
 getAllExercises <- function(course){
