@@ -1,6 +1,14 @@
 # Need RStudio version > 1.1.67 for rstudioapi::showDialog()
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
+#' @title Run the TMC addin
+#'
+#' @description Run the TMC addin on the RStudio viewer pane.
+#'
+#' @usage tmcGadget()
+#'
+#' @details The TMC RStudio addin was made using \code{\link[shiny]{shiny-package}}, which
+#' allows making web applications and RStudio addins using R.
 tmcGadget <- function() {
   # Assign the UI_disabled variable as a global variable
   assign(x = "UI_disabled", value = FALSE, envir = .GlobalEnv)

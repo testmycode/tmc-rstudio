@@ -1,3 +1,25 @@
+#' @title Create HTML for displaying test results
+#'
+#' @description Create HTML for displaying test results
+#'
+#' @usage createTestResultsHtml(testResults, showAll)
+#'
+#' @param testResults List of test results.
+#' @param showAll Boolean for showing all test results.
+#'
+#' @details The created HTML includes a percentage bar for showing how many of the tests
+#' passed, and a list of paragraph elements for each of the test results. If the user has
+#' ticked off the \code{Show all results} checkbox, then instead of a list only a single
+#' paragraph element is shown. The single parahraph is either of the first failing test,
+#' or a message showing "All tests passed" if none of the tests failed. If the current
+#' exercise doesn't have any tests associated with it, then only a single paragraph reading
+#' "No tests for exercise" is returned.
+#'
+#' @return A single shiny HTML tag object containing all of the elements in the created HTML
+#' test result output.
+#'
+#' @seealso \code{\link[shiny]{tags}}
+
 # Creates html for testResults
 createTestResultsHtml <- function(testResults, showAll) {
   if (length(testResults) == 0) {
@@ -25,6 +47,23 @@ createTestResultsHtml <- function(testResults, showAll) {
   return(html)
 }
 
+
+#' @title Create HTML for displaying a run or sourcing fail
+#'
+#' @description Create HTML for displaying a run or sourcing fail.
+#'
+#' @usage createRunSourcingFail(runResults)
+#'
+#' @param runResults Results from the failed attempt of running tests.
+#'
+#' @details Creates an HTML view for displaying information related to a run- or
+#' sourcing fail
+#'
+#' @return A single shiny HTML tag object containing all of the elements in the created HTML
+#' run result output.
+#'
+#' @seealso \code{\link[shiny]{tags}}
+#'
 # Creates html for runResult with run or sourcing fail
 createRunSourcingFailHtml <- function(runResults) {
   if (runResults$run_status == "sourcing_failed") {
@@ -52,6 +91,25 @@ createRunSourcingFailHtml <- function(runResults) {
   }
 }
 
+#' @title Create a test result element
+#'
+#' @description Create an HTML parahraph element for displaying an individual test result.
+#'
+#' @usage createTestResultElement(name, status, index = NULL, message = NULL).
+#'
+#' @param name Name of the test.
+#' @param status Status of the test, e.g. "successful" or "failed".
+#' @param index Index of the individual test result in the list of all test results.
+#' \code{NULL} by default.
+#' @param message Included if the test did not pass. Is an error stack trace or a
+#' detailed test failure message. \code{NULL} by default.
+#'
+#' @details The test result HTML paragraph element coloured green if the test was successful,
+#' red otherwise. If the test failed or errored, it is accompanied by a \code{Toggle details}
+#' button.
+#'
+#' @return An HTML paragraph element of the test result.
+#'
 # Creates an individual HTML paragraph element for the list displaying test results
 .createTestResultElement <- function(name, status, index = NULL, message = NULL) {
   # Assign a color depending on test status
@@ -76,6 +134,8 @@ createRunSourcingFailHtml <- function(runResults) {
                               index, "\").toggle()});", sep = ""))
   return(list(message, btn, script))
 }
+
+
 
 # Creates an HTML paragraph element for either the first failing test or a separate message
 # if all tests passed
