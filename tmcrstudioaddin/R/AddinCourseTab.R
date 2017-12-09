@@ -85,7 +85,7 @@
     tmcrstudioaddin::saveCredentials(credentials)
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
-    names(choices) <- courses$name
+    names(choices) <- courses$title
     shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
     tmcrstudioaddin::enable_course_tab()
   })
@@ -119,7 +119,7 @@
     organization <- input$organizationSelect
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
-    names(choices) <- courses$name
+    names(choices) <- courses$title
 
     if (length(choices) == 0){
       credentials <- tmcrstudioaddin::getCredentials()
