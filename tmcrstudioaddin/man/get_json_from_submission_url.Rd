@@ -7,22 +7,22 @@
 get_json_from_submission_url(response, token)
 }
 \arguments{
-\item{response}{HTTP response to the exercise submission.}
+\item{response}{\code{HTTP} response to the exercise submission.}
 
-\item{token}{OAuth2 token associated with the current login session to the TMC server.}
+\item{token}{\code{OAuth2} token associated with the current login session to the TMC server.}
 }
 \value{
-HTTP response from the TMC server containing the submission result JSON if the
-server has finished processing the exercise submission. \code{NULL} if the HTTP
-GET-reaction failed.
+\code{HTTP} response from the TMC server containing the submission result \code{JSON}
+if the server has finished processing the exercise submission. \code{NULL} if the \code{HTTP-GET}
+request failed.
 }
 \description{
-Get exercise submission result JSON from the TMC server.
+Get exercise submission result \code{JSON} from the TMC server.
 }
 \details{
-Extracts the exercise submission url from the given response and calls the
-\code{\link{get_submission_json}} function which does the actual HTTP GET-request.
+Extracts the exercise submission result url from the given response and makes an
+\code{HTTP-GET} request for the exercise submission result \code{JSON}.
 }
 \seealso{
-\code{\link{get_submission_json}}
+\code{\link[httr]{content}}, \code{\link{get_submission_json}}
 }

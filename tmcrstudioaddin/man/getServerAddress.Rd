@@ -7,8 +7,12 @@
 getServerAddress()
 }
 \value{
-The saved server from the .server file. NULL if the file does not exists or if it is corrupted.
+The saved server address from the \code{.server} file. \code{NULL} if the file does not exist
+or if it is corrupted.
 }
 \description{
-Get the saved server address.
+Get the saved server address from the \code{.server} file.
+}
+\seealso{
+\code{\link[base]{file.exists}}, \code{\link[base]{scan}}
 }

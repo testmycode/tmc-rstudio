@@ -11,7 +11,7 @@ create_properties_file(tmcr_projects = "tmcr-projects")
 \code{tmcr-projects} by default.}
 }
 \value{
-Always NULL.
+Always \code{NULL}.
 }
 \description{
 Create the \code{properties.rds} file, which includes the path to the directory

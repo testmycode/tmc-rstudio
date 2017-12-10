@@ -7,9 +7,9 @@
 login(clientID, secret, username, password, serverAddress)
 }
 \arguments{
-\item{clientID}{Client ID used in OAuth2.}
+\item{clientID}{Client ID used in \code{OAuth2}.}
 
-\item{secret}{Secret used in OAuth2.}
+\item{secret}{Secret used in \code{OAuth2}.}
 
 \item{username}{Username of a TMC account.}
 
@@ -18,17 +18,17 @@ login(clientID, secret, username, password, serverAddress)
 \item{serverAddress}{Address of the TMC server which the user wants to log in to.}
 }
 \value{
-An OAuth2 token if the authentication was succesful, otherwise returns an error message.
+An \code{OAuth2} token if the authentication was succesful, otherwise returns an error message.
 }
 \description{
-Logs in to a TMC server using an username and a password along with a clientID and secret used
-for OAuth2 authentication.
+Logs in to a TMC server using an username and a password along with a clientID and
+secret used for \code{OAuth2} authentication.
 }
 \details{
-Called from the \code{\link{authenticate}} function, which provides the client id and secret
-used in this function's parameters. If logging in was successful, saves the login credentials (username,
-access-token and the server address) in the credentials file.
+If logging in was successful, saves the login credentials (username, access-token
+and the server address) in the \code{.credentials} file.
 }
 \seealso{
-\code{\link{authenticate}}
+\code{\link[httr]{POST}}, \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
+\code\link{saveCredentials}
 }

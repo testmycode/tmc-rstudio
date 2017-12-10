@@ -7,14 +7,15 @@
 processSubmission(output)
 }
 \arguments{
-\item{output}{HTTP response containing the submission result JSON.}
+\item{output}{HTTP response containing the submission result \code{JSON}.}
 }
 \value{
-List of test results received from the submission result JSON.
+List of test results received from the submission result \code{JSON}.
 }
 \description{
-Read test result data from the submission result JSON.
+Read test result data from the submission result \code{JSON}.
 }
 \details{
-Creates a list of test results received from the submission result JSON.
+Creates a list of test results received from the submission
+result \code{JSON}.
 }

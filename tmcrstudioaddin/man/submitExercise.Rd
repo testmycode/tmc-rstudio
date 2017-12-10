@@ -7,19 +7,19 @@
 submitExercise()
 }
 \value{
-List of data read from the submission result JSON. List keys:
+List of data read from the submission result \code{JSON}. List keys:
 \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}.
 \code{NULL} if submitting the exercise to the server failed
 }
 \description{
 Submit the currently open exercise to the TMC server
-and process the JSON received from the response.
+and process the \code{JSON} received from the response.
 }
 \details{
 Submits the currently open exercise to the TMC server,
 queries the server until it has finished processing the submission,
-reads the data from the JSON received in the HTTP response and
-shows a message popup showing if all of the tests passed or not.
+reads the data from the \code{JSON} received in the \code{HTTP}
+response and shows a message popup showing if all of the tests passed or not.
 }
 \seealso{
 \code{\link{submitCurrent}}, \code{\link{processSubmissionJson}},

@@ -15,7 +15,7 @@ Read and return the data from \code{properties.rds}.
 \details{
 Reads the data from \code{properties.rds} and returns it. If the
 \code{properites.rds} file does not exist at the \code{tmcr} directory, it is
-created.
+created there.
 }
 \seealso{
 \code{\link{check_if_properties_exist}}, \code{\link{create_properties_file}},

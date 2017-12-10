@@ -8,7 +8,7 @@
 #' @param tmcr_projects Name of the directory where the exercises are downloaded into.
 #' \code{tmcr-projects} by default.
 #'
-#' @return Always NULL.
+#' @return Always \code{NULL}.
 #'
 #' @examples create_properties_file(tmcr_projects = "folder_name")
 #'
@@ -35,7 +35,7 @@ create_properties_file <- function(tmcr_projects = "tmcr-projects") {
 #' @return \code{TRUE} if the \code{properties.rds} exists at the root of the \code{tmcr}
 #' directory, otherwise \code{FALSE}.
 #'
-#' @seealso \code{\link{get_tmcr_directory}}, \code{\link[base]{files}}
+#' @seealso \code{\link{get_tmcr_directory}}, \code{\link[base]{file.exists}}
 check_if_properties_exist <- function() {
   properties_path <- paste(tmcrstudioaddin::get_tmcr_directory(),
                         ".properties.rds", sep = .Platform$file.sep)
@@ -96,7 +96,7 @@ get_projects_folder <- function() {
 #'
 #' @details Reads the data from \code{properties.rds} and returns it. If the
 #' \code{properites.rds} file does not exist at the \code{tmcr} directory, it is
-#' created.
+#' created there.
 #'
 #' @return An R object created from the data of \code{properties.rds}.
 #'

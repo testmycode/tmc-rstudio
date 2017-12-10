@@ -2,12 +2,12 @@
 % Please edit documentation in R/InputToggle.R
 \name{disable_course_tab}
 \alias{disable_course_tab}
-\title{Disable shiny input elements in the Course & Exercise tab}
+\title{Disable Shiny input elements in the Course & Exercise tab}
 \usage{
 disable_course_tab()
 }
 \description{
-Disable shiny input elements in the Course & Exercise tab.
+Disable \code{Shiny} input elements in the Course & Exercise tab.
 }
 \seealso{
 \code{\link{disable_elements}}

@@ -12,14 +12,14 @@ createTestResultsHtml(testResults, showAll)
 \item{showAll}{Boolean for showing all test results.}
 }
 \value{
-A single shiny HTML tag object containing all of the elements in the created HTML
-test result output.
+A single \code{Shiny} \code{HTML} tag object containing all of the elements in the created
+\code{HTML} test result output.
 }
 \description{
-Create HTML for displaying test results
+Create \code{HTML} for displaying test results.
 }
 \details{
-The created HTML includes a percentage bar for showing how many of the tests
+The created \code{HTML} includes a percentage bar for showing how many of the tests
 passed, and a list of paragraph elements for each of the test results. If the user has
 ticked off the \code{Show all results} checkbox, then instead of a list only a single
 paragraph element is shown. The single parahraph is either of the first failing test,

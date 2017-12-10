@@ -1,16 +1,19 @@
-#' @title Disable shiny input elements
+#' @title Disable Shiny input elements
 #'
-#' @description Disable shiny input elements.
+#' @description Disable \code{Shiny} input elements.
 #'
 #' @usage disable_elements(...)
 #'
-#' @param ... IDs of the shiny input elements which are to be disabled.
+#' @param ... IDs of the \code{Shiny} input elements which are to be disabled.
 #'
-#' @details Disables the shiny input elements and sets the global boolean \code{UI_disabled}
+#' @details Disables the \code{Shiny} input elements and sets the global boolean \code{UI_disabled}
 #' to \code{FALSE}. This is done in order to prevent excessive buffering of button actions if
 #' the user starts clicking buttons in other tabs during an operation that is taking a long itme.
 #'
 #' @examples disable_elements("login", "logout", "username", "password")
+#'
+#' @seealso \code{\link[base]{as.list}},\code{\link[base]{substitute}}, \code{\link[base]{lapply}},
+#' \code{\link[shinyjs]{disable}}
 
 disable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
@@ -18,29 +21,32 @@ disable_elements <- function(...) {
   UI_disabled <<- TRUE
 }
 
-#' @title Enable shiny input elements
+#' @title Enable Shiny input elements
 #'
-#' @description Enable shiny input elements.
+#' @description Enable \code{Shiny} input elements.
 #'
 #' @usage enable_elements(...)
 #'
-#' @param ... IDs of the shiny input elements which are to be enabled.
+#' @param ... IDs of the \code{Shiny} input elements which are to be enabled.
 #'
-#' @details Enables the shiny input elements and sets the global boolean \code{UI_disabled} to
+#' @details Enables the \code{Shiny} input elements and sets the global boolean \code{UI_disabled} to
 #' \code{FALSE} after 1000 milliseconds (=1 second) have passed. This is done in order to
 #' prevent excessive buffering of button actions if the user starts clicking buttons in other
 #' tabs during an operation that is taking a long itme.
 #'
 #' @examples enable_elements("login", "logout", "username", "password")
+#'
+#' @seealso \code{\link[base]{as.list}},\code{\link[base]{substitute}}, \code{\link[base]{lapply}},
+#' \code{\link[shinyjs]{enable}}, \code{\link[shinyjs]{delay}}
 enable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, function(i) {shinyjs::enable(i)})
   shinyjs::delay(ms = 1000, expr = UI_disabled <<- FALSE)
 }
 
-#' @title Disable shiny input elements in the Test & Submit tab
+#' @title Disable Shiny input elements in the Test & Submit tab
 #'
-#' @description Disable shiny input elements in the Test & Submit tab
+#' @description Disable \code{Shiny} input elements in the Test & Submit tab
 #'
 #' @usage disable_submit_tab()
 #'
@@ -49,9 +55,9 @@ disable_submit_tab <- function() {
   disable_elements("selectExercise", "source", "runTests", "submit", "showAllResults")
 }
 
-#' @title Enable shiny input elements in the Test & Submit tab
+#' @title Enable Shiny input elements in the Test & Submit tab
 #'
-#' @description Enable shiny input elements in the Test & Submit tab
+#' @description Enable \code{Shiny} input elements in the Test & Submit tab
 #'
 #' @usage enable_submit_tab()
 #'
@@ -60,9 +66,9 @@ enable_submit_tab <- function() {
   enable_elements("selectExercise", "source", "runTests", "submit", "showAllResults")
 }
 
-#' @title Disable shiny input elements in the Course & Exercise tab
+#' @title Disable Shiny input elements in the Course & Exercise tab
 #'
-#' @description Disable shiny input elements in the Course & Exercise tab.
+#' @description Disable \code{Shiny} input elements in the Course & Exercise tab.
 #'
 #' @usage disable_course_tab()
 #'
@@ -72,9 +78,9 @@ disable_course_tab <- function() {
                    "courseSelect", "download", "all_exercises", "exercises")
 }
 
-#' @title Enable shiny input elements in the Course & Exercise tab
+#' @title Enable Shiny input elements in the Course & Exercise tab
 #'
-#' @description Enable shiny input elements in the Course & Exercise tab.
+#' @description Enable \code{Shiny} input elements in the Course & Exercise tab.
 #'
 #' @usage enable_course_tab()
 #'
@@ -85,9 +91,9 @@ enable_course_tab <- function() {
 }
 
 
-#' @title Disable shiny input elements in the Login tab.
+#' @title Disable Shiny input elements in the Login tab.
 #'
-#' @description Disable shiny input elements in the Login tab.
+#' @description Disable \code{Shiny} input elements in the Login tab.
 #'
 #' @usage disable_login_tab()
 #'
@@ -96,9 +102,9 @@ disable_login_tab <- function() {
   disable_elements("username", "password", "login", "changeServer", "resetServer", "logout")
 }
 
-#' @title Enable shiny input elements in the Login tab.
+#' @title Enable Shiny input elements in the Login tab.
 #'
-#' @description Enable shiny input elements in the Login tab.
+#' @description Enable \code{Shiny} input elements in the Login tab.
 #'
 #' @usage enable_login_tab()
 #'

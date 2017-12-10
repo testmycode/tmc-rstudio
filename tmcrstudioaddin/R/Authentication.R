@@ -2,20 +2,29 @@ library(httr)
 library(jsonlite)
 
 #' @title Authenticate to a TMC server
+#'
 #' @description Fetches the client id and secret from the server and logs in to the server.
-#' @usage Authenticate(username, password, serverAddress)
+#'
+#' @usage authenticate(username, password, serverAddress)
+#'
 #' @param username Username of a TMC account.
 #' @param password Password matching the inputed username of a TMC account.
 #' @param serverAddress Address of the TMC server which the user wants to log in to.
-#' @details Uses the OAuth2 protocol for authentication. Calls \code\{\link{fetchClientIdAndSecret}} for
-#' fetching the client id and secret from the server and \code{\link{login}} for the actual login process.
-#' @return An OAuth2 token if the authentication was succesful, otherwise returns an error message.
-#' @examples authenticate(username = "test", password = "hello123", serverAddress = "https://tmc.mooc.fi")
-#' @seealso \code\{\link{fetchClientIdAndSecret}}, \code{\link{login}}
+#'
+#' @details Uses the \code{OAuth2} protocol for authentication. Fetches the client id and secret
+#' from the server and uses them along with the username and password to login to the server.
+#'
+#' @return An \code{OAuth2} token if the authentication was succesful, otherwise returns an error
+#' message.
+#'
+#' @examples authenticate(username = "test", password = "hello123",
+#' serverAddress = "https://tmc.mooc.fi")
+#'
+#' @seealso \code{\link{fetchClientIdAndSecret}}, \code{\link[httr]{status_code}},
+#' \code{\link[httr]{content}}, \code{\link{login}}
 
 #authentication first fetches clientId and secret after that logs in with username and password
 authenticate <- function(username, password, serverAddress) {
-
   tryCatch({
     response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
     status_code <- status_code(response)
@@ -37,19 +46,26 @@ authenticate <- function(username, password, serverAddress) {
 }
 
 #' @title Login to a TMC server
-#' @description Logs in to a TMC server using an username and a password along with a clientID and secret used
-#' for OAuth2 authentication.
+#'
+#' @description Logs in to a TMC server using an username and a password along with a clientID and
+#' secret used for \code{OAuth2} authentication.
+#'
 #' @usage login(clientID, secret, username, password, serverAddress)
-#' @param clientID Client ID used in OAuth2.
-#' @param secret Secret used in OAuth2.
+#'
+#' @param clientID Client ID used in \code{OAuth2}.
+#' @param secret Secret used in \code{OAuth2}.
 #' @param username Username of a TMC account.
 #' @param password Password matching the inputed username of a TMC account.
 #' @param serverAddress Address of the TMC server which the user wants to log in to.
-#' @details Called from the \code{\link{authenticate}} function, which provides the client id and secret
-#' used in this function's parameters. If logging in was successful, saves the login credentials (username,
-#' access-token and the server address) in the credentials file.
-#' @return An OAuth2 token if the authentication was succesful, otherwise returns an error message.
-#' @seealso \code{\link{authenticate}}
+#'
+#' @details If logging in was successful, saves the login credentials (username, access-token
+#' and the server address) in the \code{.credentials} file.
+#'
+#' @return An \code{OAuth2} token if the authentication was succesful, otherwise returns an error message.
+#'
+#' @seealso \code{\link[httr]{POST}}, \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
+#' \code\link{saveCredentials}
+
 #actual login function
 login <- function(clientID, secret, username, password, serverAddress){
   body <- paste(sep = "",
@@ -79,23 +95,33 @@ login <- function(clientID, secret, username, password, serverAddress){
 
 
 #' @title Fetch client id and secret from the server
-#' @description Fetch the client id and secret required in OAuth2 authentication from the server.
+#'
+#' @description Fetch the client id and secret required in \code{OAuth2} authentication
+#' from the server.
+#'
 #' @usage fetchClientIdAndSecret(serverAddress)
+#'
 #' @param serverAddress Address of the TMC server which the user wants to log in to.
-#' @details Called from the \code{\link{authenticate}} function which provides the desired TMC server address.
+#'
 #' @return Client ID and secret fetched from the server.
-#' @seealso \code{\link[=func]{authenticate}}
+#'
+#' @seealso \code{\link[httr]{GET}}
 fetchClientIdAndSecret <-function(serverAddress){
   url <- paste(serverAddress, "/api/v8/application/rstudio_plugin/credentials.json", sep = "")
   req <- httr::GET(url = url, config = timeout(30))
   return(req)
 }
 
-#' @title Delete the saved credentials
-#' @description Delete the saved credentials.
+#' @title Delete the saved user credentials
+#'
+#' @description Delete the \code{.credentials} file.
+#'
 #' @usage deleteCredentials()
-#' @return True if succeeded in deleting the credentials. False if the deletion did not succeed or the saved
-#' credentials were not found.
+#'
+#' @return  \code{TRUE} if succeeded in deleting the credentials. \code{FALSE} if the deletion did not
+#' succeed or \code{.credentials} were not found.
+#'
+#' @seealso \code{\link[base]{files}}
 deleteCredentials <- function(){
   if (file.exists(".credentials")){
     file.remove(".credentials")
@@ -104,14 +130,20 @@ deleteCredentials <- function(){
 
 
 #' @title Get the saved server address
-#' @description Get the saved server address.
+#'
+#' @description Get the saved server address from the \code{.server} file.
+#'
 #' @usage getServerAddress()
-#' @return The saved server from the .server file. NULL if the file does not exists or if it is corrupted.
+#'
+#' @return The saved server address from the \code{.server} file. \code{NULL} if the file does not exist
+#' or if it is corrupted.
+#'
+#' @seealso \code{\link[base]{file.exists}}, \code{\link[base]{scan}}
 getServerAddress <- function(){
-
   if(!file.exists(".server")){
     return(NULL)
   }
+
   #read credentials from file, catch if file is corrupted
   server <- tryCatch(scan(".server", what = character(), quiet = TRUE),
     error = function(e) NULL)
@@ -119,29 +151,39 @@ getServerAddress <- function(){
   return(server)
 }
 
-#' @title Save the TMC user crendentials into a rds file.
-#' @description Save the TMC user credentials (username, access token and the server address) into a rds file.
+#' @title Save the TMC user crendentials into a \code{rds} file.
+#'
+#' @description Save the TMC user credentials (username, access token and the server address)
+#' into a \code{rds} file.
+#'
 #' @usage saveCredentials(credentials)
-#' @param credentials The user credentials to be saved. Is assumed to be in a list format with the keys \code{username},
-#' \code{token} and \code{serverAddress}.
-#' @details The file is named \code{credentials.rds} and is saved on the \code{tmcr}-folder where the exercises are
-#' downloaded into.
-#' @return Always NULL.
-#' @examples
-#' credentials <- list(username = username,token = token, serverAddress = serverAddress)
-#' saveCredentials(credentials)
+#'
+#' @param credentials The user credentials to be saved. Is assumed to be in a list format with
+#' the keys \code{username}, \code{token} and \code{serverAddress}.
+#'
+#' @details The file is named \code{credentials.rds} and is saved on the \code{tmcr} folder.
+#'
+#' @return Always \code{NULL}.
+#'
+#' @seealso \code{\link{get_tmcr_directory}}, \code{\link[base]{readRDS}}
 saveCredentials <- function(credentials){
   credentials_path <- paste(get_tmcr_directory(), ".credentials.rds",
     sep = .Platform$file.sep)
   saveRDS(credentials, credentials_path)
 }
 
-#' @title Get the TMC user credentials from a file
-#' @description Get the TMC user credentials (username, access token and the server address) from the
-#' \code{credentials.rds} file.
+#' @title Get the TMC user credentials
+#'
+#' @description Get the TMC user credentials (username, access token and the server address)
+#' from the \code{credentials.rds} file.
+#'
 #' @usage getCredentials()
-#' @return A list with the keys \code{username}, \code{token} and \code{serverAddress} and their corresponding values.
-#' If reading the file was unsuccessful then an empty list is returned instead.
+#'
+#' @return A list with the keys \code{username}, \code{token} and \code{serverAddress} and
+#' their corresponding values. If reading the file was unsuccessful then an empty list is
+#' returned instead.
+#'
+#' @seealso \code{\link[base]{readRDS}}
 getCredentials <- function(){
   credentials <- list()
   tryCatch({

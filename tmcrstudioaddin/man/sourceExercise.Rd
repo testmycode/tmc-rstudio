@@ -2,13 +2,21 @@
 % Please edit documentation in R/Exercises.R
 \name{sourceExercise}
 \alias{sourceExercise}
-\title{Source exercise .R files}
+\title{Source all exercise R files.}
 \usage{
-sourceExercise(exercise)
+sourceExercise(exercisePath)
 }
 \arguments{
-\item{exercise}{Name of the exercise which .R files are sourced}
+\item{exercisePath}{File path to the exercise project directory.}
 }
 \description{
-Source the .R files contained in the exercise directory's \code{R} folder.
+Source all exercise \code{R} files.
+}
+\details{
+The \code{R} files contained in the exercise
+directory's \code{R} folder are sourced with \code{print.eval} on.
+}
+\seealso{
+\code{\link[base]{environment}}, \code{\link[base]{list.files}},
+\code{\link[base]{file.path}}, \code{\link[base]{cat}}, \code{\link[base]{source}}
 }

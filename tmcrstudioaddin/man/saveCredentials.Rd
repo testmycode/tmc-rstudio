@@ -2,25 +2,24 @@
 % Please edit documentation in R/Authentication.R
 \name{saveCredentials}
 \alias{saveCredentials}
-\title{Save the TMC user crendentials into a rds file.}
+\title{Save the TMC user crendentials into a \code{rds} file.}
 \usage{
 saveCredentials(credentials)
 }
 \arguments{
-\item{credentials}{The user credentials to be saved. Is assumed to be in a list format with the keys \code{username},
-\code{token} and \code{serverAddress}.}
+\item{credentials}{The user credentials to be saved. Is assumed to be in a list format with
+the keys \code{username}, \code{token} and \code{serverAddress}.}
 }
 \value{
-Always NULL.
+Always \code{NULL}.
 }
 \description{
-Save the TMC user credentials (username, access token and the server address) into a rds file.
+Save the TMC user credentials (username, access token and the server address)
+into a \code{rds} file.
 }
 \details{
-The file is named \code{credentials.rds} and is saved on the \code{tmcr}-folder where the exercises are
-downloaded into.
+The file is named \code{credentials.rds} and is saved on the \code{tmcr} folder.
 }
-\examples{
-credentials <- list(username = username,token = token, serverAddress = serverAddress)
-saveCredentials(credentials)
+\seealso{
+\code{\link{get_tmcr_directory}}, \code{\link[base]{readRDS}}
 }

@@ -8,19 +8,19 @@ download_exercise(exercise_id, zip_target = getwd(), zip_name = "temp.zip",
                          exercise_directory, exercise_name)
 }
 \arguments{
-\item{exercise_id}{Id of the exercise.}
+\item{exercise_id}{ID of the exercise.}
 
-\item{zip_target}{Path to where the temporary zip file is stored. Defaults to the current
-working directory.}
+\item{zip_target}{Path to where the temporary \code{zip} file is stored. Defaults
+to the current working directory.}
 
-\item{zip_name}{Name of the temporary zip file. Default is \code{temp.zip}}
+\item{zip_name}{Name of the temporary \code{zip} file. Default is \code{temp.zip}.}
 
 \item{exercise_directory}{Path to the directory where the exercise directory is unzipped to.}
 
 \item{exercise_name}{Name of the downloaded exercise.}
 }
 \value{
-HTTP response to the download attempt.
+\code{HTTP} response to the download attempt.
 }
 \description{
 Download an exercise from the TMC server.
@@ -28,9 +28,15 @@ Download an exercise from the TMC server.
 \details{
 Reads the user credentials from the credentials file, downloads an zipped exercise
 matching the given id from the TMC server, unzips it to the given directory and creates a
-JSON file containing the exercise name and id on the exercise directory.
+\code{JSON} file containing the exercise name and id on the exercise directory.
 }
 \examples{
 download_exercise(exercise_id = 36463, exercise_directory = getwd(),
-                            exercise_name = "0_0_helloworld")
+exercise_name = "0_0_helloworld")
+
+}
+\seealso{
+\code{\link{getCredentials}}, \code{\link[httr]{GET}},
+\code{\link[httr]{add_headers}}, \code{\link[httr]{write_disk}},
+\code{\link[base]{file.remove}}, \code{\link{create_exercise_metadata}}
 }

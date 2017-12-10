@@ -2,12 +2,12 @@
 % Please edit documentation in R/InputToggle.R
 \name{disable_login_tab}
 \alias{disable_login_tab}
-\title{Disable shiny input elements in the Login tab.}
+\title{Disable Shiny input elements in the Login tab.}
 \usage{
 disable_login_tab()
 }
 \description{
-Disable shiny input elements in the Login tab.
+Disable \code{Shiny} input elements in the Login tab.
 }
 \seealso{
 \code{\link{disable_elements}}

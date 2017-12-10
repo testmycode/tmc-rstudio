@@ -1,16 +1,16 @@
 #' @title Submit current exercise and process the response
 #'
 #' @description Submit the currently open exercise to the TMC server
-#' and process the JSON received from the response.
+#' and process the \code{JSON} received from the response.
 #'
 #' @usage submitExercise()
 #'
 #' @details Submits the currently open exercise to the TMC server,
 #' queries the server until it has finished processing the submission,
-#' reads the data from the JSON received in the HTTP response and
-#' shows a message popup showing if all of the tests passed or not.
+#' reads the data from the \code{JSON} received in the \code{HTTP}
+#' response and shows a message popup showing if all of the tests passed or not.
 #'
-#' @return List of data read from the submission result JSON. List keys:
+#' @return List of data read from the submission result \code{JSON}. List keys:
 #' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}.
 #' \code{NULL} if submitting the exercise to the server failed
 #'
@@ -31,20 +31,20 @@ submitExercise <- function() {
 #' @title Submit the currently open exercise to the TMC server
 #'
 #' @description Submit the currently open exercise to the TMC server and return the
-#' Submission result JSON.
+#' submission result \code{JSON}.
 #'
 #' @usage submitCurrent()
 #'
-#' @details Reads the OAuth2 token and TMC server address from
+#' @details Reads the \code{OAuth2} token and TMC server address from
 #' \code{.crendentials.rds} and uploads the currently open exercise to
 #' the TMC server. If the upload was successful, starts querying the TMC server for the
-#' submission result JSON until the server has finished processing the tests.
+#' submission result \code{JSON} until the server has finished processing the tests.
 #'
-#' @return Submission result JSON if processing the tests in the TMC server was
+#' @return Submission result \code{JSON} if processing the tests in the TMC server was
 #' successful. \code{NULL} if processing the tests ended in error.
 #'
 #' @seealso \code{\link{getCredentials}}, \code{\link{upload_current_exercise}},
-#' \code{\link{getExercisePath}}, \code{\link{getExerciseFromServer}}
+#' \code{\link{getExerciseFromServer}}
 submitCurrent <- function() {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
@@ -63,13 +63,13 @@ submitCurrent <- function() {
 #'
 #' @usage getExerciseFromServer(response, token)
 #'
-#' @param response HTTP response to the exercise submission upload.
-#' @param token OAuth2 token associated with the current login session.
+#' @param response \code{HTTP} response to the exercise submission upload.
+#' @param token \code{OAuth2} token associated with the current login session.
 #'
-#' @details Queries the server with HTTP GET requests until the server
+#' @details Queries the server with \code{HTTP-GET} requests until the server
 #' has finished processing the exercise submission.
 #'
-#' @return Submission result JSON if processing the tests in the TMC server was
+#' @return Submission result \code{JSON} if processing the tests in the TMC server was
 #' successful. \code{NULL} if processing the tests ended in error.
 #'
 #' @seealso \code{\link{get_json_from_submission_url}},
@@ -92,16 +92,16 @@ getExerciseFromServer <- function(response, token) {
 
 #' @title Read data from the submission result JSON
 #'
-#' @description Read data from the submission result JSON.
+#' @description Read data from the submission result \code{JSON}.
 #'
 #' @usage processSubmissionJson(output)
 #'
-#' @param output HTTP response containg the submission result JSON.
+#' @param output \code{HTTP} response containg the submission result \code{JSON}.
 #'
 #' @details Reads the test results, exercise name, boolean depending on if all
-#' tests passed or not and the received points form the submission result JSON.
+#' tests passed or not and the received points form the submission result \code{JSON}.
 #'
-#' @return List of data read from the submission result JSON. List keys:
+#' @return List of data read from the submission result \code{JSON}. List keys:
 #' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}
 #'
 #' @seealso \code{\link{processSubmission}}
@@ -116,15 +116,16 @@ processSubmissionJson <- function(output) {
 
 #' @title Read test result data from the submission result JSON
 #'
-#' @description Read test result data from the submission result JSON.
+#' @description Read test result data from the submission result \code{JSON}.
 #'
 #' @usage processSubmission(output)
 #'
-#' @param output HTTP response containing the submission result JSON.
+#' @param output HTTP response containing the submission result \code{JSON}.
 #'
-#' @details Creates a list of test results received from the submission result JSON.
+#' @details Creates a list of test results received from the submission
+#' result \code{JSON}.
 #'
-#' @return List of test results received from the submission result JSON.
+#' @return List of test results received from the submission result \code{JSON}.
 processSubmission <- function(output) {
   tests <- list()
   for (test_case in output$test_cases) {
@@ -151,7 +152,7 @@ processSubmission <- function(output) {
 #'
 #' @usage showMessage(submitResults)
 #'
-#' @param submitResults List of data read from the submission result JSON.
+#' @param submitResults List of data read from the submission result \code{JSON}.
 #'
 #' @seealso \code{\link{getDialogMessage}}, \code{\link[rstudioapi]{showDialog}}
 showMessage <- function(submitResults) {
@@ -168,7 +169,7 @@ showMessage <- function(submitResults) {
 #'
 #' @usage getDialogMessage(submitResults)
 #'
-#' @param submitResults List of data read from the submission result JSON.
+#' @param submitResults List of data read from the submission result \code{JSON}.
 #'
 #' @return Message showing if submitting the exercise failed, some tests failed or all
 #' tests passed.

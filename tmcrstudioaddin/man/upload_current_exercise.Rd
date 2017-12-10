@@ -7,31 +7,28 @@
 upload_current_exercise(token, project_path, zip_name = "temp", remove_zip = TRUE)
 }
 \arguments{
-\item{token}{OAuth2 token associated with the current login session.}
+\item{token}{\code{OAuth2} token associated with the current login session.}
 
 \item{project_path}{Path to the directory of the submitted exercise.}
 
-\item{zip_name}{Name of the zip file which contains the exercise submission. Default is
-\code{temp}}
+\item{zip_name}{Name of the \code{zip} file which contains the exercise submission. Default is
+\code{temp}.}
 
 \item{remove_zip}{\code{TRUE} or \code{FALSE} depending on if you wish to delete the
-submission zip file after sending it to the server. Defaults to \code{TRUE}.}
+submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.}
 }
 \value{
-HTTP response to the submission attempt. NULL if reading the metadata or credentials file
-caused an error.
+\code{HTTP} response to the submission attempt. \code{NULL} if reading the metadata or
+credentials file caused an error.
 }
 \description{
 Upload the currently open exercise to the TMC server.
 }
 \details{
 Reads the exercise id from \code{.metadata.json} and the server address from
-\code{.credentials.json}. These along with the function parameters are passed to the actual
-upload function, which is \code{\link{upload_exercise}}
-}
-\examples{
-upload_current_exercise(token = token, project_path = getwd())
+\code{.credentials.json} which are used to form the correct uploading address.
 }
 \seealso{
-\code{\link{upload_exercise}}
+\code{\link[base]{list.files}}, \code{\link[jsonlite]{fromJSON}},
+\code{\link{getCredentials}}, \code{\link{upload_exercise}}
 }

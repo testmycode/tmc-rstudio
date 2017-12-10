@@ -8,13 +8,17 @@ getAllOrganizations()
 }
 \value{
 List of TMC organization names and slugs. If reading \code{.credentials.json}
- or sending the HTTP request failed, returns a list with 2 empty sublists called \code{name}
+ or sending the \code{HTTP-GET} request failed, returns a list with 2 empty sublists called \code{name}
  and \code{slug}.
 }
 \description{
 Get all TMC organizations.
 }
 \details{
-Reads the OAuth2 token and server address from \code{.credentials.json} and uses
-them to make a HTTP-Get request for the list of organizations.
+Reads the \code{OAuth2} token and server address from \code{.credentials.json} and uses
+them to make a \code{HTTP-GET} request for the list of organizations.
+}
+\seealso{
+\code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
+\code{\link[jsonlite]{fromJSON}}
 }

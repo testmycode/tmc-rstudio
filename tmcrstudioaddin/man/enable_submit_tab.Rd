@@ -2,12 +2,12 @@
 % Please edit documentation in R/InputToggle.R
 \name{enable_submit_tab}
 \alias{enable_submit_tab}
-\title{Enable shiny input elements in the Test & Submit tab}
+\title{Enable Shiny input elements in the Test & Submit tab}
 \usage{
 enable_submit_tab()
 }
 \description{
-Enable shiny input elements in the Test & Submit tab
+Enable \code{Shiny} input elements in the Test & Submit tab
 }
 \seealso{
 \code{\link{enable_elements}}

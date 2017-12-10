@@ -11,16 +11,22 @@ getAllCourses(organization)
 }
 \value{
 List of course names and course ids belonging to the given organization.
-If reading \code{.credentials.json} or sending the HTTP request failed, returns a list with
-2 empty sublists called \code{id} and \code{name}.
+If reading \code{.credentials.json} or sending the \code{HTTP-GET} request failed, returns
+a list with 2 empty sublists called \code{id} and \code{name}.
 }
 \description{
 Get all courses offered by a TMC organization.
 }
 \details{
-Reads the OAuth2 token and server address from \code{.credentials.json} and uses
-them to make a HTTP-Get request for the list of courses of the organization.
+Reads the \code{OAuth2} token and server address from \code{.credentials.json}
+and uses them to make a \code{HTTP-GET} request for the list of courses belonging to
+the organization.
 }
 \examples{
 getAllCourses("hy")
+
+}
+\seealso{
+\code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
+\code{\link[jsonlite]{fromJSON}}
 }

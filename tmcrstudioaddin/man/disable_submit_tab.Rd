@@ -2,12 +2,12 @@
 % Please edit documentation in R/InputToggle.R
 \name{disable_submit_tab}
 \alias{disable_submit_tab}
-\title{Disable shiny input elements in the Test & Submit tab}
+\title{Disable Shiny input elements in the Test & Submit tab}
 \usage{
 disable_submit_tab()
 }
 \description{
-Disable shiny input elements in the Test & Submit tab
+Disable \code{Shiny} input elements in the Test & Submit tab
 }
 \seealso{
 \code{\link{disable_elements}}

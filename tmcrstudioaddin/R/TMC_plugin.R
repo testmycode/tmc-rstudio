@@ -3,12 +3,12 @@
 
 #' @title Run the TMC addin
 #'
-#' @description Run the TMC addin on the RStudio viewer pane.
+#' @description Run the TMC addin on the \code{RStudio} viewer pane.
 #'
 #' @usage tmcGadget()
 #'
-#' @details The TMC RStudio addin was made using \code{\link[shiny]{shiny-package}}, which
-#' allows making web applications and RStudio addins using R.
+#' @details The TMC \code{RStudio} addin was made using \code{\link[shiny]{shiny-package}}, which
+#' allows making web applications and \code{RStudio} addins using \code{R}.
 tmcGadget <- function() {
   # Assign the UI_disabled variable as a global variable
   assign(x = "UI_disabled", value = FALSE, envir = .GlobalEnv)

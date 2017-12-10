@@ -15,5 +15,5 @@ Check for the existence of the \code{properties.rds} file at the root of the
 \code{tmcr} directory.
 }
 \seealso{
-\code{\link{get_tmcr_directory}}, \code{\link[base]{files}}
+\code{\link{get_tmcr_directory}}, \code{\link[base]{file.exists}}
 }

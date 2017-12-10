@@ -7,20 +7,20 @@
 submitCurrent()
 }
 \value{
-Submission result JSON if processing the tests in the TMC server was
+Submission result \code{JSON} if processing the tests in the TMC server was
 successful. \code{NULL} if processing the tests ended in error.
 }
 \description{
 Submit the currently open exercise to the TMC server and return the
-Submission result JSON.
+submission result \code{JSON}.
 }
 \details{
-Reads the OAuth2 token and TMC server address from
+Reads the \code{OAuth2} token and TMC server address from
 \code{.crendentials.rds} and uploads the currently open exercise to
 the TMC server. If the upload was successful, starts querying the TMC server for the
-submission result JSON until the server has finished processing the tests.
+submission result \code{JSON} until the server has finished processing the tests.
 }
 \seealso{
 \code{\link{getCredentials}}, \code{\link{upload_current_exercise}},
-\code{\link{getExercisePath}}, \code{\link{getExerciseFromServer}}
+\code{\link{getExerciseFromServer}}
 }

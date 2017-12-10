@@ -2,12 +2,12 @@
 % Please edit documentation in R/InputToggle.R
 \name{enable_login_tab}
 \alias{enable_login_tab}
-\title{Enable shiny input elements in the Login tab.}
+\title{Enable Shiny input elements in the Login tab.}
 \usage{
 enable_login_tab()
 }
 \description{
-Enable shiny input elements in the Login tab.
+Enable \code{Shiny} input elements in the Login tab.
 }
 \seealso{
 \code{\link{enable_elements}}

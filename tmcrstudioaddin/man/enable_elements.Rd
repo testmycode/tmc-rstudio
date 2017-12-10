@@ -2,22 +2,27 @@
 % Please edit documentation in R/InputToggle.R
 \name{enable_elements}
 \alias{enable_elements}
-\title{Enable shiny input elements}
+\title{Enable Shiny input elements}
 \usage{
 enable_elements(...)
 }
 \arguments{
-\item{...}{IDs of the shiny input elements which are to be enabled.}
+\item{...}{IDs of the \code{Shiny} input elements which are to be enabled.}
 }
 \description{
-Enable shiny input elements.
+Enable \code{Shiny} input elements.
 }
 \details{
-Enables the shiny input elements and sets the global boolean \code{UI_disabled} to
+Enables the \code{Shiny} input elements and sets the global boolean \code{UI_disabled} to
 \code{FALSE} after 1000 milliseconds (=1 second) have passed. This is done in order to
 prevent excessive buffering of button actions if the user starts clicking buttons in other
 tabs during an operation that is taking a long itme.
 }
 \examples{
 enable_elements("login", "logout", "username", "password")
+
+}
+\seealso{
+\code{\link[base]{as.list}},\code{\link[base]{substitute}}, \code{\link[base]{lapply}},
+\code{\link[shinyjs]{enable}}, \code{\link[shinyjs]{delay}}
 }

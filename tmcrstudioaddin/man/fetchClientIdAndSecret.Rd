@@ -13,11 +13,9 @@ fetchClientIdAndSecret(serverAddress)
 Client ID and secret fetched from the server.
 }
 \description{
-Fetch the client id and secret required in OAuth2 authentication from the server.
-}
-\details{
-Called from the \code{\link{authenticate}} function which provides the desired TMC server address.
+Fetch the client id and secret required in \code{OAuth2} authentication
+from the server.
 }
 \seealso{
-\code{\link[=func]{authenticate}}
+\code{\link[httr]{GET}}
 }

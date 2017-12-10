@@ -2,24 +2,29 @@
 % Please edit documentation in R/HTTPQueries.R
 \name{getAllExercises}
 \alias{getAllExercises}
-\title{Get all exercises of a TMC course.}
+\title{Get all exercises of a TMC course}
 \usage{
 getAllExercises(course)
 }
 \arguments{
-\item{course}{Id of the course.}
+\item{course}{ID of the course.}
 }
 \value{
 List of exercises in the course. If reading \code{.credentials.json} or sending
-the HTTP request failed, returns an empty list.
+the \code{HTTP-GET} request failed, returns an empty list.
 }
 \description{
 Get all exercises of a TMC course.
 }
 \details{
-Reads the OAuth2 token and server address from \code{.credentials.json} and uses
-them to make a HTTP-Get request for the list of exercises in the course.
+Reads the \code{OAuth2} token and server address from \code{.credentials.json} and uses
+them to make a \code{HTTP-GET} request for the list of exercises in the course.
 }
 \examples{
 getAllExercies(242)
+
+}
+\seealso{
+\code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
+\code{\link[jsonlite]{fromJSON}}
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/InputToggle.R
 \name{enable_course_tab}
 \alias{enable_course_tab}
-\title{Enable shiny input elements in the Course & Exercise tab}
+\title{Enable Shiny input elements in the Course & Exercise tab}
 \usage{
 enable_course_tab()
 }
 \description{
-Enable shiny input elements in the Course & Exercise tab.
+Enable \code{Shiny} input elements in the Course & Exercise tab.
 }
 \seealso{
 \code{\link{enable_elements}}

@@ -2,14 +2,17 @@
 % Please edit documentation in R/Authentication.R
 \name{deleteCredentials}
 \alias{deleteCredentials}
-\title{Delete the saved credentials}
+\title{Delete the saved user credentials}
 \usage{
 deleteCredentials()
 }
 \value{
-True if succeeded in deleting the credentials. False if the deletion did not succeed or the saved
-credentials were not found.
+\code{TRUE} if succeeded in deleting the credentials. \code{FALSE} if the deletion did not
+succeed or \code{.credentials} were not found.
 }
 \description{
-Delete the saved credentials.
+Delete the \code{.credentials} file.
+}
+\seealso{
+\code{\link[base]{files}}
 }

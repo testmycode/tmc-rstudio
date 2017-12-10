@@ -10,14 +10,14 @@ createRunSourcingFail(runResults)
 \item{runResults}{Results from the failed attempt of running tests.}
 }
 \value{
-A single shiny HTML tag object containing all of the elements in the created HTML
-run result output.
+A single \code{Shiny} \code{HTML} tag object containing all of the elements in
+the created \code{HTML} run result output.
 }
 \description{
-Create HTML for displaying a run or sourcing fail.
+Create \code{HTML} for displaying a run or sourcing fail.
 }
 \details{
-Creates an HTML view for displaying information related to a run- or
+Creates an \code{HTML} view for displaying information related to a run- or
 sourcing fail
 }
 \seealso{

@@ -14,12 +14,17 @@ create_exercise_metadata(exercise_id, exercise_directory, exercise_name)
 \item{exercise_name}{Name of the exercise.}
 }
 \value{
-Either NULL or an integer status. See \code{\link[base]{connections}} in the \code{base} package for details.
+Either \code{NULL} or an integer status.
 }
 \description{
-Create a JSON file containing exercie metadata.
+Create a \code{JSON} file containing exercise metadata.
 }
 \details{
-Creates a JSON file in the exercise's directory root. The JSON file contains the exercise's name and id,
-which is used when the user wants to upload their exercise submission to the TMC server.
+Creates a \code{JSON} file in the exercise's directory root. The \code{JSON}
+file contains the exercise's name and id, which is used when the user wants to upload
+their exercise submission to the TMC server.
+}
+\seealso{
+\code{\link[base]{file.path}}, \code{\link[base]{connections}},
+\code{\link[jsonlite]{toJSON}}, \code{\link[jsonlite]{unbox}}, \code{\link[base]{cat}}
 }

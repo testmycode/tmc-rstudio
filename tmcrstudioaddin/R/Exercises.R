@@ -1,3 +1,20 @@
+#' @title Get the currently open exercise
+#'
+#' @description If the currently open exercise (the exercise which is located at the current
+#' working directory) is a valid TMC R exercise project, return it as a \code{c(name = path)}
+#' vector.
+#'
+#' @usage exerciseFromWd()
+#'
+#' @details The exercise is a valid TMC R exercise project if it contains the \code{R} and
+#' \code{tests/testthat} folders and is located in the TMC R projects directory.
+#'
+#' @return Exercise as a named vector: \code{c(name = path)}. If the current working directory
+#' isn't a valid exercise project folder, returns \code{c(" ", " ")}.
+#'
+#' @seealso \code{\link[base]{basename}}, \code{\link[base]{getwd}}, \code{\link{get_projects_folder}}
+#' \code{\link{pathIsExercise}}, \code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
+
 # Returns the exercise that is selected in wd.
 # If wd doesn't contain a valid exercise returns c(" ", " ").
 # Returns exercise as a named vector: c(name = path)
@@ -16,6 +33,19 @@ exercisePathFromWd <- function() {
   }
 }
 
+#' @title Get a list of downloaded exercises
+#'
+#' @description Get a list of downloaded exercises as named vector \code{c(name = path)}format.
+#'
+#' @usage downloadedExercises()
+#'
+#' @details Searches for downloaded exercise projects at the TMC R project folder.
+#'
+#' @return List of downloaded exercises as named vector \code{c(name = path)}format.
+#'
+#' @seealso \code{\link{findExercisesFromPath}}, \code{\link{get_projects_folder}},
+#' \code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
+
 # Returns a list of downloaded exercises as named vector format.
 # For example: c(name = path, name1 = path1, name2 = path2)
 downloadedExercisesPaths <- function() {
@@ -27,6 +57,20 @@ downloadedExercisesPaths <- function() {
   return(setNames(exercisePaths, names))
 }
 
+#' @title Source all exercise R files.
+#'
+#' @description Source all exercise \code{R} files.
+#'
+#' @usage sourceExercise(exercisePath)
+#'
+#' @param exercisePath File path to the exercise project directory.
+#'
+#' @details The \code{R} files contained in the exercise
+#' directory's \code{R} folder are sourced with \code{print.eval} on.
+#'
+#' @seealso \code{\link[base]{environment}}, \code{\link[base]{list.files}},
+#' \code{\link[base]{file.path}}, \code{\link[base]{cat}}, \code{\link[base]{source}}
+
 # Sources all files in exercise with print.eval on.
 sourceExercise <- function(exercisePath) {
   env <- new.env()
@@ -36,6 +80,19 @@ sourceExercise <- function(exercisePath) {
     source(file, env, print.eval = TRUE)
   }
 }
+
+#' @title Get paths to exercises
+#'
+#' @description Recursively searches for exercise projects in the given file path.
+#'
+#' @usage findExercisesFromPath(path)
+#'
+#' @param path Path to the directory where the exercises are searched from.
+#'
+#' @return A vector of full file paths to the found exercises. Always contains an
+#' empty \code{""} path.
+#'
+#' @seealso \code{\link[base]{list.dirs}}, \code{\link{pathIsExercise}}
 
 # Finds exercises from a path recursively. Returns the full path of found exercises
 # as a vector. Contains path empty path "" always.
@@ -50,12 +107,46 @@ findExercisesFromPath <- function(path) {
   return(foundExercises)
 }
 
+#' @title Determine if the given file path leads to an exercise project directory
+#'
+#' @description Determine if the given file path leads to an exercise project
+#' directory.
+#'
+#' @usage pathIsExercise(path)
+#'
+#' @param path File path to be checked.
+#'
+#' @details Determines if the given file path leads to an exercise project path by
+#' checking if the path leads to a directory which contains the \code{R} and
+#' \code{tests/testthat} folders.
+#'
+#' @return \code{TRUE} if the file path leads to an exercise project directory.
+#' \code{FALSE otherwise}.
+#'
+#' @seealso \code{\link[base]{file.path}}, \code{\link[base]{file.info}}
+
 # Determines if a path is an exercise
 pathIsExercise <- function(path) {
   R_dir <- file.path(path, "R")
   testthat_dir <- file.path(path, "tests", "testthat")
   return(isTRUE(file.info(R_dir)$isdir) & isTRUE(file.info(testthat_dir)$isdir))
 }
+
+#' @title Get the exercise's name
+#'
+#' @description Get the name of the exercise located at the given file path.
+#'
+#' @usage getExerciseName(exercisePath)
+#'
+#' @param exercisePath File path to the exercise project directory.
+#'
+#' @details Reads the \code{.metadata.json} file for the exercise name.
+#'
+#' @return Exercise's name read from \code{.metadata.json}. If the file doesn't
+#' exist, returns the name of the path's basename (the final directory/file in
+#' the file path).
+#'
+#' @seealso \code{\link{get_exercise_metadata}}, \code{\link[base]{basename}}
 
 # Read's exercises name from metadata file. If metadata file doesn't exist
 # returns the name of the path's basename.

@@ -7,19 +7,19 @@
 getExerciseFromServer(response, token)
 }
 \arguments{
-\item{response}{HTTP response to the exercise submission upload.}
+\item{response}{\code{HTTP} response to the exercise submission upload.}
 
-\item{token}{OAuth2 token associated with the current login session.}
+\item{token}{\code{OAuth2} token associated with the current login session.}
 }
 \value{
-Submission result JSON if processing the tests in the TMC server was
+Submission result \code{JSON} if processing the tests in the TMC server was
 successful. \code{NULL} if processing the tests ended in error.
 }
 \description{
 Get the exercise submission results from the TMC server
 }
 \details{
-Queries the server with HTTP GET requests until the server
+Queries the server with \code{HTTP-GET} requests until the server
 has finished processing the exercise submission.
 }
 \seealso{
