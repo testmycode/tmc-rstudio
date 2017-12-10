@@ -1,7 +1,7 @@
 
 .submitTabUI <- function(id, label = "Submit tab") {
   #init selected exercise:
-  selectedExercise <<- exerciseFromWd()
+  selectedExercisePath <<- exercisePathFromWd()
 
   ns <- shiny::NS(id)
   miniTabPanel(
@@ -9,8 +9,8 @@
     icon = icon("check"),
 
     miniContentPanel(
-      selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercises(),
-                  selected = selectedExercise),
+      selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercisesPaths(),
+                  selected = selectedExercisePath),
       actionButton(inputId = ns("source"), label = "Source"),
       actionButton(inputId = ns("runTests"), label = "Run tests"),
       actionButton(inputId = ns("submit"), label = "Submit to server"),
@@ -32,7 +32,7 @@
     runResults <- withProgress(message= 'Running tests', value = 1, {
       tryCatch({
         #error("lel")
-        return(tmcRtestrunner::run_tests(project_path = getExercisePath(selectedExercise),
+        return(tmcRtestrunner::run_tests(project_path = selectedExercisePath,
                                                 print = TRUE))
       }, error = function(e) {
         rstudioapi::showDialog("Cannot run tests", "tmcRtestrunner errored while running tests")
@@ -74,7 +74,7 @@
   selectedExercises <- observeEvent(input$selectExercise, {
     if(UI_disabled) return()
 
-    selectedExercise <<- input$selectExercise
+    selectedExercisePath <<- input$selectExercise
   })
 
   sourceExercise <- observeEvent(input$source, {
@@ -83,7 +83,7 @@
     tmcrstudioaddin::disable_submit_tab()
 
     tryCatch({
-      sourceExercise(selectedExercise)
+      sourceExercise(selectedExercisePath)
       reactive$sourcing <- TRUE
     }, error = function(e) {
       rstudioapi::showDialog("Sourcing failed", "Error while sourcing exercise.")
