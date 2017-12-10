@@ -31,11 +31,6 @@ Upload an exercise to the TMC server
 \details{
 Packs the exercise directory into a \code{zip} file and sends it to the TMC server.
 }
-\examples{
-upload_exercise(token = token, exercise_id = 36463, project_path = getwd(),
-           server_address = "https://tmc.mooc.fi")
-
-}
 \seealso{
 \code{\link[httr]{add_headers}}, \code{\link[httr]{upload_file}},
 \code{\link[httr]{POST}}, \code{\link[base]{file.remove}}

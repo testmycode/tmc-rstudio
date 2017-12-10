@@ -18,9 +18,6 @@
 #'
 #' @return \code{HTTP} response to the download attempt.
 #'
-#' @examples download_exercise(exercise_id = 36463, exercise_directory = getwd(),
-#' exercise_name = "0_0_helloworld")
-#'
 #' @seealso \code{\link{getCredentials}}, \code{\link[httr]{GET}},
 #' \code{\link[httr]{add_headers}}, \code{\link[httr]{write_disk}},
 #' \code{\link[base]{file.remove}}, \code{\link{create_exercise_metadata}}
@@ -77,9 +74,6 @@ download_exercise <- function(exercise_id,
 #' @details Packs the exercise directory into a \code{zip} file and sends it to the TMC server.
 #'
 #' @return \code{HTTP} response to the submission attempt.
-#'
-#' @examples upload_exercise(token = token, exercise_id = 36463, project_path = getwd(),
-#'            server_address = "https://tmc.mooc.fi")
 #'
 #' @seealso \code{\link[httr]{add_headers}}, \code{\link[httr]{upload_file}},
 #' \code{\link[httr]{POST}}, \code{\link[base]{file.remove}}
@@ -230,8 +224,6 @@ getAllOrganizations <- function(){
 #' If reading \code{.credentials.json} or sending the \code{HTTP-GET} request failed, returns
 #' a list with 2 empty sublists called \code{id} and \code{name}.
 #'
-#' @examples getAllCourses("hy")
-#'
 #' @seealso \code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
 #' \code{\link[jsonlite]{fromJSON}}
 getAllCourses <- function(organization) {
@@ -261,8 +253,6 @@ getAllCourses <- function(organization) {
 #'
 #' @return List of exercises in the course. If reading \code{.credentials.json} or sending
 #' the \code{HTTP-GET} request failed, returns an empty list.
-#'
-#' @examples getAllExercies(242)
 #'
 #' @seealso \code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
 #' \code{\link[jsonlite]{fromJSON}}

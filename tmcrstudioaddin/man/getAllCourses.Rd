@@ -22,10 +22,6 @@ Reads the \code{OAuth2} token and server address from \code{.credentials.json}
 and uses them to make a \code{HTTP-GET} request for the list of courses belonging to
 the organization.
 }
-\examples{
-getAllCourses("hy")
-
-}
 \seealso{
 \code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
 \code{\link[jsonlite]{fromJSON}}

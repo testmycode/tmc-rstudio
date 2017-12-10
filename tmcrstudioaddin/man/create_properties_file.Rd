@@ -17,10 +17,6 @@ Always \code{NULL}.
 Create the \code{properties.rds} file, which includes the path to the directory
 where the exercises are downloaded into.
 }
-\examples{
-create_properties_file(tmcr_projects = "folder_name")
-
-}
 \seealso{
 \code{\link{get_tmcr_directory}}, \code{\link[base]{saveRDS}}
 }

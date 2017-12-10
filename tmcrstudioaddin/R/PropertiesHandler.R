@@ -10,8 +10,6 @@
 #'
 #' @return Always \code{NULL}.
 #'
-#' @examples create_properties_file(tmcr_projects = "folder_name")
-#'
 #' @seealso \code{\link{get_tmcr_directory}}, \code{\link[base]{saveRDS}}
 create_properties_file <- function(tmcr_projects = "tmcr-projects") {
 

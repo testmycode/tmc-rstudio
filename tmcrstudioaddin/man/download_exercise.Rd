@@ -30,11 +30,6 @@ Reads the user credentials from the credentials file, downloads an zipped exerci
 matching the given id from the TMC server, unzips it to the given directory and creates a
 \code{JSON} file containing the exercise name and id on the exercise directory.
 }
-\examples{
-download_exercise(exercise_id = 36463, exercise_directory = getwd(),
-exercise_name = "0_0_helloworld")
-
-}
 \seealso{
 \code{\link{getCredentials}}, \code{\link[httr]{GET}},
 \code{\link[httr]{add_headers}}, \code{\link[httr]{write_disk}},
