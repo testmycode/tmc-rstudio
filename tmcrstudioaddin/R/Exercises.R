@@ -63,7 +63,7 @@ getExerciseName <- function(exercisePath) {
   metadata <- get_exercise_metadata(exercisePath)
 
   #No metadata: exercise name is folder name
-  if (is.null(metadata)) {
+  if (is.null(metadata) || is.null(metadata$exercise_name)) {
     return(basename(exercisePath))
   } else {
     return(metadata$exercise_name)

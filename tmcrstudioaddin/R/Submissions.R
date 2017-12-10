@@ -2,7 +2,7 @@ submitExercise <- function(path) {
   submitJson <- list()
   submitJson <- submitCurrent(path)
   submitRes <- list()
-  if(is.null(submitJson$error)) {
+  if (is.null(submitJson$error)) {
     submitRes$data <- processSubmissionJson(submitJson$results)
   } else {
     submitRes$error <- submitJson$error
@@ -16,7 +16,7 @@ submitCurrent <- function(path) {
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   response <- upload_current_exercise(token, project_path = path)
-  if(is.null(response$error)) {
+  if (is.null(response$error)) {
     submitJson <- getExerciseFromServer(response$data, token, 10)
   } else {
     submitJson$error <- response$error
@@ -29,7 +29,7 @@ getExerciseFromServer <- function(response, token, sleepTime) {
   if (is.null(submitJson$error)) {
     while (submitJson$results$status == "processing") {
       if (!is.null(shiny::getDefaultReactiveDomain())) {
-        shiny::incProgress(1/3)
+        shiny::incProgress(1 / 3)
       }
       Sys.sleep(sleepTime)
       submitJson <- get_json_from_submission_url(response, token)

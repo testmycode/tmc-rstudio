@@ -80,7 +80,17 @@ test_that("Dialog message outputs error correctly", {
   submitResults$data$exercise_name <- "project1"
   submitResults$error <- "<Some url error>"
   message <- getDialogMessage(submitResults)
-  expect_equal(message$text, paste0("<p>","<Some url error>"))
+  expect_equal(message$text, paste0("<p>", "<Some url error>"))
+})
+
+test_that("Error messages over 300 characters are cut to 300 characters", {
+  submitResults <- list()
+  submitResults$data$points <- list("r1", "r2")
+  submitResults$data$exercise_name <- "project1"
+  submitResults$error <- paste(replicate(400, "a"), collapse = "")
+  message <- getDialogMessage(submitResults)
+  expected <- paste(replicate(300, "a"), collapse = "")
+  expect_equal(message$text, paste0("<p>", expected))
 })
 
 test_that("Dialog message outputs all tests passed correctly", {
