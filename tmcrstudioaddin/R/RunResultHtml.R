@@ -52,7 +52,7 @@ createTestResultsHtml <- function(testResults, showAll) {
 #'
 #' @description Create \code{HTML} for displaying a run or sourcing fail.
 #'
-#' @usage createRunSourcingFail(runResults)
+#' @usage createRunSourcingFailHtml(runResults)
 #'
 #' @param runResults Results from the failed attempt of running tests.
 #'

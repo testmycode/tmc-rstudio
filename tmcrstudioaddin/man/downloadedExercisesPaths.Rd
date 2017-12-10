@@ -4,7 +4,7 @@
 \alias{downloadedExercisesPaths}
 \title{Get a list of downloaded exercises}
 \usage{
-downloadedExercises()
+downloadedExercisesPaths()
 }
 \value{
 List of downloaded exercises as named vector \code{c(name = path)}format.

@@ -30,5 +30,5 @@ and the server address) in the \code{.credentials} file.
 }
 \seealso{
 \code{\link[httr]{POST}}, \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
-\code\link{saveCredentials}
+\code{\link{saveCredentials}}
 }

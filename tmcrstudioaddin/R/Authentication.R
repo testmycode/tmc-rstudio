@@ -64,7 +64,7 @@ authenticate <- function(username, password, serverAddress) {
 #' @return An \code{OAuth2} token if the authentication was succesful, otherwise returns an error message.
 #'
 #' @seealso \code{\link[httr]{POST}}, \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
-#' \code\link{saveCredentials}
+#' \code{\link{saveCredentials}}
 
 #actual login function
 login <- function(clientID, secret, username, password, serverAddress){

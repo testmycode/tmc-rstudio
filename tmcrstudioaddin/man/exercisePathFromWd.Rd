@@ -4,7 +4,7 @@
 \alias{exercisePathFromWd}
 \title{Get the currently open exercise}
 \usage{
-exerciseFromWd()
+exercisePathFromWd()
 }
 \value{
 Exercise as a named vector: \code{c(name = path)}. If the current working directory

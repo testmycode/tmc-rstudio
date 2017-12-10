@@ -4,7 +4,7 @@
 #' working directory) is a valid TMC R exercise project, return it as a \code{c(name = path)}
 #' vector.
 #'
-#' @usage exerciseFromWd()
+#' @usage exercisePathFromWd()
 #'
 #' @details The exercise is a valid TMC R exercise project if it contains the \code{R} and
 #' \code{tests/testthat} folders and is located in the TMC R projects directory.
@@ -37,7 +37,7 @@ exercisePathFromWd <- function() {
 #'
 #' @description Get a list of downloaded exercises as named vector \code{c(name = path)}format.
 #'
-#' @usage downloadedExercises()
+#' @usage downloadedExercisesPaths()
 #'
 #' @details Searches for downloaded exercise projects at the TMC R project folder.
 #'

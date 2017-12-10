@@ -18,10 +18,6 @@ Enables the \code{Shiny} input elements and sets the global boolean \code{UI_dis
 prevent excessive buffering of button actions if the user starts clicking buttons in other
 tabs during an operation that is taking a long itme.
 }
-\examples{
-enable_elements("login", "logout", "username", "password")
-
-}
 \seealso{
 \code{\link[base]{as.list}},\code{\link[base]{substitute}}, \code{\link[base]{lapply}},
 \code{\link[shinyjs]{enable}}, \code{\link[shinyjs]{delay}}

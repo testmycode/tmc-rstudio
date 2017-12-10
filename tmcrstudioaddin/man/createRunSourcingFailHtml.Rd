@@ -4,7 +4,7 @@
 \alias{createRunSourcingFailHtml}
 \title{Create HTML for displaying a run or sourcing fail}
 \usage{
-createRunSourcingFail(runResults)
+createRunSourcingFailHtml(runResults)
 }
 \arguments{
 \item{runResults}{Results from the failed attempt of running tests.}
