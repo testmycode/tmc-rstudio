@@ -177,6 +177,9 @@
       rstudioapi::showDialog("Error","Something went wrong","")
     })
 
+    #Call submitTab module, which updates exercises
+    callModule(.submitTab, "testAndSubmit")
+
     tmcrstudioaddin::enable_course_tab()
   })
 }

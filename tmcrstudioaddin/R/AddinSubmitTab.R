@@ -9,15 +9,20 @@
     icon = icon("check"),
 
     miniContentPanel(
-      selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercisesPaths(),
-                  selected = selectedExercisePath),
-      actionButton(inputId = ns("source"), label = "Source"),
-      actionButton(inputId = ns("runTests"), label = "Run tests"),
-      actionButton(inputId = ns("submit"), label = "Submit to server"),
-      checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
-      uiOutput(outputId = ns("testResultsDisplay"))
-    )
-  )
+      fixedRow(
+        column(12,
+          #Selected exercises get updated in .submitTab
+          selectInput(inputId = ns("selectExercise"), "Exercise:", c(),
+                                     selected = selectedExercisePath)),
+        column(12,
+          actionButton(inputId = ns("refreshExercises"), label = "Refresh exercises")),
+        column(12,
+          actionButton(inputId = ns("source"), label = "Source"),
+          actionButton(inputId = ns("runTests"), label = "Run tests"),
+          actionButton(inputId = ns("submit"), label = "Submit to server"),
+          checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE)),
+        column(12,
+          uiOutput(outputId = ns("testResultsDisplay"))))))
 }
 
 .submitTab <- function(input, output, session) {
@@ -73,7 +78,6 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     if(UI_disabled) return()
-
     selectedExercisePath <<- input$selectExercise
   })
 
@@ -90,6 +94,12 @@
     })
 
     tmcrstudioaddin::enable_submit_tab()
+  })
+
+  # Refresh exercises
+  observeEvent(input$refreshExercises, {
+    updateSelectInput(session = session, inputId = "selectExercise", label = "Exercise:",
+                      choices = downloadedExercisesPaths(), selected = selectedExercisePath)
   })
 
   # Renders a list showing the test results
@@ -113,4 +123,11 @@
     }
     shiny::tagList(html)
   })
+
+  #Exercises are updated everytime this module is called
+  updateSelectInput(session = session, inputId = "selectExercise", label = "Exercise:",
+                    choices = downloadedExercisesPaths(), selected = selectedExercisePath)
+
+  cat("\n\nUPDATE\n\n")
+
 }
