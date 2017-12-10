@@ -19,7 +19,7 @@ check_if_properties_exist <- function() {
 
 
 get_tmcr_directory <- function() {
-  user_home <- Sys.getenv("HOME")
+  user_home <- normalizePath("~", winslash = "/")
   tmcr_directory <- file.path(user_home, "tmcr")
 
   if (!dir.exists(tmcr_directory)) {

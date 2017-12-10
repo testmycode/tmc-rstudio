@@ -16,7 +16,7 @@
 #   download_all_exercises(token = token, "242")
 #
 #   course_name <- "hy-C-Programming-Open"
-#   user_home <- Sys.getenv("HOME")
+#   user_home <- normalizePath("~", winslash = "/")
 #   r_home <- file.path(user_home, "tmcr-projects", fsep = .Platform$file.sep)
 #
 #                      # The path where we want to download the exercises.

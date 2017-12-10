@@ -1,4 +1,4 @@
-user_home <- Sys.getenv("HOME")
+user_home <- normalizePath("~", winslash = "/")
 properties_file <- file.path(user_home, "tmcr", ".properties.rds")
 properties_file_backup <- file.path(user_home, "tmcr", ".properties.rds.backup")
 

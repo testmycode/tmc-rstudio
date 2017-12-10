@@ -10,7 +10,7 @@ test_that("Properties created", {
 test_that("TMC's home directory is correct", {
   backup_properties_file()
 
-  user_home <- Sys.getenv("HOME")
+  user_home <- normalizePath("~", winslash = "/")
   tmcr_directory <- file.path(user_home, "tmcr")
 
   expect_equal(tmcr_directory,
