@@ -54,7 +54,7 @@
     tmcrstudioaddin::disable_submit_tab()
     submitRes <- NULL
     withProgress(message = 'Submitting exercise', value = 0, {
-      submitRes <- submitExercise(getExercisePath(selectedExercise))
+      submitRes <- submitExercise(selectedExercisePath)
     })
     if(is.null(submitRes$error)) {
       reactive$submitResults <- submitRes$data
