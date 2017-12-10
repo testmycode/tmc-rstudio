@@ -102,3 +102,36 @@ test_that("Dialog message outputs some tests passed correctly", {
   expect_equal(message$text, paste0("Exercise project1 failed partially.<p><b>Points permanently awarded: ",
                                     "r1, r2</b><p>Some tests failed on the server.<p>Press OK to see failing tests"))
 })
+
+test_that("SubmitExercise works correctly with right json from server", {
+  mock <- mock(mockSubmitJson())
+  stub(submitExercise, "submitCurrent", mock)
+  stub(submitExercise, "showMessage", "")
+  submitResults <- submitExercise(simpleProject)
+  expect_equal(submitResults$data$tests[[1]]$name, "hello-world test_hello")
+  expect_equal(submitResults$data$tests[[1]]$status, "pass")
+})
+
+test_that("SubmitExercise displays error correctly", {
+  submitJson <- list()
+  submitJson$error <- mockErrorSubmitJson()$results$error
+  stub(submitExercise, "submitCurrent", submitJson)
+  stub(submitExercise, "showMessage", "")
+  submitResults <- submitExercise(simpleProject)
+  expect_equal(submitResults$error, "Internal Server Error")
+})
+
+test_that("Message function is called", {
+  submitResults <- list()
+  submitResults$data$points <- list("r1", "r2")
+  submitResults$data$all_tests_passed <- TRUE
+  submitResults$data$exercise_name <- "project1"
+  mock <- mock("")
+  stub(showMessage, "rstudioapi::showDialog", mock)
+  showMessage(submitResults)
+  args <- mock_args(mock)
+  expect_called(mock, 1)
+  expect_equal(args[[1]]$title, "Results")
+  expect_equal(args[[1]]$message, paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
+                                 "r1, r2</b><p>View model solution"))
+})

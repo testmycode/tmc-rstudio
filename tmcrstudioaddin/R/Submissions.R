@@ -82,7 +82,11 @@ getDialogMessage <- function(submitResults) {
   message$title <- "Results"
   if (!is.null(submitResults$error)) {
     message$title <- "Error"
-    message$text <- paste0("<p>", submitResults$error)
+    errormsg <- submitResults$error
+    if (nchar(errormsg) > 300) {
+      errormsg <- substr(errormsg, 1, 300)
+    }
+    message$text <- paste0("<p>", errormsg)
   } else if (submitResults$data$all_tests_passed) {
     points <- paste(submitResults$data$points, collapse = ", ")
     message$text <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
