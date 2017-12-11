@@ -1,3 +1,24 @@
+#' @title Submit current exercise and process the response
+#'
+#' @description Submit the currently chosen exercise to the TMC server
+#' and process the \code{JSON} received from the response.
+#'
+#' @usage submitExercise(path)
+#'
+#' @param path Path to the currently chosen directory.
+#'
+#' @details Submits the currently open exercise to the TMC server,
+#' queries the server until it has finished processing the submission,
+#' reads the data from the \code{JSON} received in the \code{HTTP}
+#' response and shows a message popup showing if all of the tests passed or not.
+#'
+#' @return List of data read from the submission result \code{JSON}. List keys:
+#' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}, \code{error}.
+#' \code{error} is not \code{NULL}if submitting the exercise to the server failed
+#'
+#' @seealso \code{\link{submitCurrent}}, \code{\link{processSubmissionJson}},
+#' \code{\link{showMessage}}
+
 submitExercise <- function(path) {
   submitJson <- list()
   submitJson <- submitCurrent(path)
@@ -11,6 +32,26 @@ submitExercise <- function(path) {
   return(submitRes)
 }
 
+#' @title Submit the currently chosen exercise to the TMC server
+#'
+#' @description Submit the currently chosen exercise to the TMC server and return the
+#' submission result \code{JSON}.
+#'
+#' @usage submitCurrent(path)
+#'
+#' @param path Path to the currently chosen directory.
+#'
+#' @details Reads the \code{OAuth2} token and TMC server address from
+#' \code{.crendentials.rds} and uploads the currently open exercise to
+#' the TMC server. If the upload was successful, starts querying the TMC server for the
+#' submission result \code{JSON} until the server has finished processing the tests.
+#'
+#' @return Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
+#' successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
+#' processing the tests ended in error.
+#'
+#' @seealso \code{\link{getCredentials}}, \code{\link{upload_current_exercise}},
+#' \code{\link{getExerciseFromServer}}
 submitCurrent <- function(path) {
   submitJson <- list()
   credentials <- tmcrstudioaddin::getCredentials()
@@ -24,6 +65,25 @@ submitCurrent <- function(path) {
   return(submitJson)
 }
 
+#' @title Get the exercise submission results from the TMC server
+#'
+#' @description Get the exercise submission results from the TMC server
+#'
+#' @usage getExerciseFromServer(response, token, sleepTime)
+#'
+#' @param response \code{HTTP} response to the exercise submission upload.
+#' @param token \code{OAuth2} token associated with the current login session.
+#' @param sleepTime The time to sleep between queries to the tmc-server.
+#'
+#' @details Queries the server with \code{HTTP-GET} requests until the server
+#' has finished processing the exercise submission.
+#'
+#' @return Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
+#' successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
+#' processing the tests ended in error.
+#'
+#' @seealso \code{\link{get_json_from_submission_url}},
+#' \code{\link[shiny]{withProgress}}
 getExerciseFromServer <- function(response, token, sleepTime) {
   submitJson <- get_json_from_submission_url(response, token)
   if (is.null(submitJson$error)) {
@@ -41,6 +101,21 @@ getExerciseFromServer <- function(response, token, sleepTime) {
   return(submitJson)
 }
 
+#' @title Read data from the submission result JSON
+#'
+#' @description Read data from the submission result \code{JSON}.
+#'
+#' @usage processSubmissionJson(submitJson)
+#'
+#' @param submitJson \code{HTTP} response containg the submission result \code{JSON}.
+#'
+#' @details Reads the test results, exercise name, boolean depending on if all
+#' tests passed or not and the received points form the submission result \code{JSON}.
+#'
+#' @return List of data read from the submission result \code{JSON}. List keys:
+#' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}
+#'
+#' @seealso \code{\link{processSubmission}}
 processSubmissionJson <- function(submitJson) {
   submitRes <- list()
   submitRes[["tests"]] <- processSubmission(submitJson)
@@ -50,6 +125,18 @@ processSubmissionJson <- function(submitJson) {
   return(submitRes)
 }
 
+#' @title Read test result data from the submission result JSON
+#'
+#' @description Read test result data from the submission result \code{JSON}.
+#'
+#' @usage processSubmission(submitJson)
+#'
+#' @param submitJson HTTP response containing the submission result \code{JSON}.
+#'
+#' @details Creates a list of test results received from the submission
+#' result \code{JSON}.
+#'
+#' @return List of test results received from the submission result \code{JSON}.
 processSubmission <- function(submitJson) {
   tests <- list()
   for (testCase in submitJson$test_cases) {
@@ -70,6 +157,15 @@ getStatusFromBoolean <- function(bol) {
   return(status)
 }
 
+#' @title Show submission results in a pop-up dialog box
+#'
+#' @description Show submission reuslts in a pop-up dialog box.
+#'
+#' @usage showMessage(submitResults)
+#'
+#' @param submitResults List of data read from the submission result \code{JSON}.
+#'
+#' @seealso \code{\link{getDialogMessage}}, \code{\link[rstudioapi]{showDialog}}
 showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
   rstudioapi::showDialog(title = message$title,
@@ -77,6 +173,17 @@ showMessage <- function(submitResults) {
                          url = "")
 }
 
+#' @title Get message to display in submission result pop-up dialog.
+#'
+#' @description Creates a message to be shown on the submit result pop-up dialog from
+#' the submission results.
+#'
+#' @usage getDialogMessage(submitResults)
+#'
+#' @param submitResults List of data read from the submission result \code{JSON}.
+#'
+#' @return Message showing if submitting the exercise failed, some tests failed or all
+#' tests passed.
 getDialogMessage <- function(submitResults) {
   message <- list()
   message$title <- "Results"
