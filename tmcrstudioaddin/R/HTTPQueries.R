@@ -84,22 +84,28 @@ download_exercise <- function(exercise_id,
 upload_exercise <- function(token, exercise_id, project_path,
                              server_address, zip_name = "temp",
                              remove_zip = TRUE) {
+  exercises_response <- list()
   base_url <- server_address
   exercises_url <- paste(sep = "", base_url, "api/v8/core/exercises/",
                          exercise_id, "/", "submissions")
   url_config <- httr::add_headers(Authorization = token)
 
   .tmc_zip(project_path, zip_name)
-  zipped_file <- paste(sep = "", getwd(), "/", zip_name, ".zip")
+  zipped_file <- paste(sep = "", project_path, "/", zip_name, ".zip")
   submission_file <- httr::upload_file(zipped_file)
 
-  exercises_response <- httr::POST(exercises_url,
-                              config = url_config,
-                              encode = "multipart",
-                              body = list("submission[file]" = submission_file))
-
+  exercises_response <- tryCatch({
+    exercises_response$data <- httr::stop_for_status(httr::POST(exercises_url,
+                                                              config = url_config,
+                                                              encode = "multipart",
+                                                              body = list("submission[file]" = submission_file)))
+    exercises_response
+  }, error = function(e) {
+    exercises_response$error <- e
+    exercises_response
+  })
   if (remove_zip) {
-    file.remove(paste(sep = "", zip_name, ".zip"))
+    file.remove(zipped_file)
   }
 
   return(exercises_response)
@@ -158,25 +164,24 @@ get_submission_json <- function(token, url) {
 # Uses the path of the currently active R-project by default
 # For testing purposes, you can provide some other file path
 upload_current_exercise <- function(token, project_path, zip_name = "temp", remove_zip = TRUE) {
+  response <- list()
   metadata <- tryCatch({
     json <- base::list.files(path = project_path, pattern = ".metadata.json", all.files = TRUE, full.names = TRUE)
     jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
   }, error = function(e){
-    print(e)
     NULL
   })
   if (!is.null(metadata$id[[1]])) {
     id <- metadata$id[[1]]
     credentials <- tmcrstudioaddin::getCredentials()
     address <- paste(sep = "", credentials$serverAddress, "/")
-
     response <- upload_exercise(token = token, exercise_id = id,
                                 project_path = project_path, server_address = address,
                                 zip_name = zip_name, remove_zip = remove_zip)
-    return(response)
   } else {
-    return(NULL)
+    response$error <- "Could not read json"
   }
+  return(response)
 }
 
 #' @title Get all TMC organizations
@@ -288,13 +293,19 @@ getAllExercises <- function(course){
 #'
 #' @seealso \code{\link[httr]{content}}, \code{\link{get_submission_json}}
 get_json_from_submission_url <- function(response, token) {
-  output <- tryCatch({
+  submitJson <- list()
+  url <- list()
+  url$error <- NULL
+  submitJson <- tryCatch({
     url <- httr::content(response)
-    httr::content(get_submission_json(token, url$submission_url))
+    submitJson$results <- httr::content(get_submission_json(token, url$submission_url))
+    submitJson
   }, error = function(e) {
-    if(!is.null(url$error)) print(url$error)
-    print(e)
-    NULL
+    if(!is.null(url$error)) {
+      submitJson$error <- url$error
+    }
+    submitJson$error <- e
+    submitJson
   })
-  return(output)
+  return(submitJson)
 }

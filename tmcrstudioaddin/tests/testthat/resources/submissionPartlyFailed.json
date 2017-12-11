@@ -1,0 +1,40 @@
+{
+    "api_version": 7,
+    "all_tests_passed": false,
+    "user_id": 123,
+    "login": "abc",
+    "course": "hy-C-Programming-Open",
+    "exercise_name": "Week0-0_0_helloworld",
+    "status": "ok",
+    "points": [
+        "hello"
+    ],
+    "validations": null,
+    "valgrind": "",
+    "solution_url": "fake-url",
+    "submitted_at": "2017-11-07T20:20:20.382+02:00",
+    "processing_time": 8,
+    "reviewed": false,
+    "requests_review": false,
+    "paste_url": null,
+    "message_for_paste": null,
+    "missing_review_points": [],
+    "test_cases": [
+        {
+            "name": "hello-world test_hello",
+            "successful": true,
+            "message": "Passed",
+            "exception": null,
+            "detailed_message": null
+        },
+        {
+            "name": "hello-world is_hello",
+            "successful": false,
+            "message": "Passed",
+            "exception": null,
+            "detailed_message": null
+        }
+    ],
+    "feedback_questions": [],
+    "feedback_answer_url": "another-fake-url"
+}

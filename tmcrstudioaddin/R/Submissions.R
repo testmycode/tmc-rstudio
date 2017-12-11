@@ -1,9 +1,11 @@
 #' @title Submit current exercise and process the response
 #'
-#' @description Submit the currently open exercise to the TMC server
+#' @description Submit the currently chosen exercise to the TMC server
 #' and process the \code{JSON} received from the response.
 #'
-#' @usage submitExercise()
+#' @usage submitExercise(path)
+#'
+#' @param path Path to the currently chosen directory.
 #'
 #' @details Submits the currently open exercise to the TMC server,
 #' queries the server until it has finished processing the submission,
@@ -11,92 +13,101 @@
 #' response and shows a message popup showing if all of the tests passed or not.
 #'
 #' @return List of data read from the submission result \code{JSON}. List keys:
-#' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}.
-#' \code{NULL} if submitting the exercise to the server failed
+#' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}, \code{error}.
+#' \code{error} is not \code{NULL}if submitting the exercise to the server failed
 #'
 #' @seealso \code{\link{submitCurrent}}, \code{\link{processSubmissionJson}},
 #' \code{\link{showMessage}}
 
-submitExercise <- function() {
-  output <- list()
-  output <- submitCurrent()
-  submitRes <- NULL
-  if(!is.null(output)) {
-    submitRes <- processSubmissionJson(output)
+submitExercise <- function(path) {
+  submitJson <- list()
+  submitJson <- submitCurrent(path)
+  submitRes <- list()
+  if (is.null(submitJson$error)) {
+    submitRes$data <- processSubmissionJson(submitJson$results)
+  } else {
+    submitRes$error <- submitJson$error
   }
   showMessage(submitRes)
   return(submitRes)
 }
 
-#' @title Submit the currently open exercise to the TMC server
+#' @title Submit the currently chosen exercise to the TMC server
 #'
-#' @description Submit the currently open exercise to the TMC server and return the
+#' @description Submit the currently chosen exercise to the TMC server and return the
 #' submission result \code{JSON}.
 #'
-#' @usage submitCurrent()
+#' @usage submitCurrent(path)
+#'
+#' @param path Path to the currently chosen directory.
 #'
 #' @details Reads the \code{OAuth2} token and TMC server address from
 #' \code{.crendentials.rds} and uploads the currently open exercise to
 #' the TMC server. If the upload was successful, starts querying the TMC server for the
 #' submission result \code{JSON} until the server has finished processing the tests.
 #'
-#' @return Submission result \code{JSON} if processing the tests in the TMC server was
-#' successful. \code{NULL} if processing the tests ended in error.
+#' @return Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
+#' successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
+#' processing the tests ended in error.
 #'
 #' @seealso \code{\link{getCredentials}}, \code{\link{upload_current_exercise}},
 #' \code{\link{getExerciseFromServer}}
-submitCurrent <- function() {
+submitCurrent <- function(path) {
+  submitJson <- list()
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  response <- upload_current_exercise(token, project_path = selectedExercisePath)
-  if(!is.null(response)) {
-    output <- getExerciseFromServer(response, token)
-    return(output)
+  response <- upload_current_exercise(token, project_path = path)
+  if (is.null(response$error)) {
+    submitJson <- getExerciseFromServer(response$data, token, 10)
   } else {
-    return(NULL)
+    submitJson$error <- response$error
   }
+  return(submitJson)
 }
 
 #' @title Get the exercise submission results from the TMC server
 #'
 #' @description Get the exercise submission results from the TMC server
 #'
-#' @usage getExerciseFromServer(response, token)
+#' @usage getExerciseFromServer(response, token, sleepTime)
 #'
 #' @param response \code{HTTP} response to the exercise submission upload.
 #' @param token \code{OAuth2} token associated with the current login session.
+#' @param sleepTime The time to sleep between queries to the tmc-server.
 #'
 #' @details Queries the server with \code{HTTP-GET} requests until the server
 #' has finished processing the exercise submission.
 #'
-#' @return Submission result \code{JSON} if processing the tests in the TMC server was
-#' successful. \code{NULL} if processing the tests ended in error.
+#' @return Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
+#' successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
+#' processing the tests ended in error.
 #'
 #' @seealso \code{\link{get_json_from_submission_url}},
 #' \code{\link[shiny]{withProgress}}
-getExerciseFromServer <- function(response, token) {
-  output <- get_json_from_submission_url(response, token)
-  if (!is.null(output)) {
-    while (output$status == "processing") {
-      incProgress(1/3)
-      Sys.sleep(10)
-      output <- get_json_from_submission_url(response, token)
+getExerciseFromServer <- function(response, token, sleepTime) {
+  submitJson <- get_json_from_submission_url(response, token)
+  if (is.null(submitJson$error)) {
+    while (submitJson$results$status == "processing") {
+      if (!is.null(shiny::getDefaultReactiveDomain())) {
+        shiny::incProgress(1 / 3)
+      }
+      Sys.sleep(sleepTime)
+      submitJson <- get_json_from_submission_url(response, token)
     }
-    if (output$status == "error") {
-      print(output$error)
-      output <- NULL
+    if (submitJson$results$status == "error") {
+      submitJson$error <- submitJson$results$error
     }
   }
-  return(output)
+  return(submitJson)
 }
 
 #' @title Read data from the submission result JSON
 #'
 #' @description Read data from the submission result \code{JSON}.
 #'
-#' @usage processSubmissionJson(output)
+#' @usage processSubmissionJson(submitJson)
 #'
-#' @param output \code{HTTP} response containg the submission result \code{JSON}.
+#' @param submitJson \code{HTTP} response containg the submission result \code{JSON}.
 #'
 #' @details Reads the test results, exercise name, boolean depending on if all
 #' tests passed or not and the received points form the submission result \code{JSON}.
@@ -105,12 +116,12 @@ getExerciseFromServer <- function(response, token) {
 #' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}
 #'
 #' @seealso \code{\link{processSubmission}}
-processSubmissionJson <- function(output) {
+processSubmissionJson <- function(submitJson) {
   submitRes <- list()
-  submitRes[["tests"]] <- processSubmission(output)
-  submitRes[["exercise_name"]] <- output$exercise_name
-  submitRes[["all_tests_passed"]] <- output$all_tests_passed
-  submitRes[["points"]] <- output$points
+  submitRes[["tests"]] <- processSubmission(submitJson)
+  submitRes[["exercise_name"]] <- submitJson$exercise_name
+  submitRes[["all_tests_passed"]] <- submitJson$all_tests_passed
+  submitRes[["points"]] <- submitJson$points
   return(submitRes)
 }
 
@@ -118,27 +129,27 @@ processSubmissionJson <- function(output) {
 #'
 #' @description Read test result data from the submission result \code{JSON}.
 #'
-#' @usage processSubmission(output)
+#' @usage processSubmission(submitJson)
 #'
-#' @param output HTTP response containing the submission result \code{JSON}.
+#' @param submitJson HTTP response containing the submission result \code{JSON}.
 #'
 #' @details Creates a list of test results received from the submission
 #' result \code{JSON}.
 #'
 #' @return List of test results received from the submission result \code{JSON}.
-processSubmission <- function(output) {
+processSubmission <- function(submitJson) {
   tests <- list()
-  for (test_case in output$test_cases) {
+  for (testCase in submitJson$test_cases) {
     result <- list()
-    result[["name"]] <- test_case$name
-    result[["status"]] <- .getStatusFromBoolean(test_case$successful)
-    result[["message"]] <- test_case$message
+    result[["name"]] <- testCase$name
+    result[["status"]] <- getStatusFromBoolean(testCase$successful)
+    result[["message"]] <- testCase$message
     tests[[length(tests) + 1]]  <- result
   }
   return(tests)
 }
 
-.getStatusFromBoolean <- function(bol) {
+getStatusFromBoolean <- function(bol) {
   status <- "fail"
   if (bol) {
     status <- "pass"
@@ -157,8 +168,8 @@ processSubmission <- function(output) {
 #' @seealso \code{\link{getDialogMessage}}, \code{\link[rstudioapi]{showDialog}}
 showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
-  rstudioapi::showDialog(title = message[["title"]],
-                         message = message[["text"]],
+  rstudioapi::showDialog(title = message$title,
+                         message = message$text,
                          url = "")
 }
 
@@ -175,16 +186,22 @@ showMessage <- function(submitResults) {
 #' tests passed.
 getDialogMessage <- function(submitResults) {
   message <- list()
-  message[["title"]] <- "Results"
-  if (is.null(submitResults)) {
-    message[["title"]] <- "Error"
-    message[["text"]] <- "Could not submit exercise."
-  } else if (submitResults$all_tests_passed) {
-    message[["text"]] <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
-                                submitResults$points, "</b><p>View model solution")
+  message$title <- "Results"
+  if (!is.null(submitResults$error)) {
+    message$title <- "Error"
+    errormsg <- submitResults$error
+    if (nchar(errormsg) > 300) {
+      errormsg <- substr(errormsg, 1, 300)
+    }
+    message$text <- paste0("<p>", errormsg)
+  } else if (submitResults$data$all_tests_passed) {
+    points <- paste(submitResults$data$points, collapse = ", ")
+    message$text <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
+                                points, "</b><p>View model solution")
   } else {
-    message[["text"]] <- paste0("Exercise ", submitResults$exercise_name,
-                                " failed partially.<p><b>Points permanently awarded: ", submitResults$points,
+    points <- paste(submitResults$data$points, collapse = ", ")
+    message$text <- paste0("Exercise ", submitResults$data$exercise_name,
+                                " failed partially.<p><b>Points permanently awarded: ", points,
                                 "</b><p>Some tests failed on the server.<p>Press OK to see failing tests")
   }
   return(message)

@@ -2,16 +2,20 @@
 % Please edit documentation in R/Submissions.R
 \name{submitCurrent}
 \alias{submitCurrent}
-\title{Submit the currently open exercise to the TMC server}
+\title{Submit the currently chosen exercise to the TMC server}
 \usage{
-submitCurrent()
+submitCurrent(path)
+}
+\arguments{
+\item{path}{Path to the currently chosen directory.}
 }
 \value{
-Submission result \code{JSON} if processing the tests in the TMC server was
-successful. \code{NULL} if processing the tests ended in error.
+Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
+successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
+processing the tests ended in error.
 }
 \description{
-Submit the currently open exercise to the TMC server and return the
+Submit the currently chosen exercise to the TMC server and return the
 submission result \code{JSON}.
 }
 \details{

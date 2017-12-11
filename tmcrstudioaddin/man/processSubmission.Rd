@@ -4,10 +4,10 @@
 \alias{processSubmission}
 \title{Read test result data from the submission result JSON}
 \usage{
-processSubmission(output)
+processSubmission(submitJson)
 }
 \arguments{
-\item{output}{HTTP response containing the submission result \code{JSON}.}
+\item{submitJson}{HTTP response containing the submission result \code{JSON}.}
 }
 \value{
 List of test results received from the submission result \code{JSON}.

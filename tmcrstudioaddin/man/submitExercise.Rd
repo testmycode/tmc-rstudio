@@ -4,15 +4,18 @@
 \alias{submitExercise}
 \title{Submit current exercise and process the response}
 \usage{
-submitExercise()
+submitExercise(path)
+}
+\arguments{
+\item{path}{Path to the currently chosen directory.}
 }
 \value{
 List of data read from the submission result \code{JSON}. List keys:
-\code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}.
-\code{NULL} if submitting the exercise to the server failed
+\code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}, \code{error}.
+\code{error} is not \code{NULL}if submitting the exercise to the server failed
 }
 \description{
-Submit the currently open exercise to the TMC server
+Submit the currently chosen exercise to the TMC server
 and process the \code{JSON} received from the response.
 }
 \details{

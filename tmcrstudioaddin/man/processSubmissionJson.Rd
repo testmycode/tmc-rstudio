@@ -4,10 +4,10 @@
 \alias{processSubmissionJson}
 \title{Read data from the submission result JSON}
 \usage{
-processSubmissionJson(output)
+processSubmissionJson(submitJson)
 }
 \arguments{
-\item{output}{\code{HTTP} response containg the submission result \code{JSON}.}
+\item{submitJson}{\code{HTTP} response containg the submission result \code{JSON}.}
 }
 \value{
 List of data read from the submission result \code{JSON}. List keys:
