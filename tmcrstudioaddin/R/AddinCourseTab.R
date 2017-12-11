@@ -62,7 +62,7 @@
   )
 }
 
-.courseTab <- function(input, output, session) {
+.courseTab <- function(input, output, session, globalReactiveValues) {
   observeEvent(input$refreshOrganizations, {
     if(UI_disabled) return()
 
@@ -178,7 +178,7 @@
     })
 
     #Call submitTab module, which updates exercises
-    callModule(.submitTab, "testAndSubmit")
+    globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
 
     tmcrstudioaddin::enable_course_tab()
   })
