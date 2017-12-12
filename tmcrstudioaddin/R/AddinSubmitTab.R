@@ -15,7 +15,10 @@
           column(6, class="col-xs-6", actionButton(inputId = ns("refreshExercises"), label = "Refresh exercises", style = "margin-top:25px;"))
         ),
         fluidRow(
-          column(12,
+          column(12, class="col-xs-12",actionButton(inputId = ns("openFiles"), label = "Open files", style = "margin-top:5px;"))
+        ),
+        fluidRow(
+          column(12,style ="margin-top:5px;",
                  actionButton(inputId = ns("source"), label = "Source"),
                  actionButton(inputId = ns("runTests"), label = "Run tests"),
                  actionButton(inputId = ns("submit"), label = "Submit to server"),
@@ -101,6 +104,12 @@
   # Refresh exercises
   observeEvent(input$refreshExercises, {
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
+  })
+
+  observeEvent(input$openFiles, {
+    for (file in list.files(full.names = TRUE, path = file.path(selectedExercisePath, "R"), pattern = "[.]R$")) {
+      rstudioapi::navigateToFile(file)
+    }
   })
 
   # Renders a list showing the test results
