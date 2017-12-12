@@ -62,7 +62,7 @@
   )
 }
 
-.courseTab <- function(input, output, session) {
+.courseTab <- function(input, output, session, globalReactiveValues) {
   observeEvent(input$refreshOrganizations, {
     if(UI_disabled) return()
 
@@ -176,6 +176,9 @@
     }, error = function(e){
       rstudioapi::showDialog("Error","Something went wrong","")
     })
+
+    #Call submitTab module, which updates exercises
+    globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
 
     tmcrstudioaddin::enable_course_tab()
   })

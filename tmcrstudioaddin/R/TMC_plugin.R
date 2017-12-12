@@ -27,6 +27,9 @@ tmcGadget <- function() {
   )
 
   server <- function(input, output, session) {
+
+    globalReactiveValues <- reactiveValues(downloadedExercises = downloadedExercisesPaths())
+
     # Function for the exit button
     observeEvent(input$exit, {
       if(UI_disabled) return()
@@ -35,8 +38,8 @@ tmcGadget <- function() {
     })
 
     shiny::callModule(.loginTab, "login")
-    shiny::callModule(.courseTab, "courses")
-    shiny::callModule(.submitTab, "testAndSubmit")
+    shiny::callModule(.courseTab, "courses", globalReactiveValues = globalReactiveValues)
+    shiny::callModule(.submitTab, "testAndSubmit", globalReactiveValues = globalReactiveValues)
   }
 
   shiny::runGadget(app = ui, server = server)

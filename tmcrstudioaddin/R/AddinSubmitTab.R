@@ -9,18 +9,28 @@
     icon = icon("check"),
 
     miniContentPanel(
-      selectInput(inputId = ns("selectExercise"), "Exercise:", downloadedExercisesPaths(),
-                  selected = selectedExercisePath),
-      actionButton(inputId = ns("source"), label = "Source"),
-      actionButton(inputId = ns("runTests"), label = "Run tests"),
-      actionButton(inputId = ns("submit"), label = "Submit to server"),
-      checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
-      uiOutput(outputId = ns("testResultsDisplay"))
+      fluidPage(style="padding:0px;margin:0px;",
+        fluidRow(
+          column(6, class="col-xs-6", selectInput(inputId = ns("selectExercise"), "Exercise:", c(), selected = selectedExercisePath)),
+          column(6, class="col-xs-6", actionButton(inputId = ns("refreshExercises"), label = "Refresh exercises", style = "margin-top:25px;"))
+        ),
+        fluidRow(
+          column(12, class="col-xs-12",actionButton(inputId = ns("openFiles"), label = "Open files", style = "margin-top:5px;"))
+        ),
+        fluidRow(
+          column(12,style ="margin-top:5px;",
+                 actionButton(inputId = ns("source"), label = "Source"),
+                 actionButton(inputId = ns("runTests"), label = "Run tests"),
+                 actionButton(inputId = ns("submit"), label = "Submit to server"),
+                 checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE))
+        ),
+        column(12,
+          uiOutput(outputId = ns("testResultsDisplay"))))
     )
   )
 }
 
-.submitTab <- function(input, output, session) {
+.submitTab <- function(input, output, session, globalReactiveValues) {
   reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE,
                              sourcing = FALSE)
 
@@ -73,7 +83,6 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     if(UI_disabled) return()
-
     selectedExercisePath <<- input$selectExercise
   })
 
@@ -90,6 +99,17 @@
     })
 
     tmcrstudioaddin::enable_submit_tab()
+  })
+
+  # Refresh exercises
+  observeEvent(input$refreshExercises, {
+    globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
+  })
+
+  observeEvent(input$openFiles, {
+    for (file in list.files(full.names = TRUE, path = file.path(selectedExercisePath, "R"), pattern = "[.]R$")) {
+      rstudioapi::navigateToFile(file)
+    }
   })
 
   # Renders a list showing the test results
@@ -112,5 +132,12 @@
       }
     }
     shiny::tagList(html)
+  })
+
+  #Exercises are updated everytime this module is called
+  updateExercises <- observeEvent(globalReactiveValues$downloadedExercises, {
+    downloadedExercises <- globalReactiveValues$downloadedExercises
+    updateSelectInput(session = session, inputId = "selectExercise", label = "Exercise:",
+                    choices = downloadedExercises, selected = selectedExercisePath)
   })
 }
