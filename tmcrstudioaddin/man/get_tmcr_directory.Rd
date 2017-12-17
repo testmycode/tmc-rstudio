@@ -19,6 +19,6 @@ on Linux and \code{user/documents} on Windows. If the \code{tmcr} directory does
 at the file path then it is created to be at that location.
 }
 \seealso{
-\code{\link[base]{Sys.getenv}}, \code{\link[base]{file.path}},
-\code{\link[base]{files2}}
+\code{\link[base]{normalizePath}}, \code{\link[base]{file.path}},
+\code{\link[base]{dir.exists}}
 }

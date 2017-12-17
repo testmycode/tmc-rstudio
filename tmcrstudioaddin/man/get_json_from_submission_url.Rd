@@ -12,9 +12,9 @@ get_json_from_submission_url(response, token)
 \item{token}{\code{OAuth2} token associated with the current login session to the TMC server.}
 }
 \value{
-\code{HTTP} response from the TMC server containing the submission result \code{JSON}
-if the server has finished processing the exercise submission. \code{NULL} if the \code{HTTP-GET}
-request failed.
+\code{HTTP} response as a list from the TMC server containing the submission result \code{JSON}
+if the server has finished processing the exercise submission. List containing \code{error} key
+with an error message if the \code{HTTP-GET} request failed.
 }
 \description{
 Get exercise submission result \code{JSON} from the TMC server.

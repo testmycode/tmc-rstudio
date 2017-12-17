@@ -103,13 +103,19 @@
 
   # Refresh exercises
   observeEvent(input$refreshExercises, {
+    if(UI_disabled) return()
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
   })
 
   observeEvent(input$openFiles, {
+    if(UI_disabled) return()
+    tmcrstudioaddin::disable_submit_tab()
+
     for (file in list.files(full.names = TRUE, path = file.path(selectedExercisePath, "R"), pattern = "[.]R$")) {
       rstudioapi::navigateToFile(file)
     }
+
+    tmcrstudioaddin::enable_submit_tab()
   })
 
   # Renders a list showing the test results

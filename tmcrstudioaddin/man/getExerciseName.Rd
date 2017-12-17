@@ -11,8 +11,8 @@ getExerciseName(exercisePath)
 }
 \value{
 Exercise's name read from \code{.metadata.json}. If the file doesn't
-exist, returns the name of the path's basename (the final directory/file in
-the file path).
+exist or if the file doesn't have the exercise name, returns the name of the
+path's basename (the final directory/file in the file path).
 }
 \description{
 Get the name of the exercise located at the given file path.

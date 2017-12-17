@@ -18,8 +18,8 @@ upload_current_exercise(token, project_path, zip_name = "temp", remove_zip = TRU
 submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.}
 }
 \value{
-\code{HTTP} response to the submission attempt. \code{NULL} if reading the metadata or
-credentials file caused an error.
+\code{HTTP} response as a list to the submission attempt. List containing \code{error} key
+with an error message if reading the metadata or credentials file caused an error.
 }
 \description{
 Upload the currently open exercise to the TMC server.

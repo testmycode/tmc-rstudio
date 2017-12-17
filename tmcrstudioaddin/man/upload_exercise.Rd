@@ -29,7 +29,8 @@ submission \code{zip} file after sending it to the server. Defaults to \code{TRU
 Upload an exercise to the TMC server
 }
 \details{
-Packs the exercise directory into a \code{zip} file and sends it to the TMC server.
+Packs the exercise directory into a \code{zip} file and sends it to the TMC server
+as a list.
 }
 \seealso{
 \code{\link[httr]{add_headers}}, \code{\link[httr]{upload_file}},
