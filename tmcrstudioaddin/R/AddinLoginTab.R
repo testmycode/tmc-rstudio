@@ -49,7 +49,6 @@
 
   observeEvent(input$login, {
     if(UI_disabled) return()
-
     tmcrstudioaddin::disable_login_tab()
 
     # Authenticate with the values from the username and password input fields
@@ -69,11 +68,10 @@
     }
 
     tmcrstudioaddin::enable_login_tab()
-  })
+  }, ignoreInit = TRUE)
 
   observeEvent(input$logout, {
     if(UI_disabled) return()
-
     #overwrite credentials, so that they contain only the last login address
     tryCatch({
       globalReactiveValues$credentials <- list(serverAddress=globalReactiveValues$credentials$serverAddress)
@@ -83,11 +81,10 @@
     output$loginPane <- renderUI({
       .loginPane(ns)
     })
-  })
+  },ignoreInit = TRUE)
 
   observeEvent(input$resetServer, {
     if(UI_disabled) return()
-
     updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
     disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)

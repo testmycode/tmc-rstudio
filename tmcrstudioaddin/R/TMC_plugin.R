@@ -29,7 +29,6 @@ tmcGadget <- function() {
   server <- function(input, output, session) {
 
     globalReactiveValues <- reactiveValues(credentials = tmcrstudioaddin::getCredentials(), downloadedExercises = downloadedExercisesPaths())
-
     # Function for the exit button
     observeEvent(input$exit, {
       if(UI_disabled) return()
