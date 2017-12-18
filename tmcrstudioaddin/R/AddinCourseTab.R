@@ -1,9 +1,5 @@
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
-  organizations <- tmcrstudioaddin::getAllOrganizations()
-  choices <- organizations$slug
-  credentials<-tmcrstudioaddin::getCredentials()
-  names(choices) <- organizations$name
   miniTabPanel(
     title = "Exercises",
     icon = icon("folder-open"),
@@ -14,8 +10,8 @@
               selectInput(
                 inputId = ns("organizationSelect"),
                 label = "Select organization",
-                choices = choices,
-                selected = credentials$organization
+                choices = list(),
+                selected = 1
               )
             ),
             column(6,class="col-xs-6",
@@ -31,7 +27,7 @@
             selectInput(
               inputId = ns("courseSelect"),
               label = "Select course",
-              choices = choices,
+              choices = list(),
               selected = 1
             )
           ),
@@ -67,11 +63,16 @@
     if(UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
-    organizations <- tmcrstudioaddin::getAllOrganizations()
-    choices <- organizations$slug
-    names(choices) <- organizations$name
-    shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
+    if(!is.null(globalReactiveValues$credentials$token)){
+      organizations <- tmcrstudioaddin::getAllOrganizations()
+      choices <- organizations$slug
+      names(choices) <- organizations$name
+      shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
                              choices = choices, selected = 1)
+    }
+    else{
+      rstudioapi::showDialog("Not logged in", "Please log in to see organizations", "")
+    }
     tmcrstudioaddin::enable_course_tab()
   })
 
@@ -80,17 +81,31 @@
 
     tmcrstudioaddin::disable_course_tab()
     organization <- input$organizationSelect
-    credentials <- tmcrstudioaddin::getCredentials()
-    credentials$organization <- organization
-    tmcrstudioaddin::saveCredentials(credentials)
+    globalReactiveValues$credentials$organization <- organization
     courses <- tmcrstudioaddin::getAllCourses(organization)
     choices <- courses$id
     names(choices) <- courses$title
     shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
     tmcrstudioaddin::enable_course_tab()
-  })
+  },ignoreInit = TRUE)
 
   exercise_map <<- list()
+  observeEvent(input$refreshCourses, {
+    if(UI_disabled) return()
+
+    tmcrstudioaddin::disable_course_tab()
+    if (!is.null(globalReactiveValues$credentials$token)){
+      organization <- input$organizationSelect
+      courses <- tmcrstudioaddin::getAllCourses(organization)
+      choices <- courses$id
+      names(choices) <- courses$title
+      shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
+    }
+    else{
+      rstudioapi::showDialog("Not logged in", "Please log in to see courses", "")
+    }
+    tmcrstudioaddin::enable_course_tab()
+  }, ignoreInit = TRUE)
 
   observeEvent(input$courseSelect, {
     if(UI_disabled) return()
@@ -111,27 +126,31 @@
 
     tmcrstudioaddin::enable_course_tab()
   }, ignoreInit=TRUE)
-
-  observeEvent(input$refreshCourses, {
-    if(UI_disabled) return()
-
-    tmcrstudioaddin::disable_course_tab()
-    organization <- input$organizationSelect
-    courses <- tmcrstudioaddin::getAllCourses(organization)
-    choices <- courses$id
-    names(choices) <- courses$title
-
-    if (length(choices) == 0){
-      credentials <- tmcrstudioaddin::getCredentials()
-
-      if (is.null(credentials$token)){
-        rstudioapi::showDialog("Not logged in", "Please log in to see courses", "")
-      }
+  observe({
+    if(is.null(globalReactiveValues$credentials$token)){
+      shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
+                               choices = list(), selected = 1)
+      shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = list(), selected = 1)
+      hide("all_exercises")
+      shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
     }
+    else {
+      organizations <- tmcrstudioaddin::getAllOrganizations()
+      choices <- organizations$slug
+      names(choices) <- organizations$name
+      shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
+                               choices = choices, selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
+                                                                    globalReactiveValues$credentials$organization,
+                                                                    1))
+      courses <- tmcrstudioaddin::getAllCourses(ifelse(!is.null(globalReactiveValues$credentials$organization),
+                                                       globalReactiveValues$credentials$organization,
+                                                       1))
+      choices2 <- courses$id
+      names(choices2) <- courses$title
+      shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices2, selected = 1)
+    }
+  })
 
-    shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices, selected = 1)
-    tmcrstudioaddin::enable_course_tab()
-  }, ignoreInit = TRUE)
 
   observeEvent(input$all_exercises, {
     disable("all_exercises")
