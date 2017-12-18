@@ -73,7 +73,7 @@ createRunSourcingFailHtml <- function(runResults) {
   }
   html <- tags$html(tags$p(fail_name,
                            style = "color: red;font-weight:bold"),
-                    tags$p("TODO: traceback (runner doesnt return traceback yet)"))
+                    .backtraceHtmlTags(runResults$backtrace))
   return(html)
 }
 
@@ -84,7 +84,8 @@ createRunSourcingFailHtml <- function(runResults) {
     return(lapply(1:length(testResults), function(i) {
       testResult <- testResults[[i]]
       .createTestResultElement(name = testResult$name, status = testResult$status,
-                               index = i, message = testResult$message)
+                               index = i, message = testResult$message,
+                               backtrace = testResult$backtrace)
     }))
   } else {
     return(.createSingleResultElement(testResults = testResults))
@@ -92,7 +93,7 @@ createRunSourcingFailHtml <- function(runResults) {
 }
 
 # Creates an individual HTML paragraph element for the list displaying test results
-.createTestResultElement <- function(name, status, index = NULL, message = NULL) {
+.createTestResultElement <- function(name, status, index = NULL, message = NULL, backtrace) {
   # Assign a color depending on test status
   color <- ifelse(test = grepl(x = status, pattern = "pass"), yes = "green", no = "red")
   elements <- tags$p(paste(name, ":", status),
@@ -100,20 +101,22 @@ createRunSourcingFailHtml <- function(runResults) {
 
   #If status != pass, add de
   if (status != "pass"){
-    elements <- list(elements, .createDetailedTestResultElement(index, message))
+    elements <- list(elements, .createDetailedTestResultElement(index, message, backtrace))
   }
 
   return(elements)
 }
 
-.createDetailedTestResultElement <- function(index = NULL, message = NULL){
+.createDetailedTestResultElement <- function(index = NULL, message = NULL, backtrace) {
   btn <- tags$button(id = paste("button_", index, sep = ""), "Toggle details")
-  message <- tags$p(style = "display:none", paste("message:", message),
-                    id = paste("message_", index, sep = ""))
-  script <- tags$script(paste("$(\"#button_", index,
+  id <- paste0("message_", index)
+  style <- "display:none"
+  message <- tags$p(paste("message:", message), style = "font-weight: bold;")
+  backtraceTags <- .backtraceHtmlTags(backtrace)
+  script <- tags$script(paste0("$(\"#button_", index,
                               "\").click(function(){$(\"#message_",
-                              index, "\").toggle()});", sep = ""))
-  return(list(message, btn, script))
+                              index, "\").toggle()});"))
+  return(list(tags$div(message, backtraceTags, style = style, id = id), btn, script))
 }
 
 
@@ -126,9 +129,14 @@ createRunSourcingFailHtml <- function(runResults) {
 
     if (identical(x = result$status, y = "fail")) {
       return(.createTestResultElement(name = result$name, status = result$status,
-                                      index = i, message = result$message))
+                                      index = i, message = result$message, backtrace = result$backtrace))
     }
   }
 
   return(.createTestResultElement(name = "All tests", status = "pass"))
+}
+
+# Returns backtrace as html p tags.
+.backtraceHtmlTags <- function(backtrace) {
+  return(lapply(backtrace, tags$p))
 }
