@@ -12,15 +12,13 @@
 
 }
 .loginPane <- function(ns){
-  credentials <- tmcrstudioaddin::getCredentials()
-  serverAddress <- credentials$serverAddress
   return(tagList(
     h1("Log in"),
     textInput(inputId = ns("username"), label = "Username", value = ""),
     passwordInput(inputId = ns("password"), label = "Password", value = ""),
     div(style = "position:relative;", actionButton(inputId = ns("login"), label = "Log in")),
     div(style = "margin-top:30px;", textInput(inputId = ns("serverAddress"), label = "Server address", value =
-                ifelse(!is.null(serverAddress), serverAddress, ""))),
+                "")),
     div(style = "position:relative", checkboxInput(inputId = ns("changeServer"), label = "Change server address", value = FALSE),
       actionButton(inputId = ns("resetServer"), label = "Reset server address"))
   ))
@@ -30,15 +28,14 @@
                  actionButton(inputId = ns("logout"), label = "Log out")))
 }
 
-.loginTab <- function(input, output, session) {
+.loginTab <- function(input, output, session,globalReactiveValues) {
   ns <- shiny::NS("login")
 
-  .suggestServer()
+  #.suggestServer()
 
   output$loginPane <- renderUI({
-    credentials <- tmcrstudioaddin::getCredentials()
     #if token is not defined, user is not logged in
-    if (is.null(credentials$token)){
+    if (is.null(globalReactiveValues$credentials$token)){
       .loginPane(ns)
     }
     else{
@@ -59,9 +56,9 @@
                            message = titleAndMessage$message,
                            url = "")
     # If user has saved credentials update view
-    credentials <- tmcrstudioaddin::getCredentials()
+    globalReactiveValues$credentials <- tmcrstudioaddin::getCredentials()
 
-    if (!is.null(credentials$token)){
+    if (!is.null(globalReactiveValues$credentials$token)){
       output$loginPane <- renderUI({
         .logoutPane(ns)
       })
@@ -75,9 +72,8 @@
 
     #overwrite credentials, so that they contain only the last login address
     tryCatch({
-      credentials <- tmcrstudioaddin::getCredentials()
-      credentials <- list(serverAddress=credentials$serverAddress)
-      tmcrstudioaddin::saveCredentials(credentials)
+      globalReactiveValues$credentials <- list(serverAddress=globalReactiveValues$credentials$serverAddress)
+      tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials)
     })
 
     output$loginPane <- renderUI({
@@ -102,9 +98,7 @@
 # Sets "https://tmc.mooc.fi" as the suggested server address
 .suggestServer <- function() {
   tryCatch({
-    credentials <- tmcrstudioaddin::getCredentials()
-
-    if (is.null(credentials$serverAddress)) {
+    if (is.null(globalReactiveValues$credentials$serverAddress)) {
       defaultServerAddress <- "https://tmc.mooc.fi"
 
       # these two should be null, but fetched anyway in case they aren't
