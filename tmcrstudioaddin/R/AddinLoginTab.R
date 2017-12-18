@@ -79,7 +79,7 @@
     })
 
     output$loginPane <- renderUI({
-      .loginPane(ns)
+      .loginPane(ns,globalReactiveValues)
     })
   },ignoreInit = TRUE)
 
