@@ -144,7 +144,7 @@
 
     separateDownloadedExercises(exercises)
 
-    if(length(exercise_map) > 0){
+    if(length(exercise_map) > 0) {
       show("all_exercises")
       shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = exercise_map)
     }
@@ -189,11 +189,11 @@
 
     downloadedExercisesMap <<- downloadedExercisesId
     names(downloadedExercisesMap) <<- downloadedExercisesName
-    downloadedExercisesMap <<- sort(downloadedExercisesMap)
+    if (length(downloadedExercisesMap) > 0) downloadedExercisesMap <<- sort(downloadedExercisesMap)
 
     exercise_map <<- exerciseId
     names(exercise_map) <<- exerciseName
-    exercise_map <<- sort(exercise_map)
+    if (length(exercise_map) > 0) exercise_map <<- sort(exercise_map)
   }
 
   observe({
@@ -240,10 +240,10 @@
     disable("updateAllExercises")
 
     if(input$updateAllExercises){
-      shiny::updateCheckboxGroupInput(session,"downloadedExercises",choices = downloadedExercisesMap , selected = downloadedExercisesMap)
+      shiny::updateCheckboxGroupInput(session,"downloadedExercises",choices = downloadedExercisesMap, selected = downloadedExercisesMap)
     }
     else{
-      shiny::updateCheckboxGroupInput(session,"downloadedExercises" , choices = downloadedExercisesMap , selected = list())
+      shiny::updateCheckboxGroupInput(session,"downloadedExercises" , choices = downloadedExercisesMap, selected = list())
     }
     enable("updateAllExercises")
   })
