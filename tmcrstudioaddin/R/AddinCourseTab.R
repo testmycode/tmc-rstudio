@@ -128,13 +128,8 @@
 
     tmcrstudioaddin::disable_course_tab()
 
-    globalReactiveValues$exerciseMap <- list()
-    globalReactiveValues$downloadedExercisesMap <- list()
+    hideCourseExercises
 
-    hide("all_exercises")
-    hide("updateAllExercises")
-    shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
-    shiny::updateCheckboxGroupInput(session, "downloadedExercises", label = "", choices = list())
     withProgress(message = "Fetching exercises", {
       exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
     })
@@ -146,15 +141,13 @@
 
   separateDownloadedExercises <- function(exercises, globalReactiveValues) {
     globalReactiveValues$exerciseMap <- list()
-    globalReactiveValues$downloadedExercisesMap <- c()
+    globalReactiveValues$downloadedExercisesMap <- list()
 
     allExercises <- list()
     exercisePaths <- downloadedExercisesPaths()
 
-    downloadedExercisesId <- c()
-    downloadedExercisesName <- c()
-    exerciseId <- c()
-    exerciseName <- c()
+    downloadedExercise <- list()
+    exercise <- list()
 
     exerciseNumber <- 1
 
@@ -166,22 +159,18 @@
           break
         }
       if (downloaded) {
-        downloadedExercisesId <- c(downloadedExercisesId, exercises$id[[exerciseNumber]])
-        downloadedExercisesName <- c(downloadedExercisesName, exercises$name[[exerciseNumber]])
+        downloadedExercise[[exercises$name[[exerciseNumber]]]] <- exercises$id[[exerciseNumber]]
       } else {
-        exerciseId <- c(exerciseId, exercises$id[[exerciseNumber]])
-        exerciseName <- c(exerciseName, exercises$name[[exerciseNumber]])
+        exercise[[exercises$name[[exerciseNumber]]]] <- exercises$id[[exerciseNumber]]
       }
       exerciseNumber <- exerciseNumber + 1
     }
 
-    globalReactiveValues$downloadedExercisesMap <- downloadedExercisesId
-    names(globalReactiveValues$downloadedExercisesMap) <- downloadedExercisesName
-    if (length(globalReactiveValues$downloadedExercisesMap) > 0) globalReactiveValues$downloadedExercisesMap <- sort(globalReactiveValues$downloadedExercisesMap)
+    globalReactiveValues$downloadedExercisesMap <- downloadedExercise
+    if (length(globalReactiveValues$downloadedExercisesMap) > 0) globalReactiveValues$downloadedExercisesMap <- sortList(globalReactiveValues$downloadedExercisesMap)
 
-    globalReactiveValues$exerciseMap <- exerciseId
-    names(globalReactiveValues$exerciseMap) <- exerciseName
-    if (length(globalReactiveValues$exerciseMap) > 0) globalReactiveValues$exerciseMap <- sort(globalReactiveValues$exerciseMap)
+    globalReactiveValues$exerciseMap <- exercise
+    if (length(globalReactiveValues$exerciseMap) > 0) globalReactiveValues$exerciseMap <- sortList(globalReactiveValues$exerciseMap)
   }
 
   observe({
@@ -189,10 +178,7 @@
       shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
                                choices = list(), selected = 1)
       shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = list(), selected = 1)
-      hide("all_exercises")
-      shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
-      hide("updateAllExercises")
-      shiny::updateCheckboxGroupInput(session, "downloadedExercises", label = "", choices = list())
+      hideCourseExercises()
     }
     else {
       organizations <- tmcrstudioaddin::getAllOrganizations()
@@ -255,7 +241,7 @@
           dir.create(course_directory_path, recursive = TRUE)
         }
 
-        exercises <- downloadFromList(course_directory_path, globalReactiveValues)
+        downloadFromList(course_directory_path, globalReactiveValues)
 
       })
       rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
@@ -266,44 +252,33 @@
     #Call submitTab module, which updates exercises
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
 
-    new <- list()
-    new$name <- list()
-    new$name <- as.list(c(names(globalReactiveValues$exerciseMap),
-                        names(globalReactiveValues$downloadedExercisesMap)))
-    new$id <- list()
-    for (id in globalReactiveValues$exerciseMap) {
-      new$id <- c(new$id, id)
-    }
-    for (id in globalReactiveValues$downloadedExercisesMap) {
-      new$id <- c(new$id, id)
-    }
+    exercises <- list()
 
-    hide("all_exercises")
-    hide("updateAllExercises")
-    shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
-    shiny::updateCheckboxGroupInput(session, "downloadedExercises", label = "", choices = list())
-    separateDownloadedExercises(new, globalReactiveValues)
+    exercises$id <- addToList(c(globalReactiveValues$downloadedExercisesMap,
+                              globalReactiveValues$exerciseMap))
+    exercises$name <- addToList(c(names(globalReactiveValues$downloadedExercisesMap),
+                                names(globalReactiveValues$exerciseMap)))
+
+    hideCourseExercises()
+    separateDownloadedExercises(exercises, globalReactiveValues)
 
     tmcrstudioaddin::enable_course_tab()
   })
 
   downloadFromList <- function(course_directory_path, globalReactiveValues) {
-    exercises <- c(input$exercises, input$downloadedExercises)
-    exerciseNames <- c()
+    exercises <- list()
     for (id in input$exercises) {
-      exerciseNames <- c(exerciseNames, returnItem(id, globalReactiveValues$exerciseMap))
+      exercises[[returnItem(id, globalReactiveValues$exerciseMap)]] <- id
     }
     for (id in input$downloadedExercises) {
-      exerciseNames <- c(exerciseNames, returnItem(id, globalReactiveValues$downloadedExercisesMap))
+      exercises[[returnItem(id, globalReactiveValues$downloadedExercisesMap)]] <- id
     }
-    names(exercises) <- exerciseNames
     for (name in names(exercises)) {
-      tmcrstudioaddin::download_exercise(exercises[[name]], zip_name=paste(exercises[[name]],".zip"),
+      tmcrstudioaddin::download_exercise(exercises[[name]], zip_name = paste(exercises[[name]], ".zip"),
                                          exercise_directory = course_directory_path,
                                          exercise_name = name)
       incProgress(1 / length(exercises))
     }
-    return(exercises)
   }
 
   observeEvent(globalReactiveValues$downloadedExercisesMap, {
@@ -319,6 +294,13 @@
       shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = globalReactiveValues$exerciseMap)
     }
   })
+
+  hideCourseExercises <- function() {
+    hide("all_exercises")
+    hide("updateAllExercises")
+    shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
+    shiny::updateCheckboxGroupInput(session, "downloadedExercises", label = "", choices = list())
+  }
 }
 
 returnItem <- function(item, list) {
@@ -329,4 +311,25 @@ returnItem <- function(item, list) {
     }
   }
   return(ret)
+}
+
+addToList <- function(listToAddFrom) {
+  retList <- list()
+  for(item in listToAddFrom) {
+    retList[[length(retList) + 1]] <- item
+  }
+  return(retList)
+}
+
+
+# Sorts list based on the names of items
+sortList <- function(listToSort) {
+  retList <- list()
+  listItems <- unlist(names(listToSort))
+  names(listItems) <- unlist(addToList(listToSort))
+  listItems <- sort(listItems)
+  for (name in names(listItems)) {
+    retList[[listItems[[name]]]] <- name
+  }
+  return(retList)
 }
