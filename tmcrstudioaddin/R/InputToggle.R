@@ -48,7 +48,8 @@ enable_elements <- function(...) {
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_submit_tab <- function() {
-  disable_elements("selectExercise", "source", "runTests", "submit", "showAllResults")
+  disable_elements("selectExercise", "refreshExercises", "openFiles", "source",
+                   "runTests", "submit", "showAllResults")
 }
 
 #' @title Enable Shiny input elements in the Test & Submit tab
@@ -59,7 +60,8 @@ disable_submit_tab <- function() {
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_submit_tab <- function() {
-  enable_elements("selectExercise", "source", "runTests", "submit", "showAllResults")
+  enable_elements("selectExercise", "refreshExercises", "openFiles", "source",
+                  "runTests", "submit", "showAllResults")
 }
 
 #' @title Disable Shiny input elements in the Course & Exercise tab

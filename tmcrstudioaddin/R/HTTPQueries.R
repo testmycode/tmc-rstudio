@@ -71,7 +71,8 @@ download_exercise <- function(exercise_id,
 #' @param remove_zip \code{TRUE} or \code{FALSE} depending on if you wish to delete the
 #' submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.
 #'
-#' @details Packs the exercise directory into a \code{zip} file and sends it to the TMC server.
+#' @details Packs the exercise directory into a \code{zip} file and sends it to the TMC server
+#' as a list.
 #'
 #' @return \code{HTTP} response to the submission attempt.
 #'
@@ -154,8 +155,8 @@ get_submission_json <- function(token, url) {
 #' @details Reads the exercise id from \code{.metadata.json} and the server address from
 #' \code{.credentials.json} which are used to form the correct uploading address.
 #'
-#' @return \code{HTTP} response to the submission attempt. \code{NULL} if reading the metadata or
-#' credentials file caused an error.
+#' @return \code{HTTP} response as a list to the submission attempt. List containing \code{error} key
+#' with an error message if reading the metadata or credentials file caused an error.
 #'
 #' @seealso \code{\link[base]{list.files}}, \code{\link[jsonlite]{fromJSON}},
 #' \code{\link{getCredentials}}, \code{\link{upload_exercise}}
@@ -287,9 +288,9 @@ getAllExercises <- function(course){
 #' @details Extracts the exercise submission result url from the given response and makes an
 #' \code{HTTP-GET} request for the exercise submission result \code{JSON}.
 #'
-#' @return \code{HTTP} response from the TMC server containing the submission result \code{JSON}
-#' if the server has finished processing the exercise submission. \code{NULL} if the \code{HTTP-GET}
-#' request failed.
+#' @return \code{HTTP} response as a list from the TMC server containing the submission result \code{JSON}
+#' if the server has finished processing the exercise submission. List containing \code{error} key
+#' with an error message if the \code{HTTP-GET} request failed.
 #'
 #' @seealso \code{\link[httr]{content}}, \code{\link{get_submission_json}}
 get_json_from_submission_url <- function(response, token) {

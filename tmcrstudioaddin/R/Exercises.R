@@ -143,8 +143,8 @@ pathIsExercise <- function(path) {
 #' @details Reads the \code{.metadata.json} file for the exercise name.
 #'
 #' @return Exercise's name read from \code{.metadata.json}. If the file doesn't
-#' exist, returns the name of the path's basename (the final directory/file in
-#' the file path).
+#' exist or if the file doesn't have the exercise name, returns the name of the
+#' path's basename (the final directory/file in the file path).
 #'
 #' @seealso \code{\link{get_exercise_metadata}}, \code{\link[base]{basename}}
 
