@@ -1,10 +1,10 @@
 
-.tmc_zip <- function(folder, target) {
+.tmc_zip <- function(folder, zip_path) {
   oldWd <- getwd()
   setwd(folder)
   tryCatch({
     files_to_zip <- dir(folder, recursive = TRUE, include.dirs = TRUE)
-    zip(zipfile = paste(sep = "", target, ".zip"), file = files_to_zip);
+    zip(zipfile = zip_path, file = files_to_zip);
   }, error = function(e) {
     print("Could not Zip")
     print(e)

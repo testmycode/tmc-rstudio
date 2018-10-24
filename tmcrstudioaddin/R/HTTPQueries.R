@@ -91,9 +91,12 @@ upload_exercise <- function(token, exercise_id, project_path,
                          exercise_id, "/", "submissions")
   url_config <- httr::add_headers(Authorization = token)
 
-  .tmc_zip(project_path, zip_name)
-  zipped_file <- paste(sep = "", project_path, "/", zip_name, ".zip")
-  submission_file <- httr::upload_file(zipped_file)
+  zip_path <- paste0(tempfile(), ".zip")
+  .tmc_zip(project_path, zip_path)
+  print(paste("Project path", project_path))
+  print(paste0("Sending zip to server ", zip_path))
+  print(paste0("file.exists(zip_path) ", file.exists(zip_path)))
+  submission_file <- httr::upload_file(zip_path)
 
   exercises_response <- tryCatch({
     exercises_response$data <- httr::stop_for_status(httr::POST(exercises_url,
@@ -106,7 +109,7 @@ upload_exercise <- function(token, exercise_id, project_path,
     exercises_response
   })
   if (remove_zip) {
-    file.remove(zipped_file)
+    file.remove(zip_path)
   }
 
   return(exercises_response)
