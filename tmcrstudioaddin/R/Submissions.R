@@ -197,7 +197,7 @@ getDialogMessage <- function(submitResults) {
   } else if (submitResults$data$all_tests_passed) {
     points <- paste(submitResults$data$points, collapse = ", ")
     message$text <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
-                                points, "</b><p>View model solution")
+                                points, "</b><p>You can view the model solution on the server.")
   } else {
     points <- paste(submitResults$data$points, collapse = ", ")
     message$text <- paste0("Exercise ", submitResults$data$exercise_name,
