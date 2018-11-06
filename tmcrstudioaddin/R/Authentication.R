@@ -68,14 +68,16 @@ authenticate <- function(username, password, serverAddress) {
 
 #actual login function
 login <- function(clientID, secret, username, password, serverAddress){
-  body <- paste(sep = "",
-                "grant_type=password&client_id=", clientID,
-                "&client_secret=", secret,
-                "&username=", username,
-                "&password=", password)
+  body <- list(
+    "grant_type"="password",
+    "client_id"=clientID,
+    "client_secret"=secret,
+    "username"=username,
+    "password"=password
+  )
   # Authenticate
   url <- paste(serverAddress, "/oauth/token", sep = "")
-  req <- httr::POST(url = url, body = body, config = timeout(30))
+  req <- httr::POST(url = url, body = body, config = timeout(30), encode = "form")
   # if http status is ok return token
   if (status_code(req) == 200){
     token <- paste("Bearer", httr::content(req)$access_token)
