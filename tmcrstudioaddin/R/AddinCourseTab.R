@@ -240,13 +240,59 @@
         if(!dir.exists(course_directory_path)){
           dir.create(course_directory_path, recursive = TRUE)
         }
+	dprint(course_directory_path)
 
-        downloadFromList(course_directory_path, globalReactiveValues)
+        num_of_downloaded <- downloadFromList(course_directory_path, globalReactiveValues)
 
       })
-      rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
+      download_success_message <- 
+	if ( num_of_downloaded == 0 ) {
+	  "You didn't choose any exercises i.e. download was successful"
+	} else if ( num_of_downloaded == 1 ) {
+	  paste("You downloaded one exercise succesfully", sep=" ")
+	} else {
+	  paste("You downloaded", as.character(num_of_downloaded),
+					"exercises succesfully", sep=" ")
+	}
+      rstudioapi::showDialog("Success", download_success_message, "")
+      #rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
     }, error = function(e) {
-      rstudioapi::showDialog("Error","Something went wrong","")
+    pre_error <- e$message
+    download_errormsgs <- list(keys=c("Path exists and overwrite is FALSE",
+				      "argument is of length zero",
+				      "Forbidden (HTTP 403)",
+				      pre_error))
+    download_errormsgs$msgs_win <- c("Your download failed \
+(Path exists and overwrite is FALSE). There is something wrong with the \
+file permissions or previous download failed in halfway.<p>Please \
+contact the course instructors in this case.",
+"Please select first select both organization and course. \
+Remember to refresh the lists.",
+"One or more exercises you chose have not been published yet",
+pre_error)
+    download_errormsgs$msgs_unix <- c("Your download failed \
+(Path exists and overwrite is FALSE). There is something wrong with the \
+file permissions or previous download failed in halfway.<p>Please \
+contact the course instructors in this case.",
+"Please select first select both organization and course. \
+Remember to refresh the lists.",
+"One or more exercises you chose have not been published yet",
+pre_error)
+    if ( !is.null(.Platform$OS.type) && .Platform$OS.type == "windows" ) {
+      errormsg <- download_errormsgs$msgs_win[download_errormsgs$keys == pre_error][1]
+    } else {
+      errormsg <- download_errormsgs$msgs_unix[download_errormsgs$keys == pre_error][1]
+    }
+    if ( is.null(.Platform$OS.type) ) {
+      print("This is mysterious machine")
+    }
+      download_error_message <- errormsg
+      cat("Error")
+      cat(" : ")
+      cat(pre_error)
+      cat("\n")
+      rstudioapi::showDialog("Error", download_error_message, "")
+      # rstudioapi::showDialog("Error","Something went wrong","")
     })
 
     #Call submitTab module, which updates exercises
@@ -273,13 +319,17 @@
     for (id in input$downloadedExercises) {
       exercises[[returnItem(id, globalReactiveValues$downloadedExercisesMap)]] <- id
     }
+    dprint("downloadFromList()")
     for (name in names(exercises)) {
       tmcrstudioaddin::download_exercise(exercises[[name]], zip_name = paste(exercises[[name]], ".zip"),
                                          exercise_directory = course_directory_path,
                                          exercise_name = name)
       incProgress(1 / length(exercises))
     }
+    length(exercises)
   }
+
+  dprint("downloadFromList()-2")
 
   observeEvent(globalReactiveValues$downloadedExercisesMap, {
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
@@ -332,4 +382,27 @@ sortList <- function(listToSort) {
     retList[[listItems[[name]]]] <- name
   }
   return(retList)
+}
+
+debug_set <- function() {
+  assign(x = ".__tmc_debug", value = FALSE, envir = .GlobalEnv)
+}
+
+ddebug_set <- function() {
+  assign(x = ".__tmc_debug", value = TRUE, envir = .GlobalEnv)
+}
+
+debug_unset <- function() {
+  if (exists(".__tmc_debug")) rm(".__tmc_debug", envir = .GlobalEnv)
+}
+
+ddprint <- function(x) {
+  if (exists(".__tmc_debug") && get(".__tmc_debug") ) {
+    print(x)
+  }
+}
+dprint <- function(x) {
+  if (exists(".__tmc_debug")) {
+    print(x)
+  }
 }

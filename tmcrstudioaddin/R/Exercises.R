@@ -72,12 +72,12 @@ downloadedExercisesPaths <- function() {
 #' \code{\link[base]{file.path}}, \code{\link[base]{cat}}, \code{\link[base]{source}}
 
 # Sources all files in exercise with print.eval on.
-sourceExercise <- function(exercisePath) {
+sourceExercise <- function(exercisePath, sourceEcho) {
   env <- new.env()
   for (file in list.files(pattern = "[.]R$", path = file.path(exercisePath, "R"),
                           full.names = TRUE)) {
     cat("Sourcing file: ", file, "\n\n")
-    source(file, env, print.eval = TRUE)
+    source(file, env, print.eval = TRUE, echo = sourceEcho)
   }
 }
 

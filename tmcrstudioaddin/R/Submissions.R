@@ -20,6 +20,7 @@
 #' \code{\link{showMessage}}
 
 submitExercise <- function(path) {
+  dprint("submitExercise()")
   submitJson <- list()
   submitJson <- submitCurrent(path)
   submitRes <- list()
@@ -54,6 +55,7 @@ submitExercise <- function(path) {
 #' \code{\link{getExerciseFromServer}}
 submitCurrent <- function(path) {
   submitJson <- list()
+  dprint("submitCurrent()")
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   response <- upload_current_exercise(token, project_path = path)
@@ -188,8 +190,62 @@ getDialogMessage <- function(submitResults) {
   message <- list()
   message$title <- "Results"
   if (!is.null(submitResults$error)) {
+    # move the texts below to proper place
     message$title <- "Error"
-    errormsg <- submitResults$error
+    dprint("getDialogMessageError")
+    pre_error <- if ( is.character(submitResults$error) ) {
+      cat(submitResults$error)
+      message$title <- "Submission succeeded. Server response: error"
+      submitResults$error
+    } else {
+      message$title <- "Submission failed: error"
+      print(submitResults$error)
+      submitResults$error$message
+    }
+    errormsgs <- list(keys=c("Unauthorized (HTTP 401).", 
+			     "file.exists(path) is not TRUE",
+			     "Bad Gateway (HTTP 502).",
+			     pre_error))
+    errormsgs$msgs_win <- c("Your submission was refused by server (HTTP \
+401). This most likely means that the submission deadline \
+has closed.", 
+"Submission uploading failed with 'file.exists(path) is not TRUE'.
+<p>
+The reason for this is most likely with your installation of Rtools. \
+Please take a look at the suggested solutions in the \
+frequently asked questions. 
+<p> Also contact the course instructors in this case.", 
+"Your submission failed with 'Bad Gateway (HTTP 502)'. \
+You can try restarting RStudio and RTMC and then resubmitting.<p> \
+This can also mean that server is is temporarily not accepting \
+requests. You should try resubmitting again later, but if you are in a hurry, \
+contact the course teacher",
+paste(pre_error, "<p>Please contact the course instructors in this case."))
+    errormsgs$msgs_unix <- c("Your submission was refused by server (HTTP \
+401). This most likely means that the submission deadline \
+has closed.", 
+"Submission uploading failed with 'file.exists(path) is not TRUE'.
+<p>
+This is most likely an issue with file permissions.
+<p> Please contact the course instructors in this case.", 
+"Your submission failed with 'Bad Gateway (HTTP 502)'. \
+You can try restarting RStudio and RTMC and then resubmitting.<p> \
+This can also mean that server is is temporarily not accepting \
+requests. You should try resubmitting again later, but if you are in a hurry, \
+contact the course teacher",
+paste(pre_error, "<p>Please contact the course instructors in this case."))
+    if ( !is.null(.Platform$OS.type) && .Platform$OS.type == "windows" ) {
+      errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
+    } else {
+      errormsg <- errormsgs$msgs_unix[errormsgs$keys == pre_error][1]
+    }
+    if ( is.null(.Platform$OS.type) ) {
+      print("This is mysterious machine")
+    }
+    if ( is.character(submitResults$error) ) {
+      errormsg <- paste0(pre_error,"<p> There is an issue with your \
+code. Please try to fix it or ask help from course instructors.")
+    }
     if (nchar(errormsg) > 300) {
       errormsg <- substr(errormsg, 1, 300)
     }

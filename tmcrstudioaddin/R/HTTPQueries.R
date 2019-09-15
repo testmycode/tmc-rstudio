@@ -32,12 +32,14 @@ download_exercise <- function(exercise_id,
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   serverAddress <- credentials$serverAddress
+  dprint("download_exercise()")
 
   zip_path <- paste(sep = "", zip_target, "/", zip_name)
 
   exercises_url <- paste(sep = "", serverAddress, "/", "api/v8/core/exercises/",
                         exercise_id, "/", "download")
 
+  ddprint(zip_path)
 
 
   exercises_response <- httr::GET(exercises_url,
@@ -45,12 +47,20 @@ download_exercise <- function(exercise_id,
                               config = timeout(30),
                               write_disk(zip_path, overwrite = FALSE))
 
-  .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
+  dprint("exercises_response")
 
+  # move this to better location
+  exercise_forbidden_num <- 403
+  exercise_ok_num <- 200
+  # move this to better location
+  if ( exercises_response$status_code == exercise_forbidden_num ) {
+    file.remove(zip_path)
+    stop(paste("Forbidden (HTTP ", as.character(exercise_forbidden_num), ")", sep=""))
+  }
+  .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
   file.remove(zip_path)
 
   create_exercise_metadata(exercise_id, exercise_directory, exercise_name)
-
 
   return(exercises_response)
 }
@@ -91,23 +101,36 @@ upload_exercise <- function(token, exercise_id, project_path,
                          exercise_id, "/", "submissions")
   url_config <- httr::add_headers(Authorization = token)
 
+  dprint("upload_exercise()")
   zip_path <- paste0(tempfile(), ".zip")
+  dprint(zip_path)
+  tryCatch({
   .tmc_zip(project_path, zip_path)
-  print(paste("Project path", project_path))
-  print(paste0("Sending zip to server ", zip_path))
-  print(paste0("file.exists(zip_path) ", file.exists(zip_path)))
-  submission_file <- httr::upload_file(zip_path)
+  dprint(paste("Project path", project_path))
+  dprint(paste0("Sending zip to server ", zip_path))
+  dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
+  submission_file <- httr::upload_file(zip_path)},
+  error = function(e) {
+    cat("Uploading failed.\n")
+    stop(e)
+  })
 
+  dprint("exercises_response")
   exercises_response <- tryCatch({
     exercises_response$data <- httr::stop_for_status(httr::POST(exercises_url,
                                                               config = url_config,
                                                               encode = "multipart",
                                                               body = list("submission[file]" = submission_file)))
+    ddprint(str(exercises_response))
+    if ( !is.null(exercises_response$error) ) {
+      stop(exercises_response$error) }
     exercises_response
   }, error = function(e) {
+    dprint(e)
     exercises_response$error <- e
     exercises_response
   })
+  dprint("exercises_response2")
   if (remove_zip) {
     file.remove(zip_path)
   }
@@ -169,22 +192,32 @@ get_submission_json <- function(token, url) {
 # For testing purposes, you can provide some other file path
 upload_current_exercise <- function(token, project_path, zip_name = "temp", remove_zip = TRUE) {
   response <- list()
+  dprint("upload_current_exercise()")
   metadata <- tryCatch({
     json <- base::list.files(path = project_path, pattern = ".metadata.json", all.files = TRUE, full.names = TRUE)
     jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
   }, error = function(e){
     NULL
   })
-  if (!is.null(metadata$id[[1]])) {
-    id <- metadata$id[[1]]
-    credentials <- tmcrstudioaddin::getCredentials()
-    address <- paste(sep = "", credentials$serverAddress, "/")
-    response <- upload_exercise(token = token, exercise_id = id,
-                                project_path = project_path, server_address = address,
-                                zip_name = zip_name, remove_zip = remove_zip)
-  } else {
-    response$error <- "Could not read json"
-  }
+  response <-
+    if (!is.null(metadata$id[[1]])) {
+      id <- metadata$id[[1]]
+      credentials <- tmcrstudioaddin::getCredentials()
+      address <- paste(sep = "", credentials$serverAddress, "/")
+      tryCatch({
+      response <- upload_exercise(token = token, exercise_id = id,
+				  project_path = project_path, server_address = address,
+				  zip_name = zip_name, remove_zip = remove_zip)
+      response
+      }, error = function (e) {
+	cat("Uploading exercise failed.\n")
+	response$error <- e
+	response
+      })
+    } else {
+      response$error <- "Could not read json"
+      response
+    }
   return(response)
 }
 
