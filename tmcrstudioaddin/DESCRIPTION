@@ -1,9 +1,9 @@
 Package: tmcrstudioaddin
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.3.4
+Title: TMC R user interface (Shiny app)
+Version: 0.3.6
 Author: RTMC
-Maintainer: The package maintainer <yourself@somewhere.net>
+Maintainer: Petteri Piiroinen <petteri.piiroinen@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
@@ -13,15 +13,11 @@ Imports:
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
   rstudioapi,
-  rjson,
   httr,
   tmcRtestrunner,
   jsonlite,
   shinyjs,
   mockery
-Depends:
-  testthat,
-  httptest
 Collate:
   'Authentication.R'
   'AddinCourseTab.R'
@@ -37,4 +33,4 @@ Collate:
   'TestResultsStats.R'
   'TMC_plugin.R'
   'Zipper.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

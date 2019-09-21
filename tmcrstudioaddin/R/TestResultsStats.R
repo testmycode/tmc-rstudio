@@ -8,6 +8,6 @@
     }
   }
 
-  passedPercentage <- round(passed / length(testResults), digit = 2)
+  passedPercentage <- round(passed / length(testResults), digits = 2)
   return(paste(sep = "", toString(passedPercentage * 100), "%"))
 }

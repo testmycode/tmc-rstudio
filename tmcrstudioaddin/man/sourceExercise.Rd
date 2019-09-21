@@ -4,10 +4,12 @@
 \alias{sourceExercise}
 \title{Source all exercise R files.}
 \usage{
-sourceExercise(exercisePath)
+sourceExercise(exercisePath, sourceEcho)
 }
 \arguments{
 \item{exercisePath}{File path to the exercise project directory.}
+
+\item{sourceEcho}{A boolean determining whether to source echo on console.}
 }
 \description{
 Source all exercise \code{R} files.

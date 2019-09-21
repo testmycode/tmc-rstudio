@@ -40,7 +40,7 @@
     if(UI_disabled) return()
 
     tmcrstudioaddin::disable_submit_tab()
-    dprint("runTestrunner()")
+    .dprint("runTestrunner()")
     if ( selectedExercisePath == "" ) {
       rstudioapi::showDialog("Cannot run tests",
 			     "You have not selected the exercises. Please choose the
@@ -72,7 +72,7 @@
 
     tmcrstudioaddin::disable_submit_tab()
     submitRes <- NULL
-    dprint("submitExercise()")
+    .dprint("submitExercise()")
     if ( selectedExercisePath == "" ) {
       rstudioapi::showDialog("Cannot submit solutions to server",
 			     "You have not selected the exercises. Please choose the
@@ -114,7 +114,7 @@
 
     tmcrstudioaddin::disable_submit_tab()
 
-    dprint("sourceExercise()")
+    .dprint("sourceExercise()")
     if ( selectedExercisePath == "" ) {
       rstudioapi::showDialog("Cannot source exercises",
 			     "You have not selected the exercises. Please choose the

@@ -20,7 +20,7 @@
 #' \code{\link{showMessage}}
 
 submitExercise <- function(path) {
-  dprint("submitExercise()")
+  .dprint("submitExercise()")
   submitJson <- list()
   submitJson <- submitCurrent(path)
   submitRes <- list()
@@ -55,7 +55,7 @@ submitExercise <- function(path) {
 #' \code{\link{getExerciseFromServer}}
 submitCurrent <- function(path) {
   submitJson <- list()
-  dprint("submitCurrent()")
+  .dprint("submitCurrent()")
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   response <- upload_current_exercise(token, project_path = path)
@@ -140,6 +140,13 @@ processSubmissionJson <- function(submitJson) {
 #'
 #' @return List of test results received from the submission result \code{JSON}.
 processSubmission <- function(submitJson) {
+  getStatusFromBoolean <- function(bol) {
+    status <- "fail"
+    if (bol) {
+      status <- "pass"
+    }
+    return(status)
+  }
   tests <- list()
   for (testCase in submitJson$test_cases) {
     result <- list()
@@ -151,13 +158,6 @@ processSubmission <- function(submitJson) {
   return(tests)
 }
 
-getStatusFromBoolean <- function(bol) {
-  status <- "fail"
-  if (bol) {
-    status <- "pass"
-  }
-  return(status)
-}
 
 #' @title Show submission results in a pop-up dialog box
 #'
@@ -192,7 +192,7 @@ getDialogMessage <- function(submitResults) {
   if (!is.null(submitResults$error)) {
     # move the texts below to proper place
     message$title <- "Error"
-    dprint("getDialogMessageError")
+    .dprint("getDialogMessageError")
     pre_error <- if ( is.character(submitResults$error) ) {
       cat(submitResults$error)
       message$title <- "Submission succeeded. Server response: error"
@@ -218,7 +218,7 @@ frequently asked questions.
 "Your submission failed with 'Bad Gateway (HTTP 502)'. \
 You can try restarting RStudio and RTMC and then resubmitting.<p> \
 This can also mean that server is is temporarily not accepting \
-requests. You should try resubmitting again later, but if you are in a hurry, \
+requests. You should try resubmitting again later, but if you are in a hurry, \
 contact the course teacher",
 paste(pre_error, "<p>Please contact the course instructors in this case."))
     errormsgs$msgs_unix <- c("Your submission was refused by server (HTTP \
@@ -231,7 +231,7 @@ This is most likely an issue with file permissions.
 "Your submission failed with 'Bad Gateway (HTTP 502)'. \
 You can try restarting RStudio and RTMC and then resubmitting.<p> \
 This can also mean that server is is temporarily not accepting \
-requests. You should try resubmitting again later, but if you are in a hurry, \
+requests. You should try resubmitting again later, but if you are in a hurry, \
 contact the course teacher",
 paste(pre_error, "<p>Please contact the course instructors in this case."))
     if ( !is.null(.Platform$OS.type) && .Platform$OS.type == "windows" ) {

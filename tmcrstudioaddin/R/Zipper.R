@@ -1,10 +1,10 @@
 .tmc_zip <- function(folder, zip_path) {
-  dprint(".zip")
+  .dprint(".zip")
   oldWd <- getwd()
   setwd(folder)
   tryCatch({
     files_to_zip <- dir(folder, recursive = TRUE, include.dirs = TRUE)
-    zip(zipfile = zip_path, file = files_to_zip);
+    zip(zipfile = zip_path, files = files_to_zip);
   }, error = function(e) {
     print("Could not Zip")
     setwd(oldWd)
@@ -19,7 +19,7 @@
 
 .tmc_tar <- function(folder, target) {
   files_to_tar <- dir(folder, full.names = TRUE)
-  tar(tarfile = paste(sep = "", target, ".tar"), file = files_to_tar);
+  tar(tarfile = paste(sep = "", target, ".tar"), files = files_to_tar);
 }
 
 .tmc_untar <- function(tarfile_name, target_folder) {

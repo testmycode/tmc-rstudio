@@ -61,9 +61,11 @@ downloadedExercisesPaths <- function() {
 #'
 #' @description Source all exercise \code{R} files.
 #'
-#' @usage sourceExercise(exercisePath)
+#' @usage sourceExercise(exercisePath, sourceEcho)
 #'
 #' @param exercisePath File path to the exercise project directory.
+#'
+#' @param sourceEcho A boolean determining whether to source echo on console.
 #'
 #' @details The \code{R} files contained in the exercise
 #' directory's \code{R} folder are sourced with \code{print.eval} on.
