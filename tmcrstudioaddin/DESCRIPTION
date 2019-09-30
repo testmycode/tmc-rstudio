@@ -1,7 +1,7 @@
 Package: tmcrstudioaddin
 Type: Package
 Title: TMC R user interface (Shiny app)
-Version: 0.3.7
+Version: 0.3.8
 Author: RTMC
 Maintainer: Petteri Piiroinen <petteri.piiroinen@gmail.com>
 Description: More about what it does (maybe more than one line)
@@ -16,8 +16,7 @@ Imports:
   httr,
   tmcRtestrunner,
   jsonlite,
-  shinyjs,
-  mockery
+  shinyjs
 Collate:
   'Authentication.R'
   'AddinCourseTab.R'

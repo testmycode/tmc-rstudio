@@ -1,11 +1,15 @@
 exportPattern("^[[:alpha:]]+")
 
-import(shiny)
-import(miniUI)
-import(httr)
-import(rstudioapi)
+importFrom(shiny, HTML, actionButton, checkboxGroupInput,
+  checkboxInput, column, div, fluidPage, fluidRow, h1,
+  icon, incProgress, observe, observeEvent, passwordInput,
+  reactiveValues, renderUI, selectInput, tagList, tags,
+  textInput, uiOutput, updateCheckboxInput, updateSelectInput,
+  updateTextInput, withProgress)
+importFrom(miniUI, miniTabPanel, miniContentPanel, miniPage,
+  gadgetTitleBar, miniTitleBarCancelButton, miniTabstripPanel)
+importFrom(httr, status_code, timeout, write_disk)
 importFrom(jsonlite, unbox)
 importFrom(shinyjs, hide, hidden, disable, enable, show)
-import(mockery)
 importFrom(stats, setNames)
 importFrom(utils, str, tar, untar, unzip, zip)
