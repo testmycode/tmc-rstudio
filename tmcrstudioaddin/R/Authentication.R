@@ -193,8 +193,6 @@ getCredentials <- function(){
     credentials <- readRDS(paste(get_tmcr_directory(), ".credentials.rds",
       sep = .Platform$file.sep))
   }, warning = function(e) {
-    print("getCredentials: warning")
-    #stop(e)
     .dprint(e)
   })
   return(credentials)

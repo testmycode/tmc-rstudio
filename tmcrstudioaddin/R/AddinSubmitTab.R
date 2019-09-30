@@ -1,7 +1,8 @@
 
 .submitTabUI <- function(id, label = "Submit tab") {
   #init selected exercise:
-  selectedExercisePath <<- exercisePathFromWd()
+  #selectedExercisePath <<- exercisePathFromWd()
+  assign("selectedExercisePath", exercisePathFromWd(), envir = .GlobalEnv)
 
   ns <- shiny::NS(id)
   miniTabPanel(
@@ -106,7 +107,8 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     if(UI_disabled) return()
-    selectedExercisePath <<- input$selectExercise
+    #selectedExercisePath <<- input$selectExercise
+    assign("selectedExercisePath", input$selectExercise, envir = .GlobalEnv)
   })
 
   sourceExercise <- observeEvent(input$source, {

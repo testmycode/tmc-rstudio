@@ -16,7 +16,8 @@
 disable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, function(i) {shinyjs::disable(i)})
-  UI_disabled <<- TRUE
+  #UI_disabled <<- TRUE
+  assign("UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements
@@ -37,7 +38,8 @@ disable_elements <- function(...) {
 enable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, function(i) {shinyjs::enable(i)})
-  shinyjs::delay(ms = 1000, expr = UI_disabled <<- FALSE)
+  #shinyjs::delay(ms = 1000, expr = UI_disabled <<- FALSE)
+  shinyjs::delay(ms = 1000, expr = assign("UI_disabled", FALSE, envir = .GlobalEnv))
 }
 
 #' @title Disable Shiny input elements in the Test & Submit tab
