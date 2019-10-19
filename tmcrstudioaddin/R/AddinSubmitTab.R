@@ -16,7 +16,11 @@
           column(6, class="col-xs-6", actionButton(inputId = ns("refreshExercises"), label = "Refresh exercises", style = "margin-top:25px;"))
         ),
         fluidRow(
-          column(12, class="col-xs-12",actionButton(inputId = ns("openFiles"), label = "Open files", style = "margin-top:5px;"))
+          column(12, class="col-xs-12",
+		 actionButton(inputId = ns("openFiles"), label = "Open files",
+			      style = "margin-top:5px;"),
+		 actionButton(inputId = ns("saveFiles"), label = "Save modifications",
+			      style = "margin-top:5px;"))
         ),
         fluidRow(
           column(12,style ="margin-top:5px;",
@@ -157,6 +161,14 @@
       rstudioapi::navigateToFile(file)
     }
     }
+    tmcrstudioaddin::enable_submit_tab()
+  })
+
+  observeEvent(input$saveFiles, {
+    if(UI_disabled) return()
+    tmcrstudioaddin::disable_submit_tab()
+    .ddprint("Save modifications")
+    rstudioapi::documentSaveAll()
     tmcrstudioaddin::enable_submit_tab()
   })
 

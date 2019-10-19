@@ -205,6 +205,7 @@ getDialogMessage <- function(submitResults) {
     errormsgs <- list(keys=c("Unauthorized (HTTP 401).", 
 			     "file.exists(path) is not TRUE",
 			     "Bad Gateway (HTTP 502).",
+			     "Could not resolve host: tmc.mooc.fi",
 			     pre_error))
     errormsgs$msgs_win <- c("Your submission was refused by server (HTTP \
 401). This most likely means that the submission deadline \
@@ -220,6 +221,10 @@ You can try restarting RStudio and RTMC and then resubmitting.<p> \
 This can also mean that server is is temporarily not accepting \
 requests. You should try resubmitting again later, but if you are in a hurry, \
 contact the course teacher",
+"Host tmc.mooc.fi could not be reached. Do you have you working network \
+connection? If you do, then tmc.mooc.fi might be currently unreachable. \
+You should try resubmitting again later, but if you are in a hurry, \
+contact the course teacher",
 paste(pre_error, "<p>Please contact the course instructors in this case."))
     errormsgs$msgs_unix <- c("Your submission was refused by server (HTTP \
 401). This most likely means that the submission deadline \
@@ -232,6 +237,10 @@ This is most likely an issue with file permissions.
 You can try restarting RStudio and RTMC and then resubmitting.<p> \
 This can also mean that server is is temporarily not accepting \
 requests. You should try resubmitting again later, but if you are in a hurry, \
+contact the course teacher",
+"Host tmc.mooc.fi could not be reached. Do you have you working network \
+connection? If you do, then tmc.mooc.fi might be currently unreachable. \
+You should try resubmitting again later, but if you are in a hurry, \
 contact the course teacher",
 paste(pre_error, "<p>Please contact the course instructors in this case."))
     if ( !is.null(.Platform$OS.type) && .Platform$OS.type == "windows" ) {
