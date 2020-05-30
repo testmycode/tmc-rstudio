@@ -12,3 +12,6 @@ tmcrstudioaddin/tests/testthat/resources/downloaded_exercises/
 *~
 .*swp
 .*swo
+*.txt
+*.tar.gz
+*.tgz

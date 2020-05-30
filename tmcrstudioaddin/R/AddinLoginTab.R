@@ -11,26 +11,35 @@
   )
 
 }
-.loginPane <- function(ns,globalReactiveValues){
+.loginPane <- function(ns, globalReactiveValues) {
   return(tagList(
     h1("Log in"),
     textInput(inputId = ns("username"), label = "Username", value = ""),
-    passwordInput(inputId = ns("password"), label = "Password", value = ""),
-    div(style = "position:relative;", actionButton(inputId = ns("login"), label = "Log in")),
-    div(style = "margin-top:30px;", textInput(inputId = ns("serverAddress"), label = "Server address", value =
-                globalReactiveValues$credentials$serverAddress)),
-    div(style = "position:relative", checkboxInput(inputId = ns("changeServer"), label = "Change server address", value = FALSE),
-      actionButton(inputId = ns("resetServer"), label = "Reset server address"))
+    passwordInput(inputId = ns("password"),
+                  label = "Password",
+                  value = ""),
+    div(style = "position:relative;",
+        actionButton(inputId = ns("login"),
+                     label = "Log in")),
+    div(style = "margin-top:30px;",
+        textInput(inputId = ns("serverAddress"),
+                  label = "Server address",
+                  value = globalReactiveValues$credentials$serverAddress)),
+    div(style = "position:relative",
+        checkboxInput(inputId = ns("changeServer"),
+                      label = "Change server address",
+                      value = FALSE),
+        actionButton(inputId = ns("resetServer"),
+                     label = "Reset server address"))
   ))
 }
-.logoutPane <- function(ns){
+.logoutPane <- function(ns) {
   return(tagList(h1("Log out"),
                  actionButton(inputId = ns("logout"), label = "Log out")))
 }
 
-.loginTab <- function(input, output, session,globalReactiveValues) {
+.loginTab <- function(input, output, session, globalReactiveValues) {
   ns <- shiny::NS("login")
-
 
   observe({
     .suggestServer(globalReactiveValues)
