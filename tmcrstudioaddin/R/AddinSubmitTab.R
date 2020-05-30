@@ -1,7 +1,6 @@
-
 .submitTabUI <- function(id, label = "Submit tab") {
   #init selected exercise:
-  #selectedExercisePath <<- exercisePathFromWd()
+  .ddprint(".submitTabUI when is this run??")
   assign("selectedExercisePath", exercisePathFromWd(), envir = .GlobalEnv)
 
   ns <- shiny::NS(id)
@@ -10,25 +9,41 @@
     icon = icon("check"),
 
     miniContentPanel(
-      fluidPage(style="padding:0px;margin:0px;",
+      fluidPage(style = "padding:0px;margin:0px;",
         fluidRow(
-          column(6, class="col-xs-6", selectInput(inputId = ns("selectExercise"), "Exercise:", c(), selected = selectedExercisePath)),
-          column(6, class="col-xs-6", actionButton(inputId = ns("refreshExercises"), label = "Refresh exercises", style = "margin-top:25px;"))
+          column(6, class = "col-xs-6",
+                 selectInput(inputId = ns("selectExercise"),
+                             "Exercise:",
+                             c(),
+                             selected = selectedExercisePath)),
+          column(6, class = "col-xs-6",
+                 actionButton(inputId = ns("refreshExercises"),
+                              label = "Refresh exercises",
+                              style = "margin-top:25px;"))
         ),
         fluidRow(
-          column(12, class="col-xs-12",
-		 actionButton(inputId = ns("openFiles"), label = "Open files",
-			      style = "margin-top:5px;"),
-		 actionButton(inputId = ns("saveFiles"), label = "Save modifications",
-			      style = "margin-top:5px;"))
+          column(12, class = "col-xs-12",
+                 actionButton(inputId = ns("openFiles"),
+                              label = "Open files",
+                              style = "margin-top:5px;"),
+                 actionButton(inputId = ns("saveFiles"),
+                              label = "Save modifications",
+                              style = "margin-top:5px;"))
         ),
         fluidRow(
-          column(12,style ="margin-top:5px;",
-                 actionButton(inputId = ns("source"), label = "Source"),
-                 actionButton(inputId = ns("runTests"), label = "Run tests"),
-                 actionButton(inputId = ns("submit"), label = "Submit to server"),
-                 checkboxInput(inputId = ns("showAllResults"), label = "Show all results", value = TRUE),
-                 checkboxInput(inputId = ns("toggleEcho"), label = "Echo source", value = TRUE))
+          column(12, style = "margin-top:5px;",
+                 actionButton(inputId = ns("source"),
+                              label = "Source"),
+                 actionButton(inputId = ns("runTests"),
+                              label = "Run tests"),
+                 actionButton(inputId = ns("submit"),
+                              label = "Submit to server"),
+                 checkboxInput(inputId = ns("showAllResults"),
+                               label = "Show all results",
+                               value = TRUE),
+                 checkboxInput(inputId = ns("toggleEcho"),
+                               label = "Echo source",
+                               value = TRUE))
         ),
         column(12,
           uiOutput(outputId = ns("testResultsDisplay"))))
