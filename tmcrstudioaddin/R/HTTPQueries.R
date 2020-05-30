@@ -259,25 +259,31 @@ upload_current_exercise <- function(token,
 #'
 #' @usage getAllOrganizations()
 #'
-#' @details Reads the \code{OAuth2} token and server address from \code{.credentials.json} and uses
-#' them to make a \code{HTTP-GET} request for the list of organizations.
+#' @details Reads the \code{OAuth2} token and server address from
+#' \code{.credentials.json} and uses them to make a \code{HTTP-GET}
+#' request for the list of organizations.
 #'
-#' @return List of TMC organization names and slugs. If reading \code{.credentials.json}
-#'  or sending the \code{HTTP-GET} request failed, returns a list with 2 empty sublists called \code{name}
-#'  and \code{slug}.
+#' @return List of TMC organization names and slugs. If reading
+#' \code{.credentials.json} or sending the \code{HTTP-GET} request
+#' failed, returns a list with 2 empty sublists called \code{name}
+#' and \code{slug}.
 #'
-#' @seealso \code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
+#' @seealso \code{\link{getCredentials}},
+#' \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
 #' \code{\link[jsonlite]{fromJSON}}
-getAllOrganizations <- function(){
+getAllOrganizations <- function() {
   organizations <- tryCatch({
     credentials <- tmcrstudioaddin::getCredentials()
-    url <- paste(credentials$serverAddress, '/api/v8/org.json', sep = "")
+    url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
-    req <-  httr::stop_for_status(httr::GET(url = url,
-      httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
+    req <-  httr::stop_for_status(
+      httr::GET(url = url,
+                httr::add_headers(Authorization = token),
+                config = httr::timeout(30),
+                encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
-  }, error = function(e){
-    list(name = list(),slug = list())
+  }, error = function(e) {
+    list(name = list(), slug = list())
   })
   return(organizations)
 }
