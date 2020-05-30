@@ -43,9 +43,9 @@ disable_elements <- function(...) {
 #' \code{\link[shinyjs]{delay}}
 enable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
-  lapply(elements, function(i) {shinyjs::enable(i)})
-  #shinyjs::delay(ms = 1000, expr = UI_disabled <<- FALSE)
-  shinyjs::delay(ms = 1000, expr = assign("UI_disabled", FALSE, envir = .GlobalEnv))
+  lapply(elements, shinyjs::enable)
+  shinyjs::delay(ms = 1000,
+                 expr = assign("UI_disabled", FALSE, envir = .GlobalEnv))
 }
 
 #' @title Disable Shiny input elements in the Test & Submit tab
@@ -56,8 +56,15 @@ enable_elements <- function(...) {
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_submit_tab <- function() {
-  disable_elements("selectExercise", "refreshExercises", "openFiles", "source",
-                   "runTests", "submit", "showAllResults")
+  disable_elements("selectExercise",
+                   "refreshExercises",
+                   "openFiles",
+                   "saveFiles",
+                   "source",
+                   "runTests",
+                   "submit",
+                   "showAllResults",
+                   "toggleEcho")
 }
 
 #' @title Enable Shiny input elements in the Test & Submit tab
@@ -68,32 +75,51 @@ disable_submit_tab <- function() {
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_submit_tab <- function() {
-  enable_elements("selectExercise", "refreshExercises", "openFiles", "source",
-                  "runTests", "submit", "showAllResults")
+  enable_elements("selectExercise",
+                  "refreshExercises",
+                  "openFiles",
+                  "saveFiles",
+                  "source",
+                  "runTests",
+                  "submit",
+                  "showAllResults",
+                  "toggleEcho")
 }
 
 #' @title Disable Shiny input elements in the Course & Exercise tab
 #'
-#' @description Disable \code{Shiny} input elements in the Course & Exercise tab.
+#' @description Disable \code{Shiny} input elements in the Course &
+#' Exercise tab.
 #'
 #' @usage disable_course_tab()
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_course_tab <- function() {
-  disable_elements("refreshOrganizations", "organizationSelect", "refreshCourses",
-                   "courseSelect", "download", "all_exercises", "exercises")
+  disable_elements("refreshOrganizations",
+                   "organizationSelect",
+                   "refreshCourses",
+                   "courseSelect",
+                   "download",
+                   "all_exercises",
+                   "exercises")
 }
 
 #' @title Enable Shiny input elements in the Course & Exercise tab
 #'
-#' @description Enable \code{Shiny} input elements in the Course & Exercise tab.
+#' @description Enable \code{Shiny} input elements in the Course &
+#' Exercise tab.
 #'
 #' @usage enable_course_tab()
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_course_tab <- function() {
-  enable_elements("refreshOrganizations", "organizationSelect", "refreshCourses",
-                  "courseSelect", "download", "all_exercises", "exercises")
+  enable_elements("refreshOrganizations",
+                  "organizationSelect",
+                  "refreshCourses",
+                  "courseSelect",
+                  "download",
+                  "all_exercises",
+                  "exercises")
 }
 
 
@@ -105,7 +131,12 @@ enable_course_tab <- function() {
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_login_tab <- function() {
-  disable_elements("username", "password", "login", "changeServer", "resetServer", "logout")
+  disable_elements("username",
+                   "password",
+                   "login",
+                   "changeServer",
+                   "resetServer",
+                   "logout")
 }
 
 #' @title Enable Shiny input elements in the Login tab.
@@ -116,7 +147,10 @@ disable_login_tab <- function() {
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_login_tab <- function() {
-  enable_elements("username", "password", "login", "changeServer","resetServer",  "logout")
+  enable_elements("username",
+                  "password",
+                  "login",
+                  "changeServer",
+                  "resetServer",
+                  "logout")
 }
-
-
