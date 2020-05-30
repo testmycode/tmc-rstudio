@@ -273,14 +273,43 @@ code. Please try to fix it or ask help from course instructors.")
     }
     message$text <- paste0("<p>", errormsg)
   } else if (submitResults$data$all_tests_passed) {
-    points <- paste(submitResults$data$points, collapse = ", ")
-    message$text <- paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
-                                points, "</b><p>You can view the model solution on the server.")
+    points <- paste(submitResults$data$points,
+                    collapse = ", ")
+    message$text <-
+      paste0("Congratulations! All tests passed on the server!",
+             "<p><b>Points permanently awarded: ",
+             points,
+             "</b><p>You can now view the model solution on the server.")
   } else {
+    message_data <-
+      list("Just keep trying! ",
+           "That's a fine start! ",
+           "You are getting there! ",
+           "Nice! ",
+           "Very nice! ",
+           "Almost there! ")
     points <- paste(submitResults$data$points, collapse = ", ")
-    message$text <- paste0("Exercise ", submitResults$data$exercise_name,
-                                " failed partially.<p><b>Points permanently awarded: ", points,
-                                "</b><p>Some tests failed on the server.<p>Press OK to see failing tests")
+    num_of_points <- length(submitResults$data$points)
+    message_1 <- message_data[[num_of_points + 1]]
+    message_2 <-
+      if (num_of_points == 1) {
+        " point "
+      } else {
+        " points "
+      }
+    message_3 <- paste0("You received ", num_of_points, message_2, "from ")
+    .ddprint(num_of_points)
+    .ddprint(message_1)
+    .ddprint(message_2)
+    message$text <-
+      paste0(message_1,
+             message_3,
+             "Exercise set '",
+             submitResults$data$exercise_name,
+             "'. <p>",
+             "<b>Points permanently awarded: ", points, "</b>",
+             "<p>Some tests failed on the server.",
+             "<p>Press OK to see failing tests")
   }
   return(message)
 }
