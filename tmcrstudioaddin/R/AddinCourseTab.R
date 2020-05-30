@@ -362,8 +362,9 @@ pre_error)
 
     exercises$id <- .addToList(c(globalReactiveValues$downloadedExercisesMap,
                               globalReactiveValues$exerciseMap))
-    exercises$name <- .addToList(c(names(globalReactiveValues$downloadedExercisesMap),
-                                names(globalReactiveValues$exerciseMap)))
+    exercises$name <-
+      .addToList(c(names(globalReactiveValues$downloadedExercisesMap),
+                   names(globalReactiveValues$exerciseMap)))
 
     hideCourseExercises()
     separateDownloadedExercises(exercises, globalReactiveValues)
@@ -381,7 +382,8 @@ pre_error)
     }
     .dprint("downloadFromList()")
     for (name in names(exercises)) {
-      tmcrstudioaddin::download_exercise(exercises[[name]], zip_name = paste(exercises[[name]], ".zip"),
+      tmcrstudioaddin::download_exercise(exercises[[name]],
+                                         zip_name = paste(exercises[[name]], ".zip"),
                                          exercise_directory = course_directory_path,
                                          exercise_name = name)
       incProgress(1 / length(exercises))
