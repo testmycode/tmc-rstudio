@@ -143,35 +143,36 @@
     .dprint("sourceExercise()")
     if (selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot source exercises",
-			     "You have not selected the exercises. Please choose the
-			     exercises you wish to source first.")
+                             "You have not selected the exercises. Please
+                             choose the exercises you wish to source first.")
     } else {
-    tryCatch({
-      sourceExercise(selectedExercisePath, reactive$sourceEcho)
-      reactive$sourcing <- TRUE
-    }, error = function(e) {
-      cat("Error in ")
-      cat(deparse(e$call))
-      cat(" : ")
-      cat(e$message)
-      cat("\n")
-      rstudioapi::showDialog("Sourcing failed", "Error while sourcing exercise.")
-    })
+      tryCatch({
+        sourceExercise(selectedExercisePath, reactive$sourceEcho)
+        reactive$sourcing <- TRUE},
+        error = function(e) {
+          cat("Error in ")
+          cat(deparse(e$call))
+          cat(" : ")
+          cat(e$message)
+          cat("\n")
+          rstudioapi::showDialog("Sourcing failed",
+                                 "Error while sourcing exercise.")
+        })
     }
     tmcrstudioaddin::enable_submit_tab()
   })
 
   # Refresh exercises
   observeEvent(input$refreshExercises, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
   })
 
   observeEvent(input$openFiles, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
     tmcrstudioaddin::disable_submit_tab()
 
-    if ( selectedExercisePath == "" ) {
+    if (selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot open files",
 			     "You have not selected the exercises. Please choose the
 			     exercises you wish to open first.")
