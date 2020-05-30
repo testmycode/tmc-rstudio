@@ -29,15 +29,18 @@ disable_elements <- function(...) {
 #'
 #' @usage enable_elements(...)
 #'
-#' @param ... IDs of the \code{Shiny} input elements which are to be enabled.
+#' @param ... IDs of the \code{Shiny} input elements which are to be
+#' enabled.
 #'
-#' @details Enables the \code{Shiny} input elements and sets the global boolean \code{UI_disabled} to
-#' \code{FALSE} after 1000 milliseconds (=1 second) have passed. This is done in order to
-#' prevent excessive buffering of button actions if the user starts clicking buttons in other
-#' tabs during an operation that is taking a long itme.
+#' @details Enables the \code{Shiny} input elements and sets the global
+#' boolean \code{UI_disabled} to \code{FALSE} after 1000 milliseconds
+#' (=1 second) have passed. This is done in order to prevent excessive
+#' buffering of button actions if the user starts clicking buttons in
+#' other tabs during an operation that is taking a long itme.
 #'
-#' @seealso \code{\link[base]{as.list}},\code{\link[base]{substitute}}, \code{\link[base]{lapply}},
-#' \code{\link[shinyjs]{enable}}, \code{\link[shinyjs]{delay}}
+#' @seealso \code{\link[base]{as.list}},\code{\link[base]{substitute}},
+#' \code{\link[base]{lapply}}, \code{\link[shinyjs]{enable}},
+#' \code{\link[shinyjs]{delay}}
 enable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, function(i) {shinyjs::enable(i)})
