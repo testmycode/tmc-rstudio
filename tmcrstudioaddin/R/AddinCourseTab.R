@@ -1,3 +1,5 @@
+#downloadedExercisesPaths <- downloadedExercisesPaths
+
 globalVariables(c("UI_disabled", "selectedExercisePath"))
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
@@ -5,9 +7,9 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
     title = "Exercises",
     icon = icon("folder-open"),
     miniContentPanel(
-      fluidPage(style="padding:0px;margin:0px;",
+      fluidPage(style = "padding:0px;margin:0px;",
         fluidRow(
-            column(6,class="col-xs-6",
+            column(6, class = "col-xs-6",
               selectInput(
                 inputId = ns("organizationSelect"),
                 label = "Select organization",
@@ -15,16 +17,16 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
                 selected = 1
               )
             ),
-            column(6,class="col-xs-6",
+            column(6, class = "col-xs-6",
               actionButton(
                  inputId = ns("refreshOrganizations"),
                  label = "Refresh organizations",
-                 style="margin-top:25px;"
+                 style = "margin-top:25px;"
               )
             )
         ),
         fluidRow(
-          column(6,class="col-xs-6",
+          column(6, class = "col-xs-6",
             selectInput(
               inputId = ns("courseSelect"),
               label = "Select course",
@@ -32,11 +34,11 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
               selected = 1
             )
           ),
-          column(6,class="col-xs-6",
+          column(6, class = "col-xs-6",
             actionButton(
               inputId = ns("refreshCourses"),
               label = "Refresh courses",
-              style="margin-top:25px;"
+              style = "margin-top:25px;"
             )
           )
         )
