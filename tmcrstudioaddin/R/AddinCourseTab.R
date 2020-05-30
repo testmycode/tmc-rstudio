@@ -449,26 +449,26 @@ pre_error)
 }
 
 # Rewrite this in proper R way
-.addToList <- function(listToAddFrom) {
-  retList <- list()
-  for(item in listToAddFrom) {
-    retList[[length(retList) + 1]] <- item
+.addToList <- function(list_to_add_from) {
+  ret_list <- list()
+  for (item in list_to_add_from) {
+    ret_list[[length(ret_list) + 1]] <- item
   }
-  return(retList)
+  return(ret_list)
 }
 
 
 # Sorts list based on the names of items
 # rewrite this in a proper R way
-.sortList <- function(listToSort) {
-  retList <- list()
-  listItems <- unlist(names(listToSort))
-  names(listItems) <- unlist(.addToList(listToSort))
-  listItems <- sort(listItems)
-  for (name in names(listItems)) {
-    retList[[listItems[[name]]]] <- name
+.sortList <- function(list_to_sort) {
+  ret_list <- list()
+  list_items <- unlist(names(list_to_sort))
+  names(list_items) <- unlist(.addToList(list_to_sort))
+  list_items <- sort(list_items)
+  for (name in names(list_items)) {
+    ret_list[[list_items[[name]]]] <- name
   }
-  return(retList)
+  return(ret_list)
 }
 
 .debug_set <- function() {
@@ -484,7 +484,7 @@ pre_error)
 }
 
 .ddprint <- function(x) {
-  if (exists(".__tmc_debug") && get(".__tmc_debug") ) {
+  if (exists(".__tmc_debug") && get(".__tmc_debug")) {
     print(x)
   }
 }
