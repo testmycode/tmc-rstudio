@@ -300,22 +300,21 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
         if (!dir.exists(course_directory_path)) {
           dir.create(course_directory_path, recursive = TRUE)
         }
-	.dprint(course_directory_path)
-
-        num_of_downloaded <- downloadFromList(course_directory_path, globalReactiveValues)
-
+        .dprint(course_directory_path)
+        num_of_downloaded <- downloadFromList(course_directory_path,
+                                              globalReactiveValues)
       })
-      download_success_message <- 
-	if ( num_of_downloaded == 0 ) {
-	  "You didn't choose any exercises i.e. download was successful"
-	} else if ( num_of_downloaded == 1 ) {
-	  paste("You downloaded one exercise succesfully", sep=" ")
-	} else {
-	  paste("You downloaded", as.character(num_of_downloaded),
-					"exercises succesfully", sep=" ")
-	}
+      download_success_message <-
+        if (num_of_downloaded == 0) {
+          "You didn't choose any exercises i.e. download was successful"
+        } else if (num_of_downloaded == 1) {
+          paste("You downloaded one exercise succesfully", sep = " ")
+        } else {
+          paste("You downloaded",
+                as.character(num_of_downloaded),
+                "exercises succesfully", sep = " ")
+        }
       rstudioapi::showDialog("Success", download_success_message, "")
-      #rstudioapi::showDialog("Success","Exercises downloaded succesfully","")
     }, error = function(e) {
     pre_error <- e$message
     download_errormsgs <- list(keys=c("Path exists and overwrite is FALSE",
