@@ -174,19 +174,20 @@
 
     if (selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot open files",
-			     "You have not selected the exercises. Please choose the
-			     exercises you wish to open first.")
+                             "You have not selected the exercises. Please
+                             choose the exercises you wish to open first.")
     } else {
-
-    for (file in list.files(full.names = TRUE, path = file.path(selectedExercisePath, "R"), pattern = "[.]R$")) {
-      rstudioapi::navigateToFile(file)
-    }
+      for (file in list.files(full.names = TRUE,
+                              path = file.path(selectedExercisePath, "R"),
+                              pattern = "[.]R$")) {
+        rstudioapi::navigateToFile(file)
+      }
     }
     tmcrstudioaddin::enable_submit_tab()
   })
 
   observeEvent(input$saveFiles, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
     tmcrstudioaddin::disable_submit_tab()
     .ddprint("Save modifications")
     rstudioapi::documentSaveAll()
@@ -202,7 +203,7 @@
     if (reactive$sourcing) {
       html <- tags$p("Sourced exercise to console.")
     } else {
-      testResults = reactive$testResults
+      testResults <- reactive$testResults
       runResults <- reactive$runResults
       showAll <- reactive$showAll
       html <- ""
@@ -216,9 +217,13 @@
   })
 
   #Exercises are updated everytime this module is called
-  updateExercises <- observeEvent(globalReactiveValues$downloadedExercises, {
-    downloadedExercises <- globalReactiveValues$downloadedExercises
-    updateSelectInput(session = session, inputId = "selectExercise", label = "Exercise:",
-                    choices = downloadedExercises, selected = selectedExercisePath)
-  })
+  updateExercises <-
+    observeEvent(globalReactiveValues$downloadedExercises, {
+                   downloadedExercises <-
+                     globalReactiveValues$downloadedExercises
+                   updateSelectInput(session = session,
+                                     inputId = "selectExercise",
+                                     label = "Exercise:",
+                                     choices = downloadedExercises,
+                                     selected = selectedExercisePath) })
 }
