@@ -223,35 +223,49 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
       organizations <- tmcrstudioaddin::getAllOrganizations()
       choices <- organizations$slug
       names(choices) <- organizations$name
-      shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
-                               choices = choices, selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
-                                                                    globalReactiveValues$credentials$organization,
-                                                                    1))
-      courses <- tmcrstudioaddin::getAllCourses(ifelse(!is.null(globalReactiveValues$credentials$organization),
-                                                       globalReactiveValues$credentials$organization,
-                                                       1))
+      shiny::updateSelectInput(session,
+                               "organizationSelect",
+                               label = "Select organization",
+                               choices = choices,
+                               selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
+                                                 globalReactiveValues$credentials$organization,
+                                                 1))
+      courses <-
+        tmcrstudioaddin::getAllCourses(ifelse(!is.null(globalReactiveValues$credentials$organization),
+                                              globalReactiveValues$credentials$organization,
+                                              1))
       choices2 <- courses$id
       names(choices2) <- courses$title
-      shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = choices2, selected = 1)
+      shiny::updateSelectInput(session,
+                               "courseSelect",
+                               label = "Select course",
+                               choices = choices2,
+                               selected = 1)
     }
   })
 
 
   observeEvent(input$all_exercises, {
     .dprint("all_exercises()")
-    disable("all_exercises")
+    shinyjs::disable("all_exercises")
 
-    if(input$all_exercises){
-      shiny::updateCheckboxGroupInput(session,"exercises",choices = globalReactiveValues$exerciseMap,selected = globalReactiveValues$exerciseMap)
+    if (input$all_exercises) {
+      shiny::updateCheckboxGroupInput(session,
+                                      "exercises",
+                                      choices = globalReactiveValues$exerciseMap,
+                                      selected = globalReactiveValues$exerciseMap)
     }
     else{
-      shiny::updateCheckboxGroupInput(session,"exercises",choices = globalReactiveValues$exerciseMap,selected = list())
+      shiny::updateCheckboxGroupInput(session,
+                                      "exercises",
+                                      choices = globalReactiveValues$exerciseMap,
+                                      selected = list())
     }
-    enable("all_exercises")
+    shinyjs::enable("all_exercises")
   })
 
   observeEvent(input$updateAllExercises, {
-    disable("updateAllExercises")
+    shinyjs::disable("updateAllExercises")
     .dprint("updateAllExercises()")
 
     if(input$updateAllExercises){
