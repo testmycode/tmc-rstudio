@@ -66,20 +66,20 @@ createTestResultsHtml <- function(testResults, showAll) {
 #'
 #' @param runResults Results from the failed attempt of running tests.
 #'
-#' @details Creates an \code{HTML} view for displaying information related to a run- or
-#' sourcing fail
+#' @details Creates an \code{HTML} view for displaying information
+#' related to a run- or sourcing fail
 #'
-#' @return A single \code{Shiny} \code{HTML} tag object containing all of the elements in
-#' the created \code{HTML} run result output.
+#' @return A single \code{Shiny} \code{HTML} tag object containing all
+#' of the elements in the created \code{HTML} run result output.
 #'
 #' @seealso \code{\link[shiny]{tags}}
 #'
 # Creates html for runResult with run or sourcing fail
 createRunSourcingFailHtml <- function(runResults) {
   if (runResults$run_status == "sourcing_failed") {
-    fail_name = "Sourcing fail"
+    fail_name <- "Sourcing fail"
   } else {
-    fail_name = "Run fail"
+    fail_name <- "Run fail"
   }
   html <- tags$html(tags$p(fail_name,
                            style = "color: red;font-weight:bold"),
@@ -91,10 +91,12 @@ createRunSourcingFailHtml <- function(runResults) {
 # show all results -checkbox is checked or not
 .createTestResultElements <- function(testResults, showAll) {
   if (showAll) {
-    return(lapply(1:length(testResults), function(i) {
+    return(lapply(seq_len(length(testResults)), function(i) {
       testResult <- testResults[[i]]
-      .createTestResultElement(name = testResult$name, status = testResult$status,
-                               index = i, message = testResult$message,
+      .createTestResultElement(name = testResult$name,
+                               status = testResult$status,
+                               index = i,
+                               message = testResult$message,
                                backtrace = testResult$backtrace)
     }))
   } else {
@@ -102,44 +104,68 @@ createRunSourcingFailHtml <- function(runResults) {
   }
 }
 
-# Creates an individual HTML paragraph element for the list displaying test results
-.createTestResultElement <- function(name, status, index = NULL, message = NULL, backtrace) {
+# Creates an individual HTML paragraph element for the list displaying
+# test results
+.createTestResultElement <- function(name,
+                                     status,
+                                     index = NULL,
+                                     message = NULL,
+                                     backtrace) {
   # Assign a color depending on test status
-  color <- ifelse(test = grepl(x = status, pattern = "pass"), yes = "green", no = "red")
+  color <- ifelse(test = grepl(x = status, pattern = "pass"),
+                  yes = "green",
+                  no = "red")
   elements <- tags$p(paste(name, ":", status),
                      style = paste("color:", color, ";font-weight:bold"))
 
   #If status != pass, add de
-  if (status != "pass"){
-    elements <- list(elements, .createDetailedTestResultElement(index, message, backtrace))
+  if (status != "pass") {
+    elements <- list(elements,
+                     .createDetailedTestResultElement(index,
+                                                      message,
+                                                      backtrace))
   }
 
   return(elements)
 }
 
-.createDetailedTestResultElement <- function(index = NULL, message = NULL, backtrace) {
-  btn <- tags$button(id = paste("button_", index, sep = ""), "Toggle details")
+.createDetailedTestResultElement <- function(index = NULL,
+                                             message = NULL,
+                                             backtrace) {
+  btn <- tags$button(id = paste("button_", index, sep = ""),
+                     "Toggle details")
   id <- paste0("message_", index)
   style <- "display:none"
-  message <- tags$p(paste("message:", message), style = "font-weight: bold;")
+  message <- tags$p(paste("message:", message),
+                    style = "font-weight: bold;")
   backtraceTags <- .backtraceHtmlTags(backtrace)
-  script <- tags$script(paste0("$(\"#button_", index,
+  script <- tags$script(paste0("$(\"#button_",
+                               index,
                               "\").click(function(){$(\"#message_",
-                              index, "\").toggle()});"))
-  return(list(tags$div(message, backtraceTags, style = style, id = id), btn, script))
+                              index,
+                              "\").toggle()});"))
+  return(list(tags$div(message,
+                       backtraceTags,
+                       style = style,
+                       id = id),
+              btn,
+              script))
 }
 
 
 
-# Creates an HTML paragraph element for either the first failing test or a separate message
-# if all tests passed
+# Creates an HTML paragraph element for either the first failing test or
+# a separate message if all tests passed
 .createSingleResultElement <- function(testResults) {
-  for (i in 1:length(testResults)) {
+  for (i in seq_len(length(testResults))) {
     result <- testResults[[i]]
 
     if (identical(x = result$status, y = "fail")) {
-      return(.createTestResultElement(name = result$name, status = result$status,
-                                      index = i, message = result$message, backtrace = result$backtrace))
+      return(.createTestResultElement(name = result$name,
+                                      status = result$status,
+                                      index = i,
+                                      message = result$message,
+                                      backtrace = result$backtrace))
     }
   }
 
