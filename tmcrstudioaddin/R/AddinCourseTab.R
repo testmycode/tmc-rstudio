@@ -177,32 +177,46 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
     for (name in exercises$name) {
       downloaded <- FALSE
       for (exercisePath in exercisePaths)
-        if(name == getExerciseName(exercisePath)) {
+        if (name == getExerciseName(exercisePath)) {
           downloaded <- TRUE
           break
         }
       if (downloaded) {
-        downloadedExercise[[exercises$name[[exerciseNumber]]]] <- exercises$id[[exerciseNumber]]
+        downloadedExercise[[exercises$name[[exerciseNumber]]]] <-
+          exercises$id[[exerciseNumber]]
       } else {
-        exercise[[exercises$name[[exerciseNumber]]]] <- exercises$id[[exerciseNumber]]
+        exercise[[exercises$name[[exerciseNumber]]]] <-
+          exercises$id[[exerciseNumber]]
       }
       exerciseNumber <- exerciseNumber + 1
     }
 
     globalReactiveValues$downloadedExercisesMap <- downloadedExercise
     # rewrite this in a proper R way
-    if (length(globalReactiveValues$downloadedExercisesMap) > 0) globalReactiveValues$downloadedExercisesMap <- .sortList(globalReactiveValues$downloadedExercisesMap)
-
+    if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
+      globalReactiveValues$downloadedExercisesMap <-
+        .sortList(globalReactiveValues$downloadedExercisesMap)
+    }
     globalReactiveValues$exerciseMap <- exercise
-    if (length(globalReactiveValues$exerciseMap) > 0) globalReactiveValues$exerciseMap <- .sortList(globalReactiveValues$exerciseMap)
+    if (length(globalReactiveValues$exerciseMap) > 0) {
+      globalReactiveValues$exerciseMap <-
+        .sortList(globalReactiveValues$exerciseMap)
+    }
   }
 
   observe({
     .dprint("observer()")
-    if(is.null(globalReactiveValues$credentials$token)){
-      shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
-                               choices = list(), selected = 1)
-      shiny::updateSelectInput(session, "courseSelect", label = "Select course", choices = list(), selected = 1)
+    if (is.null(globalReactiveValues$credentials$token)) {
+      shiny::updateSelectInput(session,
+                               "organizationSelect",
+                               label = "Select organization",
+                               choices = list(),
+                               selected = 1)
+      shiny::updateSelectInput(session,
+                               "courseSelect",
+                               label = "Select course",
+                               choices = list(),
+                               selected = 1)
       hideCourseExercises()
     }
     else {
