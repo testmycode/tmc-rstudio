@@ -111,19 +111,22 @@ login <- function(clientID, secret, username, password, serverAddress) {
 
 #' @title Fetch client id and secret from the server
 #'
-#' @description Fetch the client id and secret required in \code{OAuth2} authentication
-#' from the server.
+#' @description Fetch the client id and secret required in \code{OAuth2}
+#' authentication from the server.
 #'
 #' @usage fetchClientIdAndSecret(serverAddress)
 #'
-#' @param serverAddress Address of the TMC server which the user wants to log in to.
+#' @param serverAddress Address of the TMC server which the user wants
+#' to log in to.
 #'
 #' @return Client ID and secret fetched from the server.
 #'
 #' @seealso \code{\link[httr]{GET}}
-fetchClientIdAndSecret <-function(serverAddress){
-  url <- paste(serverAddress, "/api/v8/application/rstudio_plugin/credentials.json", sep = "")
-  req <- httr::GET(url = url, config = timeout(30))
+fetchClientIdAndSecret <- function(serverAddress) {
+  url <- paste(serverAddress,
+               "/api/v8/application/rstudio_plugin/credentials.json",
+               sep = "")
+  req <- httr::GET(url = url, config = httr::timeout(30))
   return(req)
 }
 
@@ -133,12 +136,13 @@ fetchClientIdAndSecret <-function(serverAddress){
 #'
 #' @usage deleteCredentials()
 #'
-#' @return  \code{TRUE} if succeeded in deleting the credentials. \code{FALSE} if the deletion did not
-#' succeed or \code{.credentials} were not found.
+#' @return  \code{TRUE} if succeeded in deleting the credentials.
+#' \code{FALSE} if the deletion did not succeed or \code{.credentials}
+#' were not found.
 #'
 #' @seealso \code{\link[base]{files}}
-deleteCredentials <- function(){
-  if (file.exists(".credentials")){
+deleteCredentials <- function() {
+  if (file.exists(".credentials")) {
     file.remove(".credentials")
   }
 }
@@ -150,17 +154,18 @@ deleteCredentials <- function(){
 #'
 #' @usage getServerAddress()
 #'
-#' @return The saved server address from the \code{.server} file. \code{NULL} if the file does not exist
-#' or if it is corrupted.
+#' @return The saved server address from the \code{.server} file.
+#' \code{NULL} if the file does not exist or if it is corrupted.
 #'
 #' @seealso \code{\link[base]{file.exists}}, \code{\link[base]{scan}}
-getServerAddress <- function(){
-  if(!file.exists(".server")){
+getServerAddress <- function() {
+  if (!file.exists(".server")) {
     return(NULL)
   }
 
-  #read credentials from file, catch if file is corrupted
-  server <- tryCatch(scan(".server", what = character(), quiet = TRUE),
+  # read credentials from file, catch if file is corrupted
+  server <- tryCatch({
+    scan(".server", what = character(), quiet = TRUE)},
     error = function(e) NULL)
 
   return(server)
