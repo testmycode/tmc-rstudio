@@ -75,31 +75,35 @@ authenticate <- function(username, password, serverAddress) {
 #' @seealso \code{\link[httr]{POST}}, \code{\link[httr]{status_code}},
 #' \code{\link[httr]{content}}, \code{\link{saveCredentials}}
 
-#actual login function
-login <- function(clientID, secret, username, password, serverAddress){
-  body <- list(
-    "grant_type"="password",
-    "client_id"=clientID,
-    "client_secret"=secret,
-    "username"=username,
-    "password"=password
-  )
+# actual login function
+login <- function(clientID, secret, username, password, serverAddress) {
+  body <- list("grant_type" = "password",
+               "client_id" = clientID,
+               "client_secret" = secret,
+               "username" = username,
+               "password" = password)
   # Authenticate
   url <- paste(serverAddress, "/oauth/token", sep = "")
-  req <- httr::POST(url = url, body = body, config = timeout(30), encode = "form")
+  req <- httr::POST(url = url,
+                    body = body,
+                    config = httr::timeout(30),
+                    encode = "form")
   # if http status is ok return token
-  if (status_code(req) == 200){
+  if (status_code(req) == 200) {
     token <- paste("Bearer", httr::content(req)$access_token)
-    credentials <- list(username = username,token = token, serverAddress = serverAddress)
+    credentials <- list(username = username,
+                        token = token,
+                        serverAddress = serverAddress)
     tmcrstudioaddin::saveCredentials(credentials)
-
     return(token)
-  }
-  else if(status_code(req) == 401){
-    response <- list(error = "Invalid credentials", error_description = "Check your username and/or password")
-  }
-  else{
-    response <- list(error = "Error", error_description = "Something went wrong. Try again later")
+  } else if (status_code(req) == 401) {
+    response <- list(error = "Invalid credentials",
+                     error_description = "Check your username and/or password")
+    return(response)
+  } else {
+    response <-
+      list(error = "Error",
+           error_description = "Something went wrong. Try again later")
     return(response)
   }
 }
