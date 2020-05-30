@@ -52,30 +52,36 @@
 }
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
-  reactive <- reactiveValues(submitResults = NULL, testResults = NULL, runStatus = NULL, showAll = TRUE,
-                             sourcing = FALSE, sourceEcho = TRUE )
+  reactive <- reactiveValues(submitResults = NULL,
+                             testResults = NULL,
+                             runStatus = NULL,
+                             showAll = TRUE,
+                             sourcing = FALSE,
+                             sourceEcho = TRUE)
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
     tmcrstudioaddin::disable_submit_tab()
     .dprint("runTestrunner()")
-    if ( selectedExercisePath == "" ) {
+    if (selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot run tests",
-			     "You have not selected the exercises. Please choose the
-			     exercises you wish to test first.")
+                             "You have not selected the exercises. Please
+                             choose the exercises you wish to test first.")
       runResults <- list(run_results = list(), run_status = "run_failed")
     } else {
-      runResults <- withProgress(message= 'Running tests', value = 1, {
-	tryCatch({
-	  return(tmcRtestrunner::run_tests(project_path = selectedExercisePath,
-						  print = TRUE))
-	}, error = function(e) {
-	  rstudioapi::showDialog("Cannot run tests",
-				 "tmcRtestrunner errored while running tests")
-	  return(list(run_results = list(), run_status = "run_failed"))
-	})
+      runResults <- withProgress(message = "Running tests",
+                                 value = 1, {
+        tryCatch({
+          return(tmcRtestrunner::run_tests(project_path = selectedExercisePath,
+                                           print = TRUE))
+        }, error = function(e) {
+          rstudioapi::showDialog("Cannot run tests",
+                                 "tmcRtestrunner errored while running tests")
+          return(list(run_results = list(),
+                      run_status = "run_failed"))
+        })
 
       })
     }
