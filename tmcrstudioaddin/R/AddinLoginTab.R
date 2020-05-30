@@ -42,13 +42,12 @@
   ns <- shiny::NS("login")
 
   observe({
-    .suggestServer(globalReactiveValues)
+    .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
       #if token is not defined, user is not logged in
-      if (is.null(globalReactiveValues$credentials$token)){
-        .loginPane(ns,globalReactiveValues)
-      }
-      else{
+      if (is.null(globalReactiveValues$credentials$token)) {
+        .loginPane(ns, globalReactiveValues)
+      } else {
         .logoutPane(ns)
       }
     })
@@ -57,45 +56,44 @@
 
 
   observeEvent(input$login, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
     tmcrstudioaddin::disable_login_tab()
 
     # Authenticate with the values from the username and password input fields
-    response <- tmcrstudioaddin::authenticate(input$username, input$password, input$serverAddress)
-    titleAndMessage <- .getTitleAndMessage(response = response)
-    # showDialog() needs RStudion version > 1.1.67
-    rstudioapi::showDialog(title = titleAndMessage$title,
-                           message = titleAndMessage$message,
+    response <- tmcrstudioaddin::authenticate(input$username,
+                                              input$password,
+                                              input$serverAddress)
+    title_and_message <- .get_title_and_message(response = response)
+    # showDialog() needs RStudio version > 1.1.67
+    rstudioapi::showDialog(title = title_and_message$title,
+                           message = title_and_message$message,
                            url = "")
     # If user has saved credentials update view
     globalReactiveValues$credentials <- tmcrstudioaddin::getCredentials()
 
-    if (!is.null(globalReactiveValues$credentials$token)){
+    if (!is.null(globalReactiveValues$credentials$token)) {
       output$loginPane <- renderUI({
-        .logoutPane(ns)
-      })
+        .logoutPane(ns) })
     }
 
     tmcrstudioaddin::enable_login_tab()
   }, ignoreInit = TRUE)
 
   observeEvent(input$logout, {
-    if(UI_disabled) return()
-    #overwrite credentials, so that they contain only the last login address
+    if (UI_disabled) return()
+    # overwrite credentials, so that they contain only the last login address
     tryCatch({
-      globalReactiveValues$credentials <- list(serverAddress=globalReactiveValues$credentials$serverAddress)
-      tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials)
-    })
-
+      globalReactiveValues$credentials <-
+        list(serverAddress = globalReactiveValues$credentials$serverAddress)
+      tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials) })
     output$loginPane <- renderUI({
-      .loginPane(ns,globalReactiveValues)
-    })
-  },ignoreInit = TRUE)
+      .loginPane(ns, globalReactiveValues)})
+  }, ignoreInit = TRUE)
 
   observeEvent(input$resetServer, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
     updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
-    disable("serverAddress")
+    shinyjs::disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)
   }, ignoreInit = TRUE)
 
@@ -106,17 +104,20 @@
 }
 
 # Sets "https://tmc.mooc.fi" as the suggested server address
-.suggestServer <- function(globalReactiveValues) {
+.suggest_server <- function(globalReactiveValues) {
+  .ddprint(".suggest_server")
+  drop_warning <- function(err) {
+  }
   tryCatch({
     if (is.null(globalReactiveValues$credentials$serverAddress)) {
-      defaultServerAddress <- "https://tmc.mooc.fi"
-      globalReactiveValues$credentials$serverAddress <- defaultServerAddress
-    }
-  }, warning = function(e){})
+      default_server_address <- "https://tmc.mooc.fi"
+      globalReactiveValues$credentials$serverAddress <- default_server_address
+    }}, warning = drop_warning)
 }
 
-# Return a title and a message string for login dialog based on authentication results
-.getTitleAndMessage <- function(response) {
+# Return a title and a message string for login dialog based on
+# authentication results
+.get_title_and_message <- function(response) {
   # if Bearer token is retrieved login was successful
   if (grepl("Bearer", response[1])) {
     title <- "Success!"
