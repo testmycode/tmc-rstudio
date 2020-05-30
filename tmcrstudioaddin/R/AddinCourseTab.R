@@ -50,7 +50,7 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
         checkboxInput(
           inputId = ns("all_exercises"),
           label = "Download all exercises",
-	  value = FALSE
+          value = FALSE
         )
       ),
       checkboxGroupInput(
@@ -59,14 +59,14 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
         choices = list()
       ),
       fluidRow(
-        column(6,class="col-xs-6",
+        column(6, class = "col-xs-6",
                checkboxGroupInput(
                  inputId = ns("downloadedExercises"),
                  label = "",
                  choices = list(),
                )
         ),
-        column(6,class="col-xs-6",
+        column(6, class = "col-xs-6",
                hidden(
                  checkboxInput(
                    inputId = ns("updateAllExercises"),
