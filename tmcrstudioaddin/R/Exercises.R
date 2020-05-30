@@ -102,20 +102,22 @@ sourceExercise <- function(exercisePath, sourceEcho) {
 
 #' @title Get paths to exercises
 #'
-#' @description Recursively searches for exercise projects in the given file path.
+#' @description Recursively searches for exercise projects in the given
+#' file path.
 #'
 #' @usage findExercisesFromPath(path)
 #'
 #' @param path Path to the directory where the exercises are searched from.
 #'
-#' @return A vector of full file paths to the found exercises. Always contains an
-#' empty \code{""} path.
+#' @return A vector of full file paths to the found exercises. Always
+#' contains an empty \code{""} path.
 #'
 #' @seealso \code{\link[base]{list.dirs}}, \code{\link{pathIsExercise}}
 
-# Finds exercises from a path recursively. Returns the full path of found exercises
-# as a vector. Contains path empty path "" always.
+# Finds exercises from a path recursively. Returns the full path of
+# found exercises as a vector. Contains path empty path "" always.
 findExercisesFromPath <- function(path) {
+  .ddprint("findExercisesFromPath")
   dirs <- list.dirs(path = path, full.names = TRUE, recursive = TRUE)
   foundExercises <- c("")
   for (dir in dirs) {
@@ -123,10 +125,12 @@ findExercisesFromPath <- function(path) {
       foundExercises <- c(foundExercises, dir)
     }
   }
+  .ddprint(foundExercises)
   return(foundExercises)
 }
 
-#' @title Determine if the given file path leads to an exercise project directory
+#' @title Determine if the given file path leads to an exercise project
+#' directory
 #'
 #' @description Determine if the given file path leads to an exercise project
 #' directory.
