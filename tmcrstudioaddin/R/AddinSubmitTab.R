@@ -119,30 +119,29 @@
   })
 
   showResults <- observeEvent(input$showAllResults, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
-    reactive$showAll = input$showAllResults
+    reactive$showAll <- input$showAllResults
   })
 
   sourceEcho <- observeEvent(input$toggleEcho, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
-    reactive$sourceEcho = input$toggleEcho
+    reactive$sourceEcho <- input$toggleEcho
   })
 
   selectedExercises <- observeEvent(input$selectExercise, {
-    if(UI_disabled) return()
-    #selectedExercisePath <<- input$selectExercise
+    if (UI_disabled) return()
     assign("selectedExercisePath", input$selectExercise, envir = .GlobalEnv)
   })
 
   sourceExercise <- observeEvent(input$source, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
     tmcrstudioaddin::disable_submit_tab()
 
     .dprint("sourceExercise()")
-    if ( selectedExercisePath == "" ) {
+    if (selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot source exercises",
 			     "You have not selected the exercises. Please choose the
 			     exercises you wish to source first.")
