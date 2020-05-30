@@ -211,16 +211,22 @@ get_submission_json <- function(token, url) {
 #' \code{\link[jsonlite]{fromJSON}}, \code{\link{getCredentials}},
 #' \code{\link{upload_exercise}}
 
-# Zips the current working directory and uploads it to the server
-# Uses the path of the currently active R-project by default
-# For testing purposes, you can provide some other file path
-upload_current_exercise <- function(token, project_path, zip_name = "temp", remove_zip = TRUE) {
+# Zips the current working directory and uploads it to the server Uses
+# the path of the currently active R-project by default For testing
+# purposes, you can provide some other file path
+upload_current_exercise <- function(token,
+                                    project_path,
+                                    zip_name = "temp",
+                                    remove_zip = TRUE) {
   response <- list()
   .dprint("upload_current_exercise()")
   metadata <- tryCatch({
-    json <- base::list.files(path = project_path, pattern = ".metadata.json", all.files = TRUE, full.names = TRUE)
+    json <- base::list.files(path = project_path,
+                             pattern = ".metadata.json",
+                             all.files = TRUE,
+                             full.names = TRUE)
     jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
-  }, error = function(e){
+  }, error = function(e) {
     NULL
   })
   response <-
@@ -230,13 +236,15 @@ upload_current_exercise <- function(token, project_path, zip_name = "temp", remo
       address <- paste(sep = "", credentials$serverAddress, "/")
       tryCatch({
       response <- upload_exercise(token = token, exercise_id = id,
-				  project_path = project_path, server_address = address,
-				  zip_name = zip_name, remove_zip = remove_zip)
+                                  project_path = project_path,
+                                  server_address = address,
+                                  zip_name = zip_name,
+                                  remove_zip = remove_zip)
       response
-      }, error = function (e) {
-	cat("Uploading exercise failed.\n")
-	response$error <- e
-	response
+      }, error = function(e) {
+        cat("Uploading exercise failed.\n")
+        response$error <- e
+        response
       })
     } else {
       response$error <- "Could not read json"
