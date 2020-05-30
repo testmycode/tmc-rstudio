@@ -336,42 +336,56 @@ getAllCourses <- function(organization) {
 #'
 #' @param course ID of the course.
 #'
-#' @details Reads the \code{OAuth2} token and server address from \code{.credentials.json} and uses
-#' them to make a \code{HTTP-GET} request for the list of exercises in the course.
+#' @details Reads the \code{OAuth2} token and server address from
+#' \code{.credentials.json} and uses them to make a \code{HTTP-GET}
+#' request for the list of exercises in the course.
 #'
-#' @return List of exercises in the course. If reading \code{.credentials.json} or sending
-#' the \code{HTTP-GET} request failed, returns an empty list.
+#' @return List of exercises in the course. If reading
+#' \code{.credentials.json} or sending the \code{HTTP-GET} request
+#' failed, returns an empty list.
 #'
-#' @seealso \code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
-#' \code{\link[jsonlite]{fromJSON}}
-getAllExercises <- function(course){
+#' @seealso \code{\link{getCredentials}},
+#' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
+getAllExercises <- function(course) {
   exercises <- tryCatch({
     credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
-    url <- paste(serverAddress, "/api/v8/courses/",course, "/exercises", sep = "")
-    req <- httr::stop_for_status(httr::GET(url = url,httr::add_headers(Authorization = token), config = timeout(30), encode = "json"))
+    url <- paste(serverAddress,
+                 "/api/v8/courses/",
+                 course,
+                 "/exercises",
+                 sep = "")
+    req <- httr::stop_for_status(
+             httr::GET(url = url,
+                       httr::add_headers(Authorization = token),
+                       config = httr::timeout(30),
+                       encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
 
-  }, error = function(e){
+  }, error = function(e) {
       list()
   })
 }
 
 #' @title Get exercise submission result JSON
 #'
-#' @description Get exercise submission result \code{JSON} from the TMC server.
+#' @description Get exercise submission result \code{JSON} from the TMC
+#' server.
 #'
 #' @usage get_json_from_submission_url(response, token)
 #'
 #' @param response \code{HTTP} response to the exercise submission.
-#' @param token \code{OAuth2} token associated with the current login session to the TMC server.
+#' @param token \code{OAuth2} token associated with the current login
+#' session to the TMC server.
 #'
-#' @details Extracts the exercise submission result url from the given response and makes an
-#' \code{HTTP-GET} request for the exercise submission result \code{JSON}.
+#' @details Extracts the exercise submission result url from the given
+#' response and makes an \code{HTTP-GET} request for the exercise
+#' submission result \code{JSON}.
 #'
-#' @return \code{HTTP} response as a list from the TMC server containing the submission result \code{JSON}
-#' if the server has finished processing the exercise submission. List containing \code{error} key
+#' @return \code{HTTP} response as a list from the TMC server containing
+#' the submission result \code{JSON} if the server has finished
+#' processing the exercise submission. List containing \code{error} key
 #' with an error message if the \code{HTTP-GET} request failed.
 #'
 #' @seealso \code{\link[httr]{content}}, \code{\link{get_submission_json}}
@@ -381,10 +395,11 @@ get_json_from_submission_url <- function(response, token) {
   url$error <- NULL
   submitJson <- tryCatch({
     url <- httr::content(response)
-    submitJson$results <- httr::content(get_submission_json(token, url$submission_url))
+    submitJson$results <-
+      httr::content(get_submission_json(token, url$submission_url))
     submitJson
   }, error = function(e) {
-    if(!is.null(url$error)) {
+    if (!is.null(url$error)) {
       submitJson$error <- url$error
     }
     submitJson$error <- e
