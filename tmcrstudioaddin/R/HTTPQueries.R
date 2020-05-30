@@ -296,26 +296,34 @@ getAllOrganizations <- function() {
 #'
 #' @param organization Organization slug (Identifying URL-friendly name).
 #'
-#' @details Reads the \code{OAuth2} token and server address from \code{.credentials.json}
-#' and uses them to make a \code{HTTP-GET} request for the list of courses belonging to
-#' the organization.
+#' @details Reads the \code{OAuth2} token and server address from
+#' \code{.credentials.json} and uses them to make a \code{HTTP-GET}
+#' request for the list of courses belonging to the organization.
 #'
-#' @return List of course names and course ids belonging to the given organization.
-#' If reading \code{.credentials.json} or sending the \code{HTTP-GET} request failed, returns
-#' a list with 2 empty sublists called \code{id} and \code{name}.
+#' @return List of course names and course ids belonging to the given
+#' organization.  If reading \code{.credentials.json} or sending the
+#' \code{HTTP-GET} request failed, returns a list with 2 empty sublists
+#' called \code{id} and \code{name}.
 #'
-#' @seealso \code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
-#' \code{\link[jsonlite]{fromJSON}}
+#' @seealso \code{\link{getCredentials}},
+#' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 getAllCourses <- function(organization) {
   courses <- tryCatch({
     credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
-    url <- paste(serverAddress, "/api/v8/core/org/", organization, "/courses", sep = "")
-    req <- httr::stop_for_status(httr::GET(url = url, config = httr::add_headers(Authorization = token), encode = "json",timeout(30)))
+    url <- paste(serverAddress, "/api/v8/core/org/",
+                 organization,
+                 "/courses",
+                 sep = "")
+    req <- httr::stop_for_status(
+             httr::GET(url = url,
+                       config = httr::add_headers(Authorization = token),
+                       encode = "json",
+                       timeout(30)))
     jsonlite::fromJSON(httr::content(req, "text"))
-  }, error = function(e){
-    list(id=list(),name = list(),title = list())
+  }, error = function(e) {
+    list(id = list(), name = list(), title = list())
   })
   return(list(id = courses$id, name = courses$name, title = courses$title))
 }
