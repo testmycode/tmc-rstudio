@@ -10,14 +10,16 @@
 #' @details Submits the currently open exercise to the TMC server,
 #' queries the server until it has finished processing the submission,
 #' reads the data from the \code{JSON} received in the \code{HTTP}
-#' response and shows a message popup showing if all of the tests passed or not.
+#' response and shows a message popup showing if all of the tests passed
+#' or not.
 #'
-#' @return List of data read from the submission result \code{JSON}. List keys:
-#' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}, \code{error}.
-#' \code{error} is not \code{NULL}if submitting the exercise to the server failed
+#' @return List of data read from the submission result \code{JSON}.
+#' List keys: \code{tests}, \code{exercise_name},
+#' \code{all_tests_passed}, \code{points}, \code{error}.  \code{error}
+#' is not \code{NULL}if submitting the exercise to the server failed
 #'
-#' @seealso \code{\link{submitCurrent}}, \code{\link{processSubmissionJson}},
-#' \code{\link{showMessage}}
+#' @seealso \code{\link{submitCurrent}},
+#' \code{\link{processSubmissionJson}}, \code{\link{showMessage}}
 
 submitExercise <- function(path) {
   .dprint("submitExercise()")
@@ -35,8 +37,8 @@ submitExercise <- function(path) {
 
 #' @title Submit the currently chosen exercise to the TMC server
 #'
-#' @description Submit the currently chosen exercise to the TMC server and return the
-#' submission result \code{JSON}.
+#' @description Submit the currently chosen exercise to the TMC server
+#' and return the submission result \code{JSON}.
 #'
 #' @usage submitCurrent(path)
 #'
@@ -44,14 +46,17 @@ submitExercise <- function(path) {
 #'
 #' @details Reads the \code{OAuth2} token and TMC server address from
 #' \code{.crendentials.rds} and uploads the currently open exercise to
-#' the TMC server. If the upload was successful, starts querying the TMC server for the
-#' submission result \code{JSON} until the server has finished processing the tests.
+#' the TMC server. If the upload was successful, starts querying the TMC
+#' server for the submission result \code{JSON} until the server has
+#' finished processing the tests.
 #'
-#' @return Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
-#' successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
-#' processing the tests ended in error.
+#' @return Submission result with non \code{NULL} \code{results} if
+#' processing the tests in the TMC server was successful. List keys:
+#' \code{results}, \code{error}. Error is not \code{NULL} if processing
+#' the tests ended in error.
 #'
-#' @seealso \code{\link{getCredentials}}, \code{\link{upload_current_exercise}},
+#' @seealso \code{\link{getCredentials}},
+#' \code{\link{upload_current_exercise}},
 #' \code{\link{getExerciseFromServer}}
 submitCurrent <- function(path) {
   submitJson <- list()
