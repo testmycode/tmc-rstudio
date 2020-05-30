@@ -3,32 +3,37 @@ library(jsonlite)
 
 #' @title Authenticate to a TMC server
 #'
-#' @description Fetches the client id and secret from the server and logs in to the server.
+#' @description Fetches the client id and secret from the server and
+#' logs in to the server.
 #'
 #' @usage authenticate(username, password, serverAddress)
 #'
 #' @param username Username of a TMC account.
 #' @param password Password matching the inputed username of a TMC account.
-#' @param serverAddress Address of the TMC server which the user wants to log in to.
+#' @param serverAddress Address of the TMC server which the user wants
+#' to log in to.
 #'
-#' @details Uses the \code{OAuth2} protocol for authentication. Fetches the client id and secret
-#' from the server and uses them along with the username and password to login to the server.
+#' @details Uses the \code{OAuth2} protocol for authentication. Fetches
+#' the client id and secret from the server and uses them along with the
+#' username and password to login to the server.
 #'
-#' @return An \code{OAuth2} token if the authentication was succesful, otherwise returns an error
-#' message.
+#' @return An \code{OAuth2} token if the authentication was succesful,
+#' otherwise returns an error message.
 #'
 #' @examples authenticate(username = "test", password = "hello123",
 #' serverAddress = "https://tmc.mooc.fi")
 #'
-#' @seealso \code{\link{fetchClientIdAndSecret}}, \code{\link[httr]{status_code}},
-#' \code{\link[httr]{content}}, \code{\link{login}}
+#' @seealso \code{\link{fetchClientIdAndSecret}},
+#' \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
+#' \code{\link{login}}
 
-#authentication first fetches clientId and secret after that logs in with username and password
+# authentication first fetches clientId and secret after that logs in
+# with username and password
 authenticate <- function(username, password, serverAddress) {
   tryCatch({
     response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
     status_code <- status_code(response)
-    if (status_code == 200){
+    if (status_code == 200) {
       clientID <- httr::content(response)$application_id
       secret <- httr::content(response)$secret
       return(tmcrstudioaddin::login(clientID,
