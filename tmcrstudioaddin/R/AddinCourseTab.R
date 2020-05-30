@@ -397,36 +397,51 @@ pre_error)
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
       .ddprint("update all exercises")
       show("updateAllExercises")
-      shiny::updateCheckboxInput(session, "updateAllExercises", 
-				 label = "Redownload all downloaded exercises (Note: redownloading WILL overwrite your code)", value = FALSE )
-      shiny::updateCheckboxGroupInput(session, "downloadedExercises", label = "Redownload Downloaded Exercises", choices = globalReactiveValues$downloadedExercisesMap)
+      shiny::updateCheckboxInput(session,
+                                 "updateAllExercises",
+                                 label = "Redownload all downloaded exercises (Note: redownloading WILL overwrite your code)",
+                                 value = FALSE)
+      shiny::updateCheckboxGroupInput(session,
+                                      "downloadedExercises",
+                                      label = "Redownload Downloaded Exercises",
+                                      choices = globalReactiveValues$downloadedExercisesMap)
     }
   })
 
   observeEvent(globalReactiveValues$exerciseMap, {
-    if(length(globalReactiveValues$exerciseMap) > 0) {
+    if (length(globalReactiveValues$exerciseMap) > 0) {
       .ddprint("showing all exercises")
       show("all_exercises")
-      shiny::updateCheckboxInput(session, "all_exercises", 
-				 label = "Downloaded all exercises", value = FALSE )
-      shiny::updateCheckboxGroupInput(session, "exercises", label = "Downloadable exercises", choices = globalReactiveValues$exerciseMap)
+      shiny::updateCheckboxInput(session, "all_exercises",
+                                 label = "Downloaded all exercises",
+                                 value = FALSE)
+      shiny::updateCheckboxGroupInput(session,
+                                      "exercises",
+                                      label = "Downloadable exercises",
+                                      choices = globalReactiveValues$exerciseMap)
     }
   })
 
   hideCourseExercises <- function() {
     .ddprint("hideCourseExercises")
-    hide("all_exercises")
-    hide("updateAllExercises")
-    shiny::updateCheckboxGroupInput(session, "exercises", label = "", choices = list())
-    shiny::updateCheckboxGroupInput(session, "downloadedExercises", label = "", choices = list())
+    shinyjs::hide("all_exercises")
+    shinyjs::hide("updateAllExercises")
+    shiny::updateCheckboxGroupInput(session,
+                                    "exercises",
+                                    label = "",
+                                    choices = list())
+    shiny::updateCheckboxGroupInput(session,
+                                    "downloadedExercises",
+                                    label = "",
+                                    choices = list())
   }
 }
 
 # Rewrite this in proper R way
 .returnItem <- function(item, list) {
   ret <- ""
-  for(name in names(list)) {
-    if(list[[name]] == item) {
+  for (name in names(list)) {
+    if (list[[name]] == item) {
       ret <- name
     }
   }
