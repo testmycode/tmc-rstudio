@@ -47,8 +47,8 @@ create_exercise_metadata <- function(exercise_id,
 #'
 #' @param exercise_path File path to the exercise project folder.
 #'
-#' @return \code{R} object created from \code{.metadata.json}. \code{NULL} if
-#' \code{.metadata.json} doesn't exist.
+#' @return \code{R} object created from \code{.metadata.json}.
+#' \code{NULL} if \code{.metadata.json} doesn't exist.
 #'
 #' @seealso \code{\link[base]{file.path}}, \code{\link[base]{files}},
 #' \code{\link[jsonlite]{read_json}}
