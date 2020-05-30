@@ -1,19 +1,22 @@
 #' @title Get the currently open exercise
 #'
-#' @description If the currently open exercise (the exercise which is located at the current
-#' working directory) is a valid TMC R exercise project, return it as a \code{c(name = path)}
-#' vector.
+#' @description If the currently open exercise (the exercise which is
+#' located at the current working directory) is a valid TMC R exercise
+#' project, return it as a \code{c(name = path)} vector.
 #'
 #' @usage exercisePathFromWd()
 #'
-#' @details The exercise is a valid TMC R exercise project if it contains the \code{R} and
-#' \code{tests/testthat} folders and is located in the TMC R projects directory.
+#' @details The exercise is a valid TMC R exercise project if it
+#' contains the \code{R} and \code{tests/testthat} folders and is
+#' located in the TMC R projects directory.
 #'
-#' @return Exercise as a named vector: \code{c(name = path)}. If the current working directory
-#' isn't a valid exercise project folder, returns \code{c(" ", " ")}.
+#' @return Exercise as a named vector: \code{c(name = path)}. If the
+#' current working directory isn't a valid exercise project folder,
+#' returns \code{c(" ", " ")}.
 #'
-#' @seealso \code{\link[base]{basename}}, \code{\link[base]{getwd}}, \code{\link{get_projects_folder}}
-#' \code{\link{pathIsExercise}}, \code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
+#' @seealso \code{\link[base]{basename}}, \code{\link[base]{getwd}},
+#' \code{\link{get_projects_folder}} \code{\link{pathIsExercise}},
+#' \code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
 
 # Returns the exercise that is selected in wd.
 # If wd doesn't contain a valid exercise returns c(" ", " ").
