@@ -80,26 +80,31 @@ download_exercise <- function(exercise_id,
 #' @usage upload_exercise(token, exercise_id, project_path, server_address,
 #'         zip_name = "temp", remove_zip = TRUE)
 #'
-#' @param token \code{OAuth2} token associated with the current login session.
+#' @param token \code{OAuth2} token associated with the current login
+#' session.
 #' @param exercise_id ID of the submitted exercise.
-#' @param project_path File path to the directory of the submitted exercise.
-#' @param server_address Address of the TMC server where the exercise is submitted to.
-#' @param zip_name Name of the \code{zip} file which contains the exercise submission. Default is
-#' \code{temp}
-#' @param remove_zip \code{TRUE} or \code{FALSE} depending on if you wish to delete the
-#' submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.
+#' @param project_path File path to the directory of the submitted
+#' exercise.
+#' @param server_address Address of the TMC server where the exercise is
+#' submitted to.
+#' @param zip_name Name of the \code{zip} file which contains the
+#' exercise submission. Default is \code{temp}
+#' @param remove_zip \code{TRUE} or \code{FALSE} depending on if you
+#' wish to delete the submission \code{zip} file after sending it to the
+#' server. Defaults to \code{TRUE}.
 #'
-#' @details Packs the exercise directory into a \code{zip} file and sends it to the TMC server
-#' as a list.
+#' @details Packs the exercise directory into a \code{zip} file and
+#' sends it to the TMC server as a list.
 #'
 #' @return \code{HTTP} response to the submission attempt.
 #'
-#' @seealso \code{\link[httr]{add_headers}}, \code{\link[httr]{upload_file}},
-#' \code{\link[httr]{POST}}, \code{\link[base]{file.remove}}
+#' @seealso \code{\link[httr]{add_headers}},
+#' \code{\link[httr]{upload_file}}, \code{\link[httr]{POST}},
+#' \code{\link[base]{file.remove}}
 
 # Zips and uploads a single exercise, which is located in project_path.
-# Returns the response, which contains a field $submission_url containing
-# the details of the submission.
+# Returns the response, which contains a field $submission_url
+# containing the details of the submission.
 upload_exercise <- function(token, exercise_id, project_path,
                              server_address, zip_name = "temp",
                              remove_zip = TRUE) {
@@ -125,13 +130,16 @@ upload_exercise <- function(token, exercise_id, project_path,
 
   .dprint("exercises_response")
   exercises_response <- tryCatch({
-    exercises_response$data <- httr::stop_for_status(httr::POST(exercises_url,
-                                                              config = url_config,
-                                                              encode = "multipart",
-                                                              body = list("submission[file]" = submission_file)))
+    exercises_response$data <-
+      httr::stop_for_status(
+        httr::POST(exercises_url,
+                   config = url_config,
+                   encode = "multipart",
+                   body = list("submission[file]" = submission_file)))
     .ddprint(str(exercises_response))
-    if ( !is.null(exercises_response$error) ) {
-      stop(exercises_response$error) }
+    if (!is.null(exercises_response$error)) {
+      stop(exercises_response$error)
+    }
     exercises_response
   }, error = function(e) {
     .dprint(e)
