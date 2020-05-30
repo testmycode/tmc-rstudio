@@ -268,31 +268,36 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
     shinyjs::disable("updateAllExercises")
     .dprint("updateAllExercises()")
 
-    if(input$updateAllExercises){
-      shiny::updateCheckboxGroupInput(session,"downloadedExercises",choices = globalReactiveValues$downloadedExercisesMap, selected = globalReactiveValues$downloadedExercisesMap)
+    if (input$updateAllExercises) {
+      shiny::updateCheckboxGroupInput(session,
+                                      "downloadedExercises",
+                                      choices = globalReactiveValues$downloadedExercisesMap,
+                                      selected = globalReactiveValues$downloadedExercisesMap)
     }
     else{
-      shiny::updateCheckboxGroupInput(session,"downloadedExercises" , choices = globalReactiveValues$downloadedExercisesMap, selected = list())
+      shiny::updateCheckboxGroupInput(session,
+                                      "downloadedExercises",
+                                      choices = globalReactiveValues$downloadedExercisesMap,
+                                      selected = list())
     }
-    enable("updateAllExercises")
+    shinyjs::enable("updateAllExercises")
   })
 
   observeEvent(input$download, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
 
     tryCatch({
-      withProgress(message="Downloading exercises",{
-
+      withProgress(message = "Downloading exercises", {
         organization <- input$organizationSelect
         courses <- tmcrstudioaddin::getAllCourses(organization)
-        courseName <- courses$name[courses$id==input$courseSelect]
+        courseName <- courses$name[courses$id == input$courseSelect]
 
         course_directory_path <- file.path(get_projects_folder(), courseName,
                                            fsep = .Platform$file.sep)
 
-        if(!dir.exists(course_directory_path)){
+        if (!dir.exists(course_directory_path)) {
           dir.create(course_directory_path, recursive = TRUE)
         }
 	.dprint(course_directory_path)
