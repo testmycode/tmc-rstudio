@@ -139,12 +139,12 @@ findExercisesFromPath <- function(path) {
 #'
 #' @param path File path to be checked.
 #'
-#' @details Determines if the given file path leads to an exercise project path by
-#' checking if the path leads to a directory which contains the \code{R} and
-#' \code{tests/testthat} folders.
+#' @details Determines if the given file path leads to an exercise
+#' project path by checking if the path leads to a directory which
+#' contains the \code{R} and \code{tests/testthat} folders.
 #'
-#' @return \code{TRUE} if the file path leads to an exercise project directory.
-#' \code{FALSE otherwise}.
+#' @return \code{TRUE} if the file path leads to an exercise project
+#' directory.  \code{FALSE otherwise}.
 #'
 #' @seealso \code{\link[base]{file.path}}, \code{\link[base]{file.info}}
 
@@ -152,7 +152,8 @@ findExercisesFromPath <- function(path) {
 pathIsExercise <- function(path) {
   R_dir <- file.path(path, "R")
   testthat_dir <- file.path(path, "tests", "testthat")
-  return(isTRUE(file.info(R_dir)$isdir) & isTRUE(file.info(testthat_dir)$isdir))
+  return(isTRUE(file.info(R_dir)$isdir) &
+         isTRUE(file.info(testthat_dir)$isdir))
 }
 
 #' @title Get the exercise's name
@@ -165,18 +166,21 @@ pathIsExercise <- function(path) {
 #'
 #' @details Reads the \code{.metadata.json} file for the exercise name.
 #'
-#' @return Exercise's name read from \code{.metadata.json}. If the file doesn't
-#' exist or if the file doesn't have the exercise name, returns the name of the
-#' path's basename (the final directory/file in the file path).
+#' @return Exercise's name read from \code{.metadata.json}. If the file
+#' doesn't exist or if the file doesn't have the exercise name, returns
+#' the name of the path's basename (the final directory/file in the file
+#' path).
 #'
 #' @seealso \code{\link{get_exercise_metadata}}, \code{\link[base]{basename}}
 
-# Read's exercises name from metadata file. If metadata file doesn't exist
-# returns the name of the path's basename.
+# Read's exercises name from metadata file. If metadata file doesn't
+# exist returns the name of the path's basename.
 getExerciseName <- function(exercisePath) {
+  .ddprint("getExerciseName")
   metadata <- get_exercise_metadata(exercisePath)
 
-  #No metadata: exercise name is folder name
+  .ddprint(metadata)
+  # No metadata: exercise name is folder name
   if (is.null(metadata) || is.null(metadata$exercise_name)) {
     return(basename(exercisePath))
   } else {
