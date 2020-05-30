@@ -81,25 +81,30 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
 
 .courseTab <- function(input, output, session, globalReactiveValues) {
   observeEvent(input$refreshOrganizations, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
-    if(!is.null(globalReactiveValues$credentials$token)){
+    if (!is.null(globalReactiveValues$credentials$token)) {
       organizations <- tmcrstudioaddin::getAllOrganizations()
       choices <- organizations$slug
       names(choices) <- organizations$name
-      shiny::updateSelectInput(session, "organizationSelect", label = "Select organization",
-                             choices = choices, selected = 1)
+      shiny::updateSelectInput(session,
+                               "organizationSelect",
+                               label = "Select organization",
+                               choices = choices,
+                               selected = 1)
     }
     else{
-      rstudioapi::showDialog("Not logged in", "Please log in to see organizations", "")
+      rstudioapi::showDialog("Not logged in",
+                             "Please log in to see organizations",
+                             "")
     }
     tmcrstudioaddin::enable_course_tab()
     .dprint("refresh organizations")
   })
 
   observeEvent(input$organizationSelect, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
     organization <- input$organizationSelect
