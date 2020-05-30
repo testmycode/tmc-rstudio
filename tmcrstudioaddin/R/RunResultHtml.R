@@ -7,24 +7,26 @@
 #' @param testResults List of test results.
 #' @param showAll Boolean for showing all test results.
 #'
-#' @details The created \code{HTML} includes a percentage bar for showing how many of the tests
-#' passed, and a list of paragraph elements for each of the test results. If the user has
-#' ticked off the \code{Show all results} checkbox, then instead of a list only a single
-#' paragraph element is shown. The single parahraph is either of the first failing test,
-#' or a message showing "All tests passed" if none of the tests failed. If the current
-#' exercise doesn't have any tests associated with it, then only a single paragraph reading
-#' "No tests for exercise" is returned.
+#' @details The created \code{HTML} includes a percentage bar for
+#' showing how many of the tests passed, and a list of paragraph
+#' elements for each of the test results. If the user has ticked off the
+#' \code{Show all results} checkbox, then instead of a list only a
+#' single paragraph element is shown. The single parahraph is either of
+#' the first failing test, or a message showing "All tests passed" if
+#' none of the tests failed. If the current exercise doesn't have any
+#' tests associated with it, then only a single paragraph reading "No
+#' tests for exercise" is returned.
 #'
-#' @return A single \code{Shiny} \code{HTML} tag object containing all of the elements in the created
-#' \code{HTML} test result output.
+#' @return A single \code{Shiny} \code{HTML} tag object containing all
+#' of the elements in the created \code{HTML} test result output.
 #'
 #' @seealso \code{\link[shiny]{tags}}
 
 # Creates html for testResults
 createTestResultsHtml <- function(testResults, showAll) {
   if (length(testResults) == 0) {
-    return (tags$html(tags$p("No tests for exercise.",
-                   style = "color: red;font-weight:bold")))
+    return(tags$html(tags$p("No tests for exercise.",
+                            style = "color: red;font-weight:bold")))
   }
 
   # Contains html elements for test results
@@ -32,14 +34,22 @@ createTestResultsHtml <- function(testResults, showAll) {
 
   testsPassedPercentage <- .testsPassedPercentage(testResults)
 
-  #Html page with progress bar. testResultsHtmlElements and testPassedProcentage
-  # gets inserted to the html.
-  html <- tags$html(tags$head(
-    tags$style(HTML(paste(sep = "",
-                          ".progressBar { position: relative; width: 100%; background-color: red; border-radius: 0px; }
-                            .progress { width:", testsPassedPercentage, "; height: 30px; background-color: green; border-radius: 0px; }
-                            .progressText { position: absolute; text-align: center; width: 100%; top: 6px;}")))),
-    tags$body(
+  # Html page with progress bar. testResultsHtmlElements and
+  # testPassedProcentage gets inserted to the html.
+  html_str <-
+    paste(sep = "",
+                ".progressBar { position: relative; width: 100%; ",
+                "background-color: red; border-radius: 0px; }\n",
+                ".progress { width:",
+                testsPassedPercentage,
+                "; height: 30px; background-color: green; ",
+                "border-radius: 0px; }\n",
+                ".progressText { position: absolute; text-align: ",
+                "center; width: 100%; top: 6px;}")
+  .ddprint("HTML STRING")
+  .ddprint(html_str)
+  html <- tags$html(tags$head(tags$style(HTML(html_str))),
+                    tags$body(
       tags$div(class = "progressBar",
                tags$div(class = "progressText", testsPassedPercentage),
                tags$div(class = "progress")),
