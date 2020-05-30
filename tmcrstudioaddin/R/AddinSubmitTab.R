@@ -94,22 +94,22 @@
   })
 
   submitExercise <- observeEvent(input$submit, {
-    if(UI_disabled) return()
+    if (UI_disabled) return()
 
     tmcrstudioaddin::disable_submit_tab()
     submitRes <- NULL
     .dprint("submitExercise()")
-    if ( selectedExercisePath == "" ) {
+    if (selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot submit solutions to server",
-			     "You have not selected the exercises. Please choose the
-			     assignments you wish to submit first.")
+                             "You have not selected the exercises. Please
+                             choose the assignments you wish to submit first.")
       submitRes <- list(run_results = list(), run_status = "run_failed")
     } else {
-    withProgress(message = 'Submitting exercise', value = 0, {
-      submitRes <- submitExercise(selectedExercisePath)
-    })
+    withProgress(message = "Submitting exercise",
+                 value = 0, {
+      submitRes <- submitExercise(selectedExercisePath) })
     }
-    if(is.null(submitRes$error)) {
+    if (is.null(submitRes$error)) {
       reactive$submitResults <- submitRes$data
       reactive$testResults <- submitRes$data$tests
       reactive$runStatus <- "success"
