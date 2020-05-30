@@ -156,19 +156,21 @@ upload_exercise <- function(token, exercise_id, project_path,
 
 #' @title Get exercise submission result JSON
 #'
-#' @description Get the exercise submission result \code{JSON} file from the TMC server.
+#' @description Get the exercise submission result \code{JSON} file from
+#' the TMC server.
 #'
 #' @usage get_submission_json(token, url)
 #'
-#' @param token \code{OAuth2} token associated with the the current login session to the
-#' TMC server.
+#' @param token \code{OAuth2} token associated with the the current
+#' login session to the TMC server.
 #' @param url URL where the exercise submission \code{JSON} is fetched from.
 #'
-#' @details Makes a \code{HTTP-GET} request to fetch the exercise submission result \code{JSON}
-#' from the specified URL.
+#' @details Makes a \code{HTTP-GET} request to fetch the exercise
+#' submission result \code{JSON} from the specified URL.
 #'
-#' @return \code{HTTP} response from the TMC server which contains the submission result \code{JSON} if
-#' the server has finished processing the exercise submission.
+#' @return \code{HTTP} response from the TMC server which contains the
+#' submission result \code{JSON} if the server has finished processing
+#' the exercise submission.
 #'
 #' @seealso \code{\link[httr]{add_headers}}, \code{\link[httr]{GET}}
 
@@ -185,23 +187,29 @@ get_submission_json <- function(token, url) {
 #'
 #' @description Upload the currently open exercise to the TMC server.
 #'
-#' @usage upload_current_exercise(token, project_path, zip_name = "temp", remove_zip = TRUE)
+#' @usage upload_current_exercise(token, project_path, zip_name =
+#' "temp", remove_zip = TRUE)
 #'
-#' @param token \code{OAuth2} token associated with the current login session.
+#' @param token \code{OAuth2} token associated with the current login
+#' session.
 #' @param project_path Path to the directory of the submitted exercise.
-#' @param zip_name Name of the \code{zip} file which contains the exercise submission. Default is
-#' \code{temp}.
-#' @param remove_zip \code{TRUE} or \code{FALSE} depending on if you wish to delete the
-#' submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.
+#' @param zip_name Name of the \code{zip} file which contains the
+#' exercise submission. Default is \code{temp}.
+#' @param remove_zip \code{TRUE} or \code{FALSE} depending on if you
+#' wish to delete the submission \code{zip} file after sending it to the
+#' server. Defaults to \code{TRUE}.
 #'
-#' @details Reads the exercise id from \code{.metadata.json} and the server address from
-#' \code{.credentials.json} which are used to form the correct uploading address.
+#' @details Reads the exercise id from \code{.metadata.json} and the
+#' server address from \code{.credentials.json} which are used to form
+#' the correct uploading address.
 #'
-#' @return \code{HTTP} response as a list to the submission attempt. List containing \code{error} key
-#' with an error message if reading the metadata or credentials file caused an error.
+#' @return \code{HTTP} response as a list to the submission attempt.
+#' List containing \code{error} key with an error message if reading the
+#' metadata or credentials file caused an error.
 #'
-#' @seealso \code{\link[base]{list.files}}, \code{\link[jsonlite]{fromJSON}},
-#' \code{\link{getCredentials}}, \code{\link{upload_exercise}}
+#' @seealso \code{\link[base]{list.files}},
+#' \code{\link[jsonlite]{fromJSON}}, \code{\link{getCredentials}},
+#' \code{\link{upload_exercise}}
 
 # Zips the current working directory and uploads it to the server
 # Uses the path of the currently active R-project by default
