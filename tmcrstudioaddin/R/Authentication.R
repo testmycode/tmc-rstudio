@@ -37,23 +37,24 @@ authenticate <- function(username, password, serverAddress) {
       clientID <- httr::content(response)$application_id
       secret <- httr::content(response)$secret
       return(tmcrstudioaddin::login(clientID,
-          secret, username, password, serverAddress))
-    } else{
+                                    secret,
+                                    username,
+                                    password,
+                                    serverAddress))
+    } else {
         stop()
-      }
-    },
-    error = function(e){
-    response <- list(error = "Bad request",
-        error_description = "Invalid request")
-
-    return(response)
-  })
+    } },
+    error = function(e) {
+      response <- list(error = "Bad request",
+                       error_description = "Invalid request")
+      return(response) })
 }
 
 #' @title Login to a TMC server
 #'
-#' @description Logs in to a TMC server using an username and a password along with a clientID and
-#' secret used for \code{OAuth2} authentication.
+#' @description Logs in to a TMC server using an username and a password
+#' along with a clientID and secret used for \code{OAuth2}
+#' authentication.
 #'
 #' @usage login(clientID, secret, username, password, serverAddress)
 #'
@@ -61,15 +62,18 @@ authenticate <- function(username, password, serverAddress) {
 #' @param secret Secret used in \code{OAuth2}.
 #' @param username Username of a TMC account.
 #' @param password Password matching the inputed username of a TMC account.
-#' @param serverAddress Address of the TMC server which the user wants to log in to.
+#' @param serverAddress Address of the TMC server which the user wants
+#' to log in to.
 #'
-#' @details If logging in was successful, saves the login credentials (username, access-token
-#' and the server address) in the \code{.credentials} file.
+#' @details If logging in was successful, saves the login credentials
+#' (username, access-token and the server address) in the
+#' \code{.credentials} file.
 #'
-#' @return An \code{OAuth2} token if the authentication was succesful, otherwise returns an error message.
+#' @return An \code{OAuth2} token if the authentication was succesful,
+#' otherwise returns an error message.
 #'
-#' @seealso \code{\link[httr]{POST}}, \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
-#' \code{\link{saveCredentials}}
+#' @seealso \code{\link[httr]{POST}}, \code{\link[httr]{status_code}},
+#' \code{\link[httr]{content}}, \code{\link{saveCredentials}}
 
 #actual login function
 login <- function(clientID, secret, username, password, serverAddress){
