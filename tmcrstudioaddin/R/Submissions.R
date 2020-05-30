@@ -85,9 +85,10 @@ submitCurrent <- function(path) {
 #' @details Queries the server with \code{HTTP-GET} requests until the server
 #' has finished processing the exercise submission.
 #'
-#' @return Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
-#' successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
-#' processing the tests ended in error.
+#' @return Submission result with non \code{NULL} \code{results} if
+#' processing the tests in the TMC server was successful. List keys:
+#' \code{results}, \code{error}. Error is not \code{NULL} if processing
+#' the tests ended in error.
 #'
 #' @seealso \code{\link{get_json_from_submission_url}},
 #' \code{\link[shiny]{withProgress}}
@@ -114,13 +115,16 @@ getExerciseFromServer <- function(response, token, sleepTime) {
 #'
 #' @usage processSubmissionJson(submitJson)
 #'
-#' @param submitJson \code{HTTP} response containg the submission result \code{JSON}.
+#' @param submitJson \code{HTTP} response containg the submission result
+#' \code{JSON}.
 #'
-#' @details Reads the test results, exercise name, boolean depending on if all
-#' tests passed or not and the received points form the submission result \code{JSON}.
+#' @details Reads the test results, exercise name, boolean depending on
+#' if all tests passed or not and the received points form the
+#' submission result \code{JSON}.
 #'
-#' @return List of data read from the submission result \code{JSON}. List keys:
-#' \code{tests}, \code{exercise_name}, \code{all_tests_passed}, \code{points}
+#' @return List of data read from the submission result \code{JSON}.
+#' List keys: \code{tests}, \code{exercise_name},
+#' \code{all_tests_passed}, \code{points}
 #'
 #' @seealso \code{\link{processSubmission}}
 processSubmissionJson <- function(submitJson) {
@@ -170,9 +174,11 @@ processSubmission <- function(submitJson) {
 #'
 #' @usage showMessage(submitResults)
 #'
-#' @param submitResults List of data read from the submission result \code{JSON}.
+#' @param submitResults List of data read from the submission result
+#' \code{JSON}.
 #'
-#' @seealso \code{\link{getDialogMessage}}, \code{\link[rstudioapi]{showDialog}}
+#' @seealso \code{\link{getDialogMessage}},
+#' \code{\link[rstudioapi]{showDialog}}
 showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
   rstudioapi::showDialog(title = message$title,
@@ -182,15 +188,16 @@ showMessage <- function(submitResults) {
 
 #' @title Get message to display in submission result pop-up dialog.
 #'
-#' @description Creates a message to be shown on the submit result pop-up dialog from
-#' the submission results.
+#' @description Creates a message to be shown on the submit result
+#' pop-up dialog from the submission results.
 #'
 #' @usage getDialogMessage(submitResults)
 #'
-#' @param submitResults List of data read from the submission result \code{JSON}.
+#' @param submitResults List of data read from the submission result
+#' \code{JSON}.
 #'
-#' @return Message showing if submitting the exercise failed, some tests failed or all
-#' tests passed.
+#' @return Message showing if submitting the exercise failed, some tests
+#' failed or all tests passed.
 getDialogMessage <- function(submitResults) {
   message <- list()
   message$title <- "Results"
