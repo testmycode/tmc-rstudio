@@ -173,43 +173,47 @@ getServerAddress <- function() {
 
 #' @title Save the TMC user crendentials into a \code{rds} file.
 #'
-#' @description Save the TMC user credentials (username, access token and the server address)
-#' into a \code{rds} file.
+#' @description Save the TMC user credentials (username, access token
+#' and the server address) into a \code{rds} file.
 #'
 #' @usage saveCredentials(credentials)
 #'
-#' @param credentials The user credentials to be saved. Is assumed to be in a list format with
-#' the keys \code{username}, \code{token} and \code{serverAddress}.
+#' @param credentials The user credentials to be saved. Is assumed to be
+#' in a list format with the keys \code{username}, \code{token} and
+#' \code{serverAddress}.
 #'
-#' @details The file is named \code{credentials.rds} and is saved on the \code{tmcr} folder.
+#' @details The file is named \code{credentials.rds} and is saved on the
+#' \code{tmcr} folder.
 #'
 #' @return Always \code{NULL}.
 #'
 #' @seealso \code{\link{get_tmcr_directory}}, \code{\link[base]{readRDS}}
-saveCredentials <- function(credentials){
-  credentials_path <- paste(get_tmcr_directory(), ".credentials.rds",
-    sep = .Platform$file.sep)
+saveCredentials <- function(credentials) {
+  credentials_path <- paste(get_tmcr_directory(),
+                            ".credentials.rds",
+                            sep = .Platform$file.sep)
   saveRDS(credentials, credentials_path)
 }
 
 #' @title Get the TMC user credentials
 #'
-#' @description Get the TMC user credentials (username, access token and the server address)
-#' from the \code{credentials.rds} file.
+#' @description Get the TMC user credentials (username, access token and
+#' the server address) from the \code{credentials.rds} file.
 #'
 #' @usage getCredentials()
 #'
-#' @return A list with the keys \code{username}, \code{token} and \code{serverAddress} and
-#' their corresponding values. If reading the file was unsuccessful then an empty list is
-#' returned instead.
+#' @return A list with the keys \code{username}, \code{token} and
+#' \code{serverAddress} and their corresponding values. If reading the
+#' file was unsuccessful then an empty list is returned instead.
 #'
 #' @seealso \code{\link[base]{readRDS}}
-getCredentials <- function(){
+getCredentials <- function() {
   credentials <- list()
   .dprint("getCredentials()")
   tryCatch({
-    credentials <- readRDS(paste(get_tmcr_directory(), ".credentials.rds",
-      sep = .Platform$file.sep))
+    credentials <- readRDS(paste(get_tmcr_directory(),
+                                 ".credentials.rds",
+                                 sep = .Platform$file.sep))
   }, warning = function(e) {
     .dprint(e)
   })
