@@ -317,10 +317,10 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
       rstudioapi::showDialog("Success", download_success_message, "")
     }, error = function(e) {
     pre_error <- e$message
-    download_errormsgs <- list(keys=c("Path exists and overwrite is FALSE",
-				      "argument is of length zero",
-				      "Forbidden (HTTP 403)",
-				      pre_error))
+    download_errormsgs <- list(keys = c("Path exists and overwrite is FALSE",
+                                        "argument is of length zero",
+                                        "Forbidden (HTTP 403)",
+                                        pre_error))
     download_errormsgs$msgs_win <- c("Your download failed \
 (Path exists and overwrite is FALSE). There is something wrong with the \
 file permissions or previous download failed in halfway.<p>Please \
@@ -337,12 +337,14 @@ contact the course instructors in this case.",
 Remember to refresh the lists.",
 "One or more exercises you chose have not been published yet",
 pre_error)
-    if ( !is.null(.Platform$OS.type) && .Platform$OS.type == "windows" ) {
-      errormsg <- download_errormsgs$msgs_win[download_errormsgs$keys == pre_error][1]
+    if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
+      errormsg <-
+        download_errormsgs$msgs_win[download_errormsgs$keys == pre_error][1]
     } else {
-      errormsg <- download_errormsgs$msgs_unix[download_errormsgs$keys == pre_error][1]
+      errormsg <-
+        download_errormsgs$msgs_unix[download_errormsgs$keys == pre_error][1]
     }
-    if ( is.null(.Platform$OS.type) ) {
+    if (is.null(.Platform$OS.type)) {
       print("This is mysterious machine")
     }
       download_error_message <- errormsg
@@ -351,7 +353,6 @@ pre_error)
       cat(pre_error)
       cat("\n")
       rstudioapi::showDialog("Error", download_error_message, "")
-      # rstudioapi::showDialog("Error","Something went wrong","")
     })
 
     #Call submitTab module, which updates exercises
