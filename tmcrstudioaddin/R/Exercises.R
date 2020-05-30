@@ -25,26 +25,34 @@ exercisePathFromWd <- function() {
   dirname <- dirname(getwd())
   basename <- basename(getwd())
 
-  wdIsInProjectsDir <- grepl(paste0("^", get_projects_folder()), getwd())
+  wd_is_in_projects_dir <- grepl(paste0("^", get_projects_folder()),
+                                 getwd())
 
   # Current wd is not an exercise (a folder in exercises_path)
-  if(!pathIsExercise(getwd()) || !wdIsInProjectsDir) {
+  if (!pathIsExercise(getwd()) || !wd_is_in_projects_dir) {
+    .ddprint("This is most likely to happen")
     return(c(" " = " "))
   } else {
-    exerciseName <- getExerciseName(getwd())
-    return(setNames(c(getwd()), c(exerciseName)))
+    exercise_name <- getExerciseName(getwd())
+    .ddprint("What is the exercise_name")
+    .ddprint(str(exercise_name))
+    .ddprint(str(c(exercise_name)))
+    return(setNames(c(getwd()), c(exercise_name)))
   }
 }
 
 #' @title Get a list of downloaded exercises
 #'
-#' @description Get a list of downloaded exercises as named vector \code{c(name = path)}format.
+#' @description Get a list of downloaded exercises as named vector
+#' \code{c(name = path)}format.
 #'
 #' @usage downloadedExercisesPaths()
 #'
-#' @details Searches for downloaded exercise projects at the TMC R project folder.
+#' @details Searches for downloaded exercise projects at the TMC R
+#' project folder.
 #'
-#' @return List of downloaded exercises as named vector \code{c(name = path)}format.
+#' @return List of downloaded exercises as named vector
+#' \code{c(name = path)} format.
 #'
 #' @seealso \code{\link{findExercisesFromPath}}, \code{\link{get_projects_folder}},
 #' \code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
