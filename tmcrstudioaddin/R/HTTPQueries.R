@@ -2,19 +2,25 @@
 #'
 #' @description Download an exercise from the TMC server.
 #'
-#' @usage download_exercise(exercise_id, zip_target = getwd(), zip_name = "temp.zip",
-#'                          exercise_directory, exercise_name)
+#' @usage download_exercise(exercise_id,
+#'                          zip_target = getwd(),
+#'                          zip_name = "temp.zip",
+#'                          exercise_directory,
+#'                          exercise_name)
 #'
 #' @param exercise_id ID of the exercise.
-#' @param zip_target Path to where the temporary \code{zip} file is stored. Defaults
-#' to the current working directory.
-#' @param zip_name Name of the temporary \code{zip} file. Default is \code{temp.zip}.
-#' @param exercise_directory Path to the directory where the exercise directory is unzipped to.
+#' @param zip_target Path to where the temporary \code{zip} file is
+#' stored. Defaults to the current working directory.
+#' @param zip_name Name of the temporary \code{zip} file. Default is
+#' \code{temp.zip}.
+#' @param exercise_directory Path to the directory where the exercise
+#' directory is unzipped to.
 #' @param exercise_name Name of the downloaded exercise.
 #'
-#' @details Reads the user credentials from the credentials file, downloads an zipped exercise
-#' matching the given id from the TMC server, unzips it to the given directory and creates a
-#' \code{JSON} file containing the exercise name and id on the exercise directory.
+#' @details Reads the user credentials from the credentials file,
+#' downloads an zipped exercise matching the given id from the TMC
+#' server, unzips it to the given directory and creates a \code{JSON}
+#' file containing the exercise name and id on the exercise directory.
 #'
 #' @return \code{HTTP} response to the download attempt.
 #'
@@ -22,8 +28,8 @@
 #' \code{\link[httr]{add_headers}}, \code{\link[httr]{write_disk}},
 #' \code{\link[base]{file.remove}}, \code{\link{create_exercise_metadata}}
 
-#Exercise_id is the identifier of the exercise. For example, 36463.
-#Target is the place where zip-file is stored, if it's not deleted.
+# Exercise_id is the identifier of the exercise. For example, 36463.
+# Target is the place where zip-file is stored, if it's not deleted.
 download_exercise <- function(exercise_id,
                         zip_target = getwd(),
                         zip_name = "temp.zip",
@@ -51,11 +57,13 @@ download_exercise <- function(exercise_id,
 
   # move this to better location
   exercise_forbidden_num <- 403
-  exercise_ok_num <- 200
+  # exercise_ok_num value would be 200
   # move this to better location
-  if ( exercises_response$status_code == exercise_forbidden_num ) {
+  if (exercises_response$status_code == exercise_forbidden_num) {
     file.remove(zip_path)
-    stop(paste("Forbidden (HTTP ", as.character(exercise_forbidden_num), ")", sep=""))
+    stop(paste("Forbidden (HTTP ", as.character(exercise_forbidden_num),
+               ")",
+               sep = ""))
   }
   .tmc_unzip(zipfile_name = zip_path, target_folder = exercise_directory)
   file.remove(zip_path)
