@@ -159,14 +159,14 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
     separateDownloadedExercises(exercises, globalReactiveValues)
 
     tmcrstudioaddin::enable_course_tab()
-  }, ignoreInit=TRUE)
+  }, ignoreInit = TRUE)
 
   separateDownloadedExercises <- function(exercises, globalReactiveValues) {
     .dprint("separateDownloadedExercises()")
     globalReactiveValues$exerciseMap <- list()
     globalReactiveValues$downloadedExercisesMap <- list()
 
-    allExercises <- list()
+    #allExercises <- list()
     exercisePaths <- downloadedExercisesPaths()
 
     downloadedExercise <- list()
