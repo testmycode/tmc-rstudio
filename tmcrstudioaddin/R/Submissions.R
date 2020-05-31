@@ -287,6 +287,8 @@ code. Please try to fix it or ask help from course instructors.")
            "You are getting there! ",
            "Nice! ",
            "Very nice! ",
+           "Almost there! ",
+           "Almost there! ",
            "Almost there! ")
     points <- paste(submitResults$data$points, collapse = ", ")
     num_of_points <- length(submitResults$data$points)
