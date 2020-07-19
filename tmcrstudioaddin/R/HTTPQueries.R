@@ -118,11 +118,17 @@ upload_exercise <- function(token, exercise_id, project_path,
   zip_path <- paste0(tempfile(), ".zip")
   .dprint(zip_path)
   tryCatch({
-  .tmc_zip(project_path, zip_path)
-  .dprint(paste("Project path", project_path))
-  .dprint(paste0("Sending zip to server ", zip_path))
-  .dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
-  submission_file <- httr::upload_file(zip_path)},
+    .tmc_zip(project_path, zip_path)
+    },
+  error = function(e) {
+    cat("Creating submission failed.\n")
+    stop(e)
+  })
+  tryCatch({
+    .dprint(paste("Project path", project_path))
+    .dprint(paste0("Sending zip to server ", zip_path))
+    .dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
+    submission_file <- httr::upload_file(zip_path)},
   error = function(e) {
     cat("Uploading failed.\n")
     stop(e)

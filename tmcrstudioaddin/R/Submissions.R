@@ -219,6 +219,7 @@ getDialogMessage <- function(submitResults) {
                                "file.exists(path) is not TRUE",
                                "Bad Gateway (HTTP 502).",
                                "Could not resolve host: tmc.mooc.fi",
+                               "Zip file not created",
                                pre_error))
     errormsgs$msgs_win <- c("Your submission was refused by server (HTTP \
 401). This most likely means that the submission deadline \
@@ -228,7 +229,7 @@ has closed.",
 The reason for this is most likely with your installation of Rtools. \
 Please take a look at the suggested solutions in the \
 frequently asked questions.
-<p> Also contact the course instructors in this case.",
+<p>If you cannot solve the issue, contact the course instructors in this case.",
 "Your submission failed with 'Bad Gateway (HTTP 502)'. \
 You can try restarting RStudio and RTMC and then resubmitting.<p> \
 This can also mean that server is is temporarily not accepting \
@@ -238,6 +239,9 @@ contact the course teacher",
 connection? If you do, then tmc.mooc.fi might be currently unreachable. \
 You should try resubmitting again later, but if you are in a hurry, \
 contact the course teacher",
+"<p>Most likely your Rtools is not correctly installed. Write to console \
+the command:</p> <p>Sys.which(\"zip\") ; Sys.getenv(\"R_ZIPCMD\")</p> \
+<p>Contact the course instructors for help or search the manual</p>",
 paste(pre_error, "<p>Please contact the course instructors in this case."))
     errormsgs$msgs_unix <- c("Your submission was refused by server (HTTP \
 401). This most likely means that the submission deadline \
@@ -255,6 +259,8 @@ contact the course teacher",
 connection? If you do, then tmc.mooc.fi might be currently unreachable. \
 You should try resubmitting again later, but if you are in a hurry, \
 contact the course teacher",
+"<p>Most likely this is an issue with file permissions or PATH. \
+<p> Please contact the course instructors in this case.",
 paste(pre_error, "<p>Please contact the course instructors in this case."))
     if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
       errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
@@ -265,8 +271,8 @@ paste(pre_error, "<p>Please contact the course instructors in this case."))
       print("This is mysterious machine")
     }
     if (is.character(submitResults$error)) {
-      errormsg <- paste0(pre_error, "<p> There is an issue with your \
-code. Please try to fix it or ask help from course instructors.")
+      errormsg <- paste0(pre_error, "<p> There is some issues with your \
+code. Please try to fix your code or ask help from course instructors.")
     }
     if (nchar(errormsg) > 300) {
       errormsg <- substr(errormsg, 1, 300)

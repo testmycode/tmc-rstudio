@@ -180,6 +180,7 @@
       for (file in list.files(full.names = TRUE,
                               path = file.path(selectedExercisePath, "R"),
                               pattern = "[.]R$")) {
+	.ddprint(file)
         rstudioapi::navigateToFile(file)
       }
     }

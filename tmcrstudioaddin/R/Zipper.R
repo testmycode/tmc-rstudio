@@ -2,6 +2,11 @@
   .dprint(".zip")
   old_wd <- getwd()
   setwd(folder)
+  if ( file.exists(zip_path) ) {
+    cat("Zip was already created. This should not happen.\n")
+    setwd(old_wd)
+    stop("Zip file already exists")
+  }
   tryCatch({
     files_to_zip <- dir(folder, recursive = TRUE, include.dirs = TRUE)
     zip(zipfile = zip_path, files = files_to_zip)
@@ -11,6 +16,10 @@
     stop(e)
   })
   setwd(old_wd)
+  if ( !file.exists(zip_path) ) {
+    cat("Zip has not not been created.\n")
+    stop("Zip file not created")
+  }
 }
 
 .tmc_unzip <- function(zipfile_name, target_folder) {
