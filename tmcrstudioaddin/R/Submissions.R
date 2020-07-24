@@ -201,7 +201,21 @@ showMessage <- function(submitResults) {
 #'
 #' @return Message showing if submitting the exercise failed, some tests
 #' failed or all tests passed.
+
+
 getDialogMessage <- function(submitResults) {
+  print_compilation_error <- function(pre_error) {
+    pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
+    error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
+							      pre_lines[2]))),
+			      error = function(e) pre_lines[2])
+    error_msg     <- paste(error_msg_vec, collapse = "\n")
+##  cat(pre_error)
+    cat("Server couldn't run tests with your code,",
+	"since your code produced the following error:", sep = "\n")
+    cat(error_msg, "\n")
+    error_msg
+  }
   message <- list()
   .ddprint("NOW parsing submit Results")
   .ddprint(str(submitResults))
@@ -212,7 +226,28 @@ getDialogMessage <- function(submitResults) {
     .dprint("getDialogMessageError")
     pre_error <-
       if (is.character(submitResults$error)) {
-        cat(submitResults$error)
+        console_error <- print_compilation_error(submitResults$error)
+	if (console_error == "unable to start data viewer") {
+	  next_line <- paste("Server does not have View(...) functionality, so please",
+			     "comment out or remove all the View(...) commands.",
+			     sep = " ")
+	} else if (grep("invalid multibyte character", console_error)) {
+	  next_line <- paste("You might have used",
+			     "nordic letters in text with encoding that is not UTF-8.",
+			     "Try using UTF-8 encoding or use only ASCII characters.",
+			     sep = " ")
+	} else {
+	  next_line <- paste("You can find the error message on the console.",
+			     "This should help you identifying and locating the error.",
+			     sep = " ")
+	}
+	server_error <- paste("Server could not run tests.", 
+			      next_line,
+## 			      "#gsub("\n", "<p>", console_error),
+			      sep = "<p>")
+## 	print(gsub("\n", "<br>", console_error))
+## 	print(server_error)
+	submitResults$error <- server_error
         message$title <- "Submission succeeded with code problem"
         submitResults$error
       } else {
@@ -291,7 +326,7 @@ getDialogMessage <- function(submitResults) {
       print("This is mysterious machine")
     }
     if (is.character(submitResults$error)) {
-      errormsg <- paste0(pre_error, "<p> There is some issues with your \
+      errormsg <- paste0(pre_error, "<p> There is some issue with your \
 code. Please try to fix your code or ask help from course instructors.")
     }
     if (nchar(errormsg) > 300) {
