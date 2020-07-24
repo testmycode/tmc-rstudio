@@ -27,6 +27,7 @@ submitExercise <- function(path) {
   submitJson <- submitCurrent(path)
   submitRes <- list()
   if (is.null(submitJson$error)) {
+    .ddprint(str(submitJson))
     submitRes$data <- processSubmissionJson(submitJson$results)
   } else {
     submitRes$error <- submitJson$error
@@ -65,6 +66,8 @@ submitCurrent <- function(path) {
   token <- credentials$token
   response <- upload_current_exercise(token, project_path = path)
   if (is.null(response$error)) {
+    .ddprint("upload_response..")
+    .ddprint(str(response))
     submitJson <- getExerciseFromServer(response$data, token, 10)
   } else {
     submitJson$error <- response$error
@@ -200,6 +203,8 @@ showMessage <- function(submitResults) {
 #' failed or all tests passed.
 getDialogMessage <- function(submitResults) {
   message <- list()
+  .ddprint("NOW parsing submit Results")
+  .ddprint(str(submitResults))
   message$title <- "Results"
   if (!is.null(submitResults$error)) {
     # move the texts below to proper place
@@ -208,60 +213,75 @@ getDialogMessage <- function(submitResults) {
     pre_error <-
       if (is.character(submitResults$error)) {
         cat(submitResults$error)
-        message$title <- "Submission succeeded. Server response: error"
+        message$title <- "Submission succeeded with code problem"
         submitResults$error
       } else {
         message$title <- "Submission failed: error"
         print(submitResults$error)
         submitResults$error$message
       }
-    errormsgs <- list(keys = c("Unauthorized (HTTP 401).",
-                               "file.exists(path) is not TRUE",
-                               "Bad Gateway (HTTP 502).",
-                               "Could not resolve host: tmc.mooc.fi",
-                               "Zip file not created",
-                               pre_error))
-    errormsgs$msgs_win <- c("Your submission was refused by server (HTTP \
-401). This most likely means that the submission deadline \
-has closed.",
-"Submission uploading failed with 'file.exists(path) is not TRUE'.
-<p>
-The reason for this is most likely with your installation of Rtools. \
-Please take a look at the suggested solutions in the \
-frequently asked questions.
-<p>If you cannot solve the issue, contact the course instructors in this case.",
-"Your submission failed with 'Bad Gateway (HTTP 502)'. \
-You can try restarting RStudio and RTMC and then resubmitting.<p> \
-This can also mean that server is is temporarily not accepting \
-requests. You should try resubmitting again later, but if you are in a hurry, \
-contact the course teacher",
-"Host tmc.mooc.fi could not be reached. Do you have you working network \
-connection? If you do, then tmc.mooc.fi might be currently unreachable. \
-You should try resubmitting again later, but if you are in a hurry, \
-contact the course teacher",
-"<p>Most likely your Rtools is not correctly installed. Write to console \
-the command:</p> <p>Sys.which(\"zip\") ; Sys.getenv(\"R_ZIPCMD\")</p> \
-<p>Contact the course instructors for help or search the manual</p>",
-paste(pre_error, "<p>Please contact the course instructors in this case."))
-    errormsgs$msgs_unix <- c("Your submission was refused by server (HTTP \
-401). This most likely means that the submission deadline \
-has closed.",
-"Submission uploading failed with 'file.exists(path) is not TRUE'.
-<p>
-This is most likely an issue with file permissions.
-<p> Please contact the course instructors in this case.",
-"Your submission failed with 'Bad Gateway (HTTP 502)'. \
-You can try restarting RStudio and RTMC and then resubmitting.<p> \
-This can also mean that server is is temporarily not accepting \
-requests. You should try resubmitting again later, but if you are in a hurry, \
-contact the course teacher",
-"Host tmc.mooc.fi could not be reached. Do you have you working network \
-connection? If you do, then tmc.mooc.fi might be currently unreachable. \
-You should try resubmitting again later, but if you are in a hurry, \
-contact the course teacher",
-"<p>Most likely this is an issue with file permissions or PATH. \
-<p> Please contact the course instructors in this case.",
-paste(pre_error, "<p>Please contact the course instructors in this case."))
+    messages_tmp <-
+      matrix(byrow = TRUE, ncol = 3,
+	     c(c("Unauthorized (HTTP 401).",
+		 paste("Your submission was refused by server (HTTP 401).",
+		       "This most likely means that the submission deadline",
+		       "has closed."),
+		 paste("Your submission was refused by server (HTTP 401).",
+		       "This most likely means that the submission deadline",
+		       "has closed.")),
+	       c("Forbidden (HTTP 403).",
+		 paste("Your submission failed as forbidden request (HTTP 403).",
+		       "<p>The most common cause of this are firewalls, VPN's,",
+		       "antivirus programs that block the connection as well as",
+		       "stale credentials. It can also happen if the server is",
+		       "down. <p> Try logging out and back in from addin in a",
+		       "different network and check if tmc.mooc.fi is working.",
+		       "<p> If the problem persists, please contact the course",
+		       "instructors."),
+		 paste("Your submission failed as forbidden request (HTTP 403).",
+		       "<p>The most common cause of this are firewalls, VPN's,",
+		       "antivirus programs that block the connection as well as",
+		       "stale credentials. It can also happen if the server is",
+		       "down. <p> Try logging out and back in from addin in a",
+		       "different network and check if tmc.mooc.fi is working.",
+		       "<p> If the problem persists, please contact the course",
+		       "instructors.")),
+	       c("file.exists(path) is not TRUE",
+		 paste("Submission uploading failed with 'file.exists(path)",
+		       "is not TRUE'. <p> The reason for this is most likely",
+		       "with your installation of Rtools. Please take a look at",
+		       "Rtools installationmanual. <p> If you are unable to fix this",
+		       "contact the course instructors in this case."),
+		 paste("Submission uploading failed with 'file.exists(path)",
+		       "is not TRUE'.  <p> This is most likely an issue with",
+		       "file permissions. <p> Please contact the course instructors",
+		       "in this case.")),
+	       c("Bad Gateway (HTTP 502).",
+		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+		       "You can try restarting RStudio and RTMC and then resubmitting.<p>",
+		       "This can also mean that server is is temporarily not accepting",
+		       "requests. You should try resubmitting again later, but if you",
+		       "are in a hurry, contact the course teacher"),
+		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+		       "You can try restarting RStudio and RTMC and then resubmitting.<p>",
+		       "This can also mean that server is is temporarily not accepting",
+		       "requests. You should try resubmitting again later, but if you",
+		       "are in a hurry, contact the course teacher")),
+	       c("Could not resolve host: tmc.mooc.fi",
+		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
+		       "network connection? If you do, then tmc.mooc.fi might be",
+		       "currently unreachable. You should try resubmitting again later,",
+		       "but if you are in a hurry, contact the course teacher"),
+		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
+		       "network connection? If you do, then tmc.mooc.fi might be",
+		       "currently unreachable. You should try resubmitting again later,",
+		       "but if you are in a hurry, contact the course teacher"),
+		 pre_error,
+		 paste(pre_error, "<p>Please contact the course instructors in this case."),
+		 paste(pre_error, "<p>Please contact the course instructors in this case."))))
+    errormsgs <- list(keys      = messages_tmp[ , 1],
+		      msgs_win  = messages_tmp[ , 2],
+		      msgs_unix = messages_tmp[ , 3])
     if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
       errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
     } else {
@@ -316,7 +336,7 @@ code. Please try to fix your code or ask help from course instructors.")
              submitResults$data$exercise_name,
              "'. <p>",
              "<b>Points permanently awarded: ", points, "</b>",
-             "<p>Some tests failed on the server.",
+             "<p>Some tests still failed on the server.",
              "<p>Press OK to see failing tests")
   }
   return(message)
