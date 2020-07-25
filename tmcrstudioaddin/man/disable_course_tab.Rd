@@ -7,7 +7,8 @@
 disable_course_tab()
 }
 \description{
-Disable \code{Shiny} input elements in the Course & Exercise tab.
+Disable \code{Shiny} input elements in the Course &
+Exercise tab.
 }
 \seealso{
 \code{\link{disable_elements}}

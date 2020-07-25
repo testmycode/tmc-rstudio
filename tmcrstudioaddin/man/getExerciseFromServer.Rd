@@ -14,9 +14,10 @@ getExerciseFromServer(response, token, sleepTime)
 \item{sleepTime}{The time to sleep between queries to the tmc-server.}
 }
 \value{
-Submission result with non \code{NULL} \code{results} if processing the tests in the TMC server was
-successful. List keys: \code{results}, \code{error}. Error is not \code{NULL} if
-processing the tests ended in error.
+Submission result with non \code{NULL} \code{results} if
+processing the tests in the TMC server was successful. List keys:
+\code{results}, \code{error}. Error is not \code{NULL} if processing
+the tests ended in error.
 }
 \description{
 Get the exercise submission results from the TMC server

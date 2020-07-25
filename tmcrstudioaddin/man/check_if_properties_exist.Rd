@@ -7,12 +7,12 @@
 check_if_properties_exist()
 }
 \value{
-\code{TRUE} if the \code{properties.rds} exists at the root of the \code{tmcr}
-directory, otherwise \code{FALSE}.
+\code{TRUE} if the \code{properties.rds} exists at the root
+of the \code{tmcr} directory, otherwise \code{FALSE}.
 }
 \description{
-Check for the existence of the \code{properties.rds} file at the root of the
-\code{tmcr} directory.
+Check for the existence of the \code{properties.rds}
+file at the root of the \code{tmcr} directory.
 }
 \seealso{
 \code{\link{get_tmcr_directory}}, \code{\link[base]{file.exists}}

@@ -7,7 +7,8 @@
 enable_course_tab()
 }
 \description{
-Enable \code{Shiny} input elements in the Course & Exercise tab.
+Enable \code{Shiny} input elements in the Course &
+Exercise tab.
 }
 \seealso{
 \code{\link{enable_elements}}

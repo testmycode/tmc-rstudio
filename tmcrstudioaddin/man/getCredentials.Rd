@@ -7,13 +7,13 @@
 getCredentials()
 }
 \value{
-A list with the keys \code{username}, \code{token} and \code{serverAddress} and
-their corresponding values. If reading the file was unsuccessful then an empty list is
-returned instead.
+A list with the keys \code{username}, \code{token} and
+\code{serverAddress} and their corresponding values. If reading the
+file was unsuccessful then an empty list is returned instead.
 }
 \description{
-Get the TMC user credentials (username, access token and the server address)
-from the \code{credentials.rds} file.
+Get the TMC user credentials (username, access token and
+the server address) from the \code{credentials.rds} file.
 }
 \seealso{
 \code{\link[base]{readRDS}}

@@ -4,31 +4,37 @@
 \alias{upload_current_exercise}
 \title{Upload the currently open exercise to the TMC server}
 \usage{
-upload_current_exercise(token, project_path, zip_name = "temp", remove_zip = TRUE)
+upload_current_exercise(token, project_path, zip_name =
+"temp", remove_zip = TRUE)
 }
 \arguments{
-\item{token}{\code{OAuth2} token associated with the current login session.}
+\item{token}{\code{OAuth2} token associated with the current login
+session.}
 
 \item{project_path}{Path to the directory of the submitted exercise.}
 
-\item{zip_name}{Name of the \code{zip} file which contains the exercise submission. Default is
-\code{temp}.}
+\item{zip_name}{Name of the \code{zip} file which contains the
+exercise submission. Default is \code{temp}.}
 
-\item{remove_zip}{\code{TRUE} or \code{FALSE} depending on if you wish to delete the
-submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.}
+\item{remove_zip}{\code{TRUE} or \code{FALSE} depending on if you
+wish to delete the submission \code{zip} file after sending it to the
+server. Defaults to \code{TRUE}.}
 }
 \value{
-\code{HTTP} response as a list to the submission attempt. List containing \code{error} key
-with an error message if reading the metadata or credentials file caused an error.
+\code{HTTP} response as a list to the submission attempt.
+List containing \code{error} key with an error message if reading the
+metadata or credentials file caused an error.
 }
 \description{
 Upload the currently open exercise to the TMC server.
 }
 \details{
-Reads the exercise id from \code{.metadata.json} and the server address from
-\code{.credentials.json} which are used to form the correct uploading address.
+Reads the exercise id from \code{.metadata.json} and the
+server address from \code{.credentials.json} which are used to form
+the correct uploading address.
 }
 \seealso{
-\code{\link[base]{list.files}}, \code{\link[jsonlite]{fromJSON}},
-\code{\link{getCredentials}}, \code{\link{upload_exercise}}
+\code{\link[base]{list.files}},
+\code{\link[jsonlite]{fromJSON}}, \code{\link{getCredentials}},
+\code{\link{upload_exercise}}
 }

@@ -9,16 +9,18 @@ sourceExercise(exercisePath, sourceEcho)
 \arguments{
 \item{exercisePath}{File path to the exercise project directory.}
 
-\item{sourceEcho}{A boolean determining whether to source echo on console.}
+\item{sourceEcho}{A boolean determining whether to source echo on
+console.}
 }
 \description{
 Source all exercise \code{R} files.
 }
 \details{
-The \code{R} files contained in the exercise
-directory's \code{R} folder are sourced with \code{print.eval} on.
+The \code{R} files contained in the exercise directory's
+\code{R} folder are sourced with \code{print.eval} on.
 }
 \seealso{
-\code{\link[base]{environment}}, \code{\link[base]{list.files}},
-\code{\link[base]{file.path}}, \code{\link[base]{cat}}, \code{\link[base]{source}}
+\code{\link[base]{environment}},
+\code{\link[base]{list.files}}, \code{\link[base]{file.path}},
+\code{\link[base]{cat}}, \code{\link[base]{source}}
 }

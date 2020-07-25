@@ -4,12 +4,14 @@
 \alias{create_exercise_metadata}
 \title{Create a JSON file containing exercise metadata}
 \usage{
-create_exercise_metadata(exercise_id, exercise_directory, exercise_name)
+create_exercise_metadata(exercise_id, exercise_directory,
+exercise_name)
 }
 \arguments{
 \item{exercise_id}{ID of the exercise.}
 
-\item{exercise_directory}{Path to the directory where the exercise is downloaded into.}
+\item{exercise_directory}{Path to the directory where the exercise is
+downloaded into.}
 
 \item{exercise_name}{Name of the exercise.}
 }
@@ -20,11 +22,13 @@ Either \code{NULL} or an integer status.
 Create a \code{JSON} file containing exercise metadata.
 }
 \details{
-Creates a \code{JSON} file in the exercise's directory root. The \code{JSON}
-file contains the exercise's name and id, which is used when the user wants to upload
-their exercise submission to the TMC server.
+Creates a \code{JSON} file in the exercise's directory root.
+The \code{JSON} file contains the exercise's name and id, which is
+used when the user wants to upload their exercise submission to the
+TMC server.
 }
 \seealso{
-\code{\link[base]{file.path}}, \code{\link[base]{connections}},
-\code{\link[jsonlite]{toJSON}}, \code{\link[jsonlite]{unbox}}, \code{\link[base]{cat}}
+\code{\link[base]{file.path}},
+\code{\link[base]{connections}}, \code{\link[jsonlite]{toJSON}},
+\code{\link[jsonlite]{unbox}}, \code{\link[base]{cat}}
 }

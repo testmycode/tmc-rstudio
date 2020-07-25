@@ -8,19 +8,23 @@ upload_exercise(token, exercise_id, project_path, server_address,
         zip_name = "temp", remove_zip = TRUE)
 }
 \arguments{
-\item{token}{\code{OAuth2} token associated with the current login session.}
+\item{token}{\code{OAuth2} token associated with the current login
+session.}
 
 \item{exercise_id}{ID of the submitted exercise.}
 
-\item{project_path}{File path to the directory of the submitted exercise.}
+\item{project_path}{File path to the directory of the submitted
+exercise.}
 
-\item{server_address}{Address of the TMC server where the exercise is submitted to.}
+\item{server_address}{Address of the TMC server where the exercise is
+submitted to.}
 
-\item{zip_name}{Name of the \code{zip} file which contains the exercise submission. Default is
-\code{temp}}
+\item{zip_name}{Name of the \code{zip} file which contains the
+exercise submission. Default is \code{temp}}
 
-\item{remove_zip}{\code{TRUE} or \code{FALSE} depending on if you wish to delete the
-submission \code{zip} file after sending it to the server. Defaults to \code{TRUE}.}
+\item{remove_zip}{\code{TRUE} or \code{FALSE} depending on if you
+wish to delete the submission \code{zip} file after sending it to the
+server. Defaults to \code{TRUE}.}
 }
 \value{
 \code{HTTP} response to the submission attempt.
@@ -29,10 +33,11 @@ submission \code{zip} file after sending it to the server. Defaults to \code{TRU
 Upload an exercise to the TMC server
 }
 \details{
-Packs the exercise directory into a \code{zip} file and sends it to the TMC server
-as a list.
+Packs the exercise directory into a \code{zip} file and
+sends it to the TMC server as a list.
 }
 \seealso{
-\code{\link[httr]{add_headers}}, \code{\link[httr]{upload_file}},
-\code{\link[httr]{POST}}, \code{\link[base]{file.remove}}
+\code{\link[httr]{add_headers}},
+\code{\link[httr]{upload_file}}, \code{\link[httr]{POST}},
+\code{\link[base]{file.remove}}
 }

@@ -10,6 +10,7 @@ tmcGadget()
 Run the TMC addin on the \code{RStudio} viewer pane.
 }
 \details{
-The TMC \code{RStudio} addin was made using \code{\link[shiny]{shiny-package}}, which
-allows making web applications and \code{RStudio} addins using \code{R}.
+The TMC \code{RStudio} addin was made using
+\code{\link[shiny]{shiny-package}}, which allows making web
+applications and \code{RStudio} addins using \code{R}.
 }

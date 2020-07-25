@@ -7,14 +7,15 @@
 fetchClientIdAndSecret(serverAddress)
 }
 \arguments{
-\item{serverAddress}{Address of the TMC server which the user wants to log in to.}
+\item{serverAddress}{Address of the TMC server which the user wants
+to log in to.}
 }
 \value{
 Client ID and secret fetched from the server.
 }
 \description{
-Fetch the client id and secret required in \code{OAuth2} authentication
-from the server.
+Fetch the client id and secret required in \code{OAuth2}
+authentication from the server.
 }
 \seealso{
 \code{\link[httr]{GET}}

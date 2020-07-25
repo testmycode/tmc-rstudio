@@ -7,8 +7,9 @@
 deleteCredentials()
 }
 \value{
-\code{TRUE} if succeeded in deleting the credentials. \code{FALSE} if the deletion did not
-succeed or \code{.credentials} were not found.
+\code{TRUE} if succeeded in deleting the credentials.
+\code{FALSE} if the deletion did not succeed or \code{.credentials}
+were not found.
 }
 \description{
 Delete the \code{.credentials} file.

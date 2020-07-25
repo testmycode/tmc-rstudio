@@ -15,20 +15,24 @@ login(clientID, secret, username, password, serverAddress)
 
 \item{password}{Password matching the inputed username of a TMC account.}
 
-\item{serverAddress}{Address of the TMC server which the user wants to log in to.}
+\item{serverAddress}{Address of the TMC server which the user wants
+to log in to.}
 }
 \value{
-An \code{OAuth2} token if the authentication was succesful, otherwise returns an error message.
+An \code{OAuth2} token if the authentication was succesful,
+otherwise returns an error message.
 }
 \description{
-Logs in to a TMC server using an username and a password along with a clientID and
-secret used for \code{OAuth2} authentication.
+Logs in to a TMC server using an username and a password
+along with a clientID and secret used for \code{OAuth2}
+authentication.
 }
 \details{
-If logging in was successful, saves the login credentials (username, access-token
-and the server address) in the \code{.credentials} file.
+If logging in was successful, saves the login credentials
+(username, access-token and the server address) in the
+\code{.credentials} file.
 }
 \seealso{
-\code{\link[httr]{POST}}, \code{\link[httr]{status_code}}, \code{\link[httr]{content}},
-\code{\link{saveCredentials}}
+\code{\link[httr]{POST}}, \code{\link[httr]{status_code}},
+\code{\link[httr]{content}}, \code{\link{saveCredentials}}
 }

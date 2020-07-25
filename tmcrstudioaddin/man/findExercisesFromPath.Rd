@@ -10,11 +10,12 @@ findExercisesFromPath(path)
 \item{path}{Path to the directory where the exercises are searched from.}
 }
 \value{
-A vector of full file paths to the found exercises. Always contains an
-empty \code{""} path.
+A vector of full file paths to the found exercises. Always
+contains an empty \code{""} path.
 }
 \description{
-Recursively searches for exercise projects in the given file path.
+Recursively searches for exercise projects in the given
+file path.
 }
 \seealso{
 \code{\link[base]{list.dirs}}, \code{\link{pathIsExercise}}

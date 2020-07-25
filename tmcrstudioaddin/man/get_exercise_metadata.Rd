@@ -10,8 +10,8 @@ get_exercise_metadata(exercise_path)
 \item{exercise_path}{File path to the exercise project folder.}
 }
 \value{
-\code{R} object created from \code{.metadata.json}. \code{NULL} if
-\code{.metadata.json} doesn't exist.
+\code{R} object created from \code{.metadata.json}.
+\code{NULL} if \code{.metadata.json} doesn't exist.
 }
 \description{
 Read exercise metadata from the \code{.metadata.json} file.

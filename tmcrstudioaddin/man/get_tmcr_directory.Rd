@@ -13,12 +13,13 @@ File path to the location of the \code{tmcr} directory
 Get the file path to the \code{tmcr} directory path.
 }
 \details{
-Creates a file path to the \code{tmcr} directory. It is located where the
-user's \code{HOME} environment variable points to: by default to the \code{home} directory
-on Linux and \code{user/documents} on Windows. If the \code{tmcr} directory does not exist
-at the file path then it is created to be at that location.
+Creates a file path to the \code{tmcr} directory. It is
+located where the user's \code{HOME} environment variable points to:
+by default to the \code{home} directory on Linux and
+\code{user/documents} on Windows. If the \code{tmcr} directory does
+not exist at the file path then it is created to be at that location.
 }
 \seealso{
-\code{\link[base]{normalizePath}}, \code{\link[base]{file.path}},
-\code{\link[base]{dir.exists}}
+\code{\link[base]{normalizePath}},
+\code{\link[base]{file.path}}, \code{\link[base]{dir.exists}}
 }

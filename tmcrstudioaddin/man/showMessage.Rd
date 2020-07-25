@@ -7,11 +7,13 @@
 showMessage(submitResults)
 }
 \arguments{
-\item{submitResults}{List of data read from the submission result \code{JSON}.}
+\item{submitResults}{List of data read from the submission result
+\code{JSON}.}
 }
 \description{
 Show submission reuslts in a pop-up dialog box.
 }
 \seealso{
-\code{\link{getDialogMessage}}, \code{\link[rstudioapi]{showDialog}}
+\code{\link{getDialogMessage}},
+\code{\link[rstudioapi]{showDialog}}
 }

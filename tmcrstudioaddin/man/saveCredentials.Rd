@@ -7,18 +7,20 @@
 saveCredentials(credentials)
 }
 \arguments{
-\item{credentials}{The user credentials to be saved. Is assumed to be in a list format with
-the keys \code{username}, \code{token} and \code{serverAddress}.}
+\item{credentials}{The user credentials to be saved. Is assumed to be
+in a list format with the keys \code{username}, \code{token} and
+\code{serverAddress}.}
 }
 \value{
 Always \code{NULL}.
 }
 \description{
-Save the TMC user credentials (username, access token and the server address)
-into a \code{rds} file.
+Save the TMC user credentials (username, access token
+and the server address) into a \code{rds} file.
 }
 \details{
-The file is named \code{credentials.rds} and is saved on the \code{tmcr} folder.
+The file is named \code{credentials.rds} and is saved on the
+\code{tmcr} folder.
 }
 \seealso{
 \code{\link{get_tmcr_directory}}, \code{\link[base]{readRDS}}

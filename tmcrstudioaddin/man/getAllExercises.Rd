@@ -10,17 +10,19 @@ getAllExercises(course)
 \item{course}{ID of the course.}
 }
 \value{
-List of exercises in the course. If reading \code{.credentials.json} or sending
-the \code{HTTP-GET} request failed, returns an empty list.
+List of exercises in the course. If reading
+\code{.credentials.json} or sending the \code{HTTP-GET} request
+failed, returns an empty list.
 }
 \description{
 Get all exercises of a TMC course.
 }
 \details{
-Reads the \code{OAuth2} token and server address from \code{.credentials.json} and uses
-them to make a \code{HTTP-GET} request for the list of exercises in the course.
+Reads the \code{OAuth2} token and server address from
+\code{.credentials.json} and uses them to make a \code{HTTP-GET}
+request for the list of exercises in the course.
 }
 \seealso{
-\code{\link{getCredentials}}, \code{\link[httr]{stop_for_status}},
-\code{\link[jsonlite]{fromJSON}}
+\code{\link{getCredentials}},
+\code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 }

@@ -7,8 +7,8 @@
 getServerAddress()
 }
 \value{
-The saved server address from the \code{.server} file. \code{NULL} if the file does not exist
-or if it is corrupted.
+The saved server address from the \code{.server} file.
+\code{NULL} if the file does not exist or if it is corrupted.
 }
 \description{
 Get the saved server address from the \code{.server} file.

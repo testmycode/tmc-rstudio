@@ -7,15 +7,15 @@
 create_properties_file(tmcr_projects = "tmcr-projects")
 }
 \arguments{
-\item{tmcr_projects}{Name of the directory where the exercises are downloaded into.
-\code{tmcr-projects} by default.}
+\item{tmcr_projects}{Name of the directory where the exercises are
+downloaded into.  \code{tmcr-projects} by default.}
 }
 \value{
 Always \code{NULL}.
 }
 \description{
-Create the \code{properties.rds} file, which includes the path to the directory
-where the exercises are downloaded into.
+Create the \code{properties.rds} file, which includes
+the path to the directory where the exercises are downloaded into.
 }
 \seealso{
 \code{\link{get_tmcr_directory}}, \code{\link[base]{saveRDS}}

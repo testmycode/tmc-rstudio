@@ -7,15 +7,19 @@
 downloadedExercisesPaths()
 }
 \value{
-List of downloaded exercises as named vector \code{c(name = path)}format.
+List of downloaded exercises as named vector
+\code{c(name = path)} format.
 }
 \description{
-Get a list of downloaded exercises as named vector \code{c(name = path)}format.
+Get a list of downloaded exercises as named vector
+\code{c(name = path)}format.
 }
 \details{
-Searches for downloaded exercise projects at the TMC R project folder.
+Searches for downloaded exercise projects at the TMC R
+project folder.
 }
 \seealso{
-\code{\link{findExercisesFromPath}}, \code{\link{get_projects_folder}},
-\code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
+\code{\link{findExercisesFromPath}},
+\code{\link{get_projects_folder}}, \code{\link{getExerciseName}},
+\code{\link[stats]{setNames}}
 }

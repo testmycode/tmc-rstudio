@@ -7,13 +7,14 @@
 getDialogMessage(submitResults)
 }
 \arguments{
-\item{submitResults}{List of data read from the submission result \code{JSON}.}
+\item{submitResults}{List of data read from the submission result
+\code{JSON}.}
 }
 \value{
-Message showing if submitting the exercise failed, some tests failed or all
-tests passed.
+Message showing if submitting the exercise failed, some tests
+failed or all tests passed.
 }
 \description{
-Creates a message to be shown on the submit result pop-up dialog from
-the submission results.
+Creates a message to be shown on the submit result
+pop-up dialog from the submission results.
 }

@@ -2,7 +2,8 @@
 % Please edit documentation in R/Exercises.R
 \name{pathIsExercise}
 \alias{pathIsExercise}
-\title{Determine if the given file path leads to an exercise project directory}
+\title{Determine if the given file path leads to an exercise project
+directory}
 \usage{
 pathIsExercise(path)
 }
@@ -10,17 +11,17 @@ pathIsExercise(path)
 \item{path}{File path to be checked.}
 }
 \value{
-\code{TRUE} if the file path leads to an exercise project directory.
-\code{FALSE otherwise}.
+\code{TRUE} if the file path leads to an exercise project
+directory.  \code{FALSE otherwise}.
 }
 \description{
 Determine if the given file path leads to an exercise project
 directory.
 }
 \details{
-Determines if the given file path leads to an exercise project path by
-checking if the path leads to a directory which contains the \code{R} and
-\code{tests/testthat} folders.
+Determines if the given file path leads to an exercise
+project path by checking if the path leads to a directory which
+contains the \code{R} and \code{tests/testthat} folders.
 }
 \seealso{
 \code{\link[base]{file.path}}, \code{\link[base]{file.info}}

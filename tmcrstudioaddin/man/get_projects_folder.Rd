@@ -7,8 +7,8 @@
 get_projects_folder()
 }
 \description{
-Get the file path to the \code{tmcr-projects} folder, which contains the TMC R
-exercise projects.
+Get the file path to the \code{tmcr-projects} folder,
+which contains the TMC R exercise projects.
 }
 \details{
 TODO: Do this after PropertiesHandler.R refactoring
