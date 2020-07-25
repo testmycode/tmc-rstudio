@@ -58,6 +58,38 @@
                              showAll = TRUE,
                              sourcing = FALSE,
                              sourceEcho = TRUE)
+  silent_run_tests <- function() {
+    guard_test_run <- function() {
+      tryCatch({
+        return(tmcRtestrunner::run_tests(project_path = .selectedExercisePath,
+                                         print = TRUE))
+      }, error = function(e) {
+        rstudioapi::showDialog("Cannot run tests",
+                               "tmcRtestrunner errored while running tests")
+        return(list(run_results = list(),
+                    run_status = "run_failed"))
+      })
+    }
+    test_globals_boolean <- c("points", "points_for_all_tests") %in% ls(.GlobalEnv)
+    .ddprint(test_globals_boolean)
+    test_globals_missing <-
+      c("points", "points_for_all_tests")[!test_globals_boolean]
+    test_globals_names <-
+      c("points", "points_for_all_tests")[test_globals_boolean]
+    test_globals_store <- mget(c("points", "points_for_all_tests")[test_globals_boolean],
+                               envir = .GlobalEnv)
+    .ddprint(test_globals_missing)
+    .ddprint(test_globals_names)
+    .ddprint(test_globals_store)
+    run_results <- withProgress(message = "Running tests",
+                                value   = 1,
+                                guard_test_run())
+    rm(list = test_globals_missing, envir = .GlobalEnv)
+    for (name in test_globals_names) {
+      assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
+    }
+    run_results
+  }
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
@@ -69,28 +101,18 @@
       rstudioapi::showDialog("Cannot run tests",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to test first.")
-      runResults <- list(run_results = list(), run_status = "run_failed")
+      run_results <- list(run_results = list(), run_status = "run_failed")
     } else {
-      runResults <- withProgress(message = "Running tests",
-                                 value = 1, {
-        tryCatch({
-          return(tmcRtestrunner::run_tests(project_path = .selectedExercisePath,
-                                           print = TRUE))
-        }, error = function(e) {
-          rstudioapi::showDialog("Cannot run tests",
-                                 "tmcRtestrunner errored while running tests")
-          return(list(run_results = list(),
-                      run_status = "run_failed"))
-        })
-
-      })
+      run_results <- silent_run_tests()
     }
-    reactive$runResults <- runResults
-    reactive$testResults <- runResults$test_results
-    reactive$runStatus <- runResults$run_status
+    reactive$runResults <- run_results
+    reactive$testResults <- run_results$test_results
+    reactive$runStatus <- run_results$run_status
     reactive$submitResults <- NULL
     reactive$sourcing <- FALSE
     tmcrstudioaddin::enable_submit_tab()
+    # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
+    rstudioapi::executeCommand("refreshEnvironment")
   })
 
   submitExercise <- observeEvent(input$submit, { 
