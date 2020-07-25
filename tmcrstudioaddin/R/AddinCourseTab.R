@@ -1,6 +1,6 @@
 #downloadedExercisesPaths <- downloadedExercisesPaths
 
-globalVariables(c(".UI_disabled", "selectedExercisePath"))
+globalVariables(c(".UI_disabled", ".selectedExercisePath"))
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
   miniTabPanel(

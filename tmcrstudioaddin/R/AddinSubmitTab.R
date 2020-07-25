@@ -1,7 +1,7 @@
 .submitTabUI <- function(id, label = "Submit tab") {
   #init selected exercise:
   .ddprint(".submitTabUI when is this run??")
-  assign("selectedExercisePath", exercisePathFromWd(), envir = .GlobalEnv)
+  assign(".selectedExercisePath", exercisePathFromWd(), envir = .GlobalEnv)
 
   ns <- shiny::NS(id)
   miniTabPanel(
@@ -15,7 +15,7 @@
                  selectInput(inputId = ns("selectExercise"),
                              "Exercise:",
                              c(),
-                             selected = selectedExercisePath)),
+                             selected = .selectedExercisePath)),
           column(6, class = "col-xs-6",
                  actionButton(inputId = ns("refreshExercises"),
                               label = "Refresh exercises",
@@ -65,7 +65,7 @@
 
     tmcrstudioaddin::disable_submit_tab()
     .dprint("runTestrunner()")
-    if (selectedExercisePath == "") {
+    if (.selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot run tests",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to test first.")
@@ -74,7 +74,7 @@
       runResults <- withProgress(message = "Running tests",
                                  value = 1, {
         tryCatch({
-          return(tmcRtestrunner::run_tests(project_path = selectedExercisePath,
+          return(tmcRtestrunner::run_tests(project_path = .selectedExercisePath,
                                            print = TRUE))
         }, error = function(e) {
           rstudioapi::showDialog("Cannot run tests",
@@ -141,7 +141,7 @@
     tmcrstudioaddin::disable_submit_tab()
     submitRes <- NULL
     .dprint("submitExercise()")
-    if (selectedExercisePath == "") {
+    if (.selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot submit solutions to server",
                              "You have not selected the exercises. Please
                              choose the assignments you wish to submit first.")
@@ -149,7 +149,7 @@
     } else {
     withProgress(message = "Submitting exercise",
                  value = 0, {
-      submitRes <- submitExercise(selectedExercisePath) })
+      submitRes <- submitExercise(.selectedExercisePath) })
     }
     if (is.null(submitRes$error)) {
       if (!is.null(reactive$testResults)) {
@@ -214,7 +214,7 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     if (.UI_disabled) return()
-    assign("selectedExercisePath", input$selectExercise, envir = .GlobalEnv)
+    assign(".selectedExercisePath", input$selectExercise, envir = .GlobalEnv)
   })
 
   sourceExercise <- observeEvent(input$source, {
@@ -223,13 +223,13 @@
     tmcrstudioaddin::disable_submit_tab()
 
     .dprint("sourceExercise()")
-    if (selectedExercisePath == "") {
+    if (.selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot source exercises",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to source first.")
     } else {
       tryCatch({
-        sourceExercise(selectedExercisePath, reactive$sourceEcho)
+        sourceExercise(.selectedExercisePath, reactive$sourceEcho)
         reactive$sourcing <- TRUE},
         error = function(e) {
           cat("Error in ")
@@ -254,13 +254,13 @@
     if (.UI_disabled) return()
     tmcrstudioaddin::disable_submit_tab()
 
-    if (selectedExercisePath == "") {
+    if (.selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot open files",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to open first.")
     } else {
       for (file in list.files(full.names = TRUE,
-                              path = file.path(selectedExercisePath, "R"),
+                              path = file.path(.selectedExercisePath, "R"),
                               pattern = "[.]R$")) {
 	.ddprint(file)
         rstudioapi::navigateToFile(file)
@@ -308,5 +308,5 @@
                                      inputId = "selectExercise",
                                      label = "Exercise:",
                                      choices = downloadedExercises,
-                                     selected = selectedExercisePath) })
+                                     selected = .selectedExercisePath) })
 }
