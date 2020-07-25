@@ -61,7 +61,7 @@
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tmcrstudioaddin::disable_submit_tab()
     .dprint("runTestrunner()")
@@ -94,7 +94,7 @@
   })
 
   submitExercise <- observeEvent(input$submit, { 
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tranlation_df <- 
       as.data.frame(
@@ -201,24 +201,24 @@
   })
 
   showResults <- observeEvent(input$showAllResults, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     reactive$showAll <- input$showAllResults
   })
 
   sourceEcho <- observeEvent(input$toggleEcho, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     reactive$sourceEcho <- input$toggleEcho
   })
 
   selectedExercises <- observeEvent(input$selectExercise, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
     assign("selectedExercisePath", input$selectExercise, envir = .GlobalEnv)
   })
 
   sourceExercise <- observeEvent(input$source, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tmcrstudioaddin::disable_submit_tab()
 
@@ -246,12 +246,12 @@
 
   # Refresh exercises
   observeEvent(input$refreshExercises, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
   })
 
   observeEvent(input$openFiles, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
     tmcrstudioaddin::disable_submit_tab()
 
     if (selectedExercisePath == "") {
@@ -270,7 +270,7 @@
   })
 
   observeEvent(input$saveFiles, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
     tmcrstudioaddin::disable_submit_tab()
     .ddprint("Save modifications")
     rstudioapi::documentSaveAll()

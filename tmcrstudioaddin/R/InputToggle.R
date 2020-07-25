@@ -8,7 +8,7 @@
 #' disabled.
 #'
 #' @details Disables the \code{Shiny} input elements and sets the global
-#' boolean \code{UI_disabled} to \code{FALSE}. This is done in order to
+#' boolean \code{.UI_disabled} to \code{FALSE}. This is done in order to
 #' prevent excessive buffering of button actions if the user starts
 #' clicking buttons in other tabs during an operation that is taking a
 #' long itme.
@@ -20,7 +20,7 @@ disable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   .ddprint("disable_elements")
   lapply(elements, shinyjs::disable)
-  assign("UI_disabled", TRUE, envir = .GlobalEnv)
+  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements
@@ -33,7 +33,7 @@ disable_elements <- function(...) {
 #' enabled.
 #'
 #' @details Enables the \code{Shiny} input elements and sets the global
-#' boolean \code{UI_disabled} to \code{FALSE} after 1000 milliseconds
+#' boolean \code{.UI_disabled} to \code{FALSE} after 1000 milliseconds
 #' (=1 second) have passed. This is done in order to prevent excessive
 #' buffering of button actions if the user starts clicking buttons in
 #' other tabs during an operation that is taking a long itme.
@@ -45,7 +45,7 @@ enable_elements <- function(...) {
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, shinyjs::enable)
   shinyjs::delay(ms = 1000,
-                 expr = assign("UI_disabled", FALSE, envir = .GlobalEnv))
+                 expr = assign(".UI_disabled", FALSE, envir = .GlobalEnv))
 }
 
 #' @title Disable Shiny input elements in the Test & Submit tab

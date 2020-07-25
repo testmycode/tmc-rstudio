@@ -11,8 +11,8 @@
 #' \code{\link[shiny]{shiny-package}}, which allows making web
 #' applications and \code{RStudio} addins using \code{R}.
 tmcGadget <- function() {
-  # Assign the UI_disabled variable as a global variable
-  assign(x = "UI_disabled", value = FALSE, envir = .GlobalEnv)
+  # Assign the .UI_disabled variable as a global variable
+  assign(x = ".UI_disabled", value = FALSE, envir = .GlobalEnv)
 
   ui <- miniPage(
     shinyjs::useShinyjs(),
@@ -38,7 +38,7 @@ tmcGadget <- function() {
                      downloadedExercisesMap = list())
     # Function for the exit button
     observeEvent(input$exit, {
-      if (UI_disabled) return()
+      if (.UI_disabled) return()
 
       return(shiny::stopApp())
     })

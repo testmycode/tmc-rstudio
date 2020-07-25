@@ -1,6 +1,6 @@
 #downloadedExercisesPaths <- downloadedExercisesPaths
 
-globalVariables(c("UI_disabled", "selectedExercisePath"))
+globalVariables(c(".UI_disabled", "selectedExercisePath"))
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
   miniTabPanel(
@@ -81,7 +81,7 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
 
 .courseTab <- function(input, output, session, globalReactiveValues) {
   observeEvent(input$refreshOrganizations, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
     if (!is.null(globalReactiveValues$credentials$token)) {
@@ -104,7 +104,7 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
   })
 
   observeEvent(input$organizationSelect, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
     organization <- input$organizationSelect
@@ -121,7 +121,7 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
   }, ignoreInit = TRUE)
 
   observeEvent(input$refreshCourses, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
     if (!is.null(globalReactiveValues$credentials$token)) {
@@ -145,7 +145,7 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
   }, ignoreInit = TRUE)
 
   observeEvent(input$courseSelect, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
     .dprint("courseSelect")
 
     tmcrstudioaddin::disable_course_tab()
@@ -284,7 +284,7 @@ globalVariables(c("UI_disabled", "selectedExercisePath"))
   })
 
   observeEvent(input$download, {
-    if (UI_disabled) return()
+    if (.UI_disabled) return()
 
     tmcrstudioaddin::disable_course_tab()
 
