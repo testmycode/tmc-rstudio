@@ -91,13 +91,14 @@ downloadedExercisesPaths <- function() {
 
 # Sources all files in exercise with print.eval on.
 sourceExercise <- function(exercisePath, sourceEcho) {
-  env <- new.env()
+  env <- .GlobalEnv
   for (file in list.files(pattern = "[.]R$",
                           path = file.path(exercisePath, "R"),
                           full.names = TRUE)) {
     cat("Sourcing file: ", file, "\n\n")
     source(file, env, print.eval = TRUE, echo = sourceEcho)
   }
+  rstudioapi::executeCommand("refreshEnvironment")
 }
 
 #' @title Get paths to exercises
@@ -187,3 +188,58 @@ getExerciseName <- function(exercisePath) {
     return(metadata$exercise_name)
   }
 }
+
+.clear_global_environment <- function(gl_store_name) {
+  env <- .GlobalEnv
+  store <- get(gl_store_name, env)
+  names <- ls(env, all.names = TRUE)
+  names <- names[names != gl_store_name]
+  for (var in (ls(env, all.names = TRUE))) {
+    .ddprint(var)
+    rm(list = var, envir = env)
+  }
+  return(store)
+}
+
+.restore_global_environment <- function(store) {
+  env <- .GlobalEnv
+  new_copy <- store
+  new_copy
+  for (var in (ls(new_copy, all.names = TRUE))) {
+    .ddprint(var)
+    val <- get(var, new_copy)
+    .ddprint(str(val))
+    assign(x = var, value = val, envir = env)
+  }
+  NULL
+}
+
+.copy_global_environment <- function() {
+  copy_environment <- function(env) {
+    copy_env <- new.env()
+    for (var in (ls(env, all.names = TRUE))) {
+      .ddprint(var)
+      val <- get(var, env)
+      if (!is.environment(val)) {
+        .ddprint(str(val))
+        assign(x = var, value = val, envir = copy_env)
+      } else {
+        .ddprint("------------")
+        .ddprint(is.environment(val))
+        sub_env <- copy_environment(val)
+        assign(x = var, value = sub_env, envir = copy_env)
+      }
+    }
+    copy_env
+  }
+  copy_environment(.GlobalEnv)
+}
+
+# envi <- copy_global_environment()
+# env <- 7
+# env <- copy_global_environment()
+# env <- clear_global_environment("env")
+# env$restore_global_environment(env)
+# ls(env)
+
+

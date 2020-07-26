@@ -11,8 +11,22 @@
 #' \code{\link[shiny]{shiny-package}}, which allows making web
 #' applications and \code{RStudio} addins using \code{R}.
 tmcGadget <- function() {
+  cat("Starting RTMC session...\n")
+  cat("Note. The console will not be available during RTMC session and you",
+      "need to use the addin buttons. The environment will be restored as is",
+      "after the session.",
+      sep = "\n")
+
+  .global_env_copy  <- .copy_global_environment()
+  assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
+  # clean this ASAP
+  .global_env_copy  <- .clear_global_environment(".global_env_copy")
+
   # Assign the .UI_disabled variable as a global variable
   assign(x = ".UI_disabled", value = FALSE, envir = .GlobalEnv)
+  assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
+  rstudioapi::executeCommand("refreshEnvironment")
+
 
   ui <- miniPage(
     shinyjs::useShinyjs(),
@@ -36,6 +50,12 @@ tmcGadget <- function() {
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
                      downloadedExercisesMap = list())
+    shiny::onStop(function() {
+                    cat("RTMC session ended.\n")
+                    cat("Restoring environment...\n")
+                    .global_env_copy <- .clear_global_environment(".global_env_copy")
+                    .restore_global_environment(.global_env_copy)
+                  })
     # Function for the exit button
     observeEvent(input$exit, {
       if (.UI_disabled) return()
