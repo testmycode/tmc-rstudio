@@ -20,10 +20,19 @@ tmcGadget <- function() {
   .global_env_copy  <- .copy_global_environment()
   assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
   # clean this ASAP
+  if (exists(".__tmc_debug", envir = .GlobalEnv)) {
+    .tmc_debug <- get(".__tmc_debug", envir = .GlobalEnv)
+  } else {
+    .tmc_debug <- NULL
+  }
   .global_env_copy  <- .clear_global_environment(".global_env_copy")
 
   # Assign the .UI_disabled variable as a global variable
   assign(x = ".UI_disabled", value = FALSE, envir = .GlobalEnv)
+  # Fix this later
+  if (!is.null(.tmc_debug)) {
+    assign(x = ".__tmc_debug", value = .tmc_debug, envir = .GlobalEnv)
+  }
   assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
   rstudioapi::executeCommand("refreshEnvironment")
 
