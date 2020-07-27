@@ -11,5 +11,4 @@ importFrom(miniUI, miniTabPanel, miniContentPanel, miniPage,
 importFrom(httr, status_code, timeout, write_disk)
 importFrom(jsonlite, unbox)
 importFrom(shinyjs, hide, hidden, disable, enable, show)
-importFrom(stats, setNames)
 importFrom(utils, str, tar, untar, unzip, zip)

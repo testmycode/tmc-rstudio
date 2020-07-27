@@ -322,13 +322,55 @@
   })
 
   #Exercises are updated everytime this module is called
+
+  group_exercises <- function(exercise_paths) {
+    .ddprint("group_exercises")
+    .ddprint("exercise_paths")
+    .ddprint(exercise_paths)
+    .ddprint("strsplit")
+    .ddprint(strsplit(names(exercise_paths), ":"))
+    course_names <- sapply(strsplit(names(exercise_paths), ":"),
+                           function (x) {
+                             if (!length(x)) return("Unnamed")
+                             x[[1]]
+                           })
+    .ddprint("course_names")
+    .ddprint(course_names)
+    exercise_names <- sapply(strsplit(names(exercise_paths), ":"),
+                             function (x) {
+                               if (!length(x)) return("Unnamed")
+                               x[[2]]
+                             })
+    .ddprint("exercise_names")
+    .ddprint(exercise_names)
+    names(exercise_paths) <- exercise_names
+    unique_course_names <-  sort(unique(course_names))
+    .ddprint("unique_course_names")
+    .ddprint(unique_course_names)
+    grouped_exercise_paths <- lapply(unique_course_names,
+                                     function(course_name) {
+                                       exercise_paths[course_names == course_name]
+                                     })
+    course_titles <-
+      sub("hy-tiltu-ja-r-i-", "Tilastotiede ja R tutuksi I, ",
+          sub("hy-tiltu-ja-r-ii-", "Tilastotiede ja R tutuksi II, ",
+              sub("kevat-", "Spring 20",
+                  sub("kesa-", "Summer 20",
+                      sub("syksy-", "Autumn 20", unique_course_names)))))
+    names(grouped_exercise_paths) <- course_titles
+    .ddprint(grouped_exercise_paths)
+    grouped_exercise_paths
+  }
+
   updateExercises <-
     observeEvent(globalReactiveValues$downloadedExercises, {
-                   downloadedExercises <-
-                     globalReactiveValues$downloadedExercises
+                   .dprint("UPDATE EXERCISES LAUNCHED!")
+                   grouped_downloaded_exercises <-
+                     group_exercises(globalReactiveValues$downloadedExercises)
                    updateSelectInput(session = session,
                                      inputId = "selectExercise",
                                      label = "Exercise:",
-                                     choices = downloadedExercises,
-                                     selected = .selectedExercisePath) })
+                                     choices = grouped_downloaded_exercises,
+                                     selected = .selectedExercisePath)
+                 })
 }

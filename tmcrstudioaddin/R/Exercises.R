@@ -37,7 +37,10 @@ exercisePathFromWd <- function() {
     .ddprint("What is the exercise_name")
     .ddprint(str(exercise_name))
     .ddprint(str(c(exercise_name)))
-    return(setNames(c(getwd()), c(exercise_name)))
+    .ddprint(getwd())
+    return_value <- stats::setNames(c(getwd()), c(exercise_name))
+    .ddprint(return_value)
+    return(return_value)
   }
 }
 
@@ -61,14 +64,20 @@ exercisePathFromWd <- function() {
 # Returns a list of downloaded exercises as named vector format.
 # For example: c(name = path, name1 = path1, name2 = path2)
 downloadedExercisesPaths <- function() {
-  .ddprint("downloadedExercisesPaths")
+  .dprint("downloadedExercisesPaths")
   exercisePaths <- findExercisesFromPath(get_projects_folder())
   names <- vector()
   for (exercisePath in exercisePaths) {
-    names <- c(names, getExerciseName(exercisePath))
+    new_names <- getExerciseName(exercisePath)
+    .ddprint("new_names")
+    names <- c(names, new_names)
   }
+  .ddprint("HERE ARE THE NAMES!!!!")
   .ddprint(names)
-  return(setNames(exercisePaths, names))
+  .ddprint(exercisePath)
+  return_value <- stats::setNames(exercisePaths, names)
+  .ddprint(return_value)
+  return(return_value)
 }
 
 #' @title Source all exercise R files.
@@ -188,12 +197,15 @@ getExerciseName <- function(exercisePath) {
   .ddprint("getExerciseName")
   metadata <- get_exercise_metadata(exercisePath)
 
-  .ddprint(metadata)
   # No metadata: exercise name is folder name
   if (is.null(metadata) || is.null(metadata$exercise_name)) {
     return(basename(exercisePath))
   } else {
-    return(metadata$exercise_name)
+    .ddprint(metadata$exercise_name)
+    .ddprint(metadata$name[[1]])
+    .ddprint(paste(metadata$name[[1]], metadata$exercise_name, sep = ":"))
+    return(paste(metadata$name[[1]], metadata$exercise_name, sep = ":"))
+    # return(metadata$exercise_name)
   }
 }
 
