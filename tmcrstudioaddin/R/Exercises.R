@@ -96,7 +96,15 @@ sourceExercise <- function(exercisePath, sourceEcho) {
                           path = file.path(exercisePath, "R"),
                           full.names = TRUE)) {
     cat("Sourcing file: ", file, "\n\n")
-    source(file, env, print.eval = TRUE, echo = sourceEcho)
+    .ddprint(.file_encoding(file))
+    if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows" &&
+        .file_encoding(file) == "UTF-8") {
+      .ddprint("NOW HERE")
+      source(file, env, print.eval = TRUE, echo = sourceEcho,
+             encoding = "UTF-8")
+    } else {
+      source(file, env, print.eval = TRUE, echo = sourceEcho)
+    }
   }
   rstudioapi::executeCommand("refreshEnvironment")
 }
@@ -242,4 +250,21 @@ getExerciseName <- function(exercisePath) {
 # env$restore_global_environment(env)
 # ls(env)
 
-
+.file_encoding <- function(fname) {
+  pre_file_type <- tryCatch(system2("file", fname, stdout = TRUE, stderr = FALSE),
+                            error   = function(e) "",
+                            warning = function(e) "")
+  pre_file_type2 <- strsplit(pre_file_type, split = ":")[[1]]
+  if (length(pre_file_type2) == 0) return("")
+  recognizers <- c("ISO-8859", "ASCII", "UTF-8")
+  matches <- recognizers[sapply(recognizers,
+                                function(pattern) {
+                                  grepl(pattern, pre_file_type2[2])
+                                })]
+  .ddprint(pre_file_type)
+  .ddprint(pre_file_type2)
+  .ddprint("-----")
+  .ddprint(ifelse(length(matches), matches, ""))
+  .ddprint("-----")
+  ifelse(length(matches), matches, "")
+}
