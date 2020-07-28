@@ -58,7 +58,8 @@ tmcGadget <- function() {
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
-                     downloadedExercisesMap = list())
+                     downloadedExercisesMap = list(),
+                     courseInfo = list())
     shiny::onStop(function() {
                     cat("RTMC session ended.\n")
                     cat("Restoring environment...\n")

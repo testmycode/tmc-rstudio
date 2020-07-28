@@ -353,6 +353,8 @@ getAllCourses <- function(organization) {
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 getAllExercises <- function(course) {
+  .dprint("getAllExercises()")
+  .ddprint(course)
   exercises <- tryCatch({
     credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress

@@ -110,6 +110,7 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
     organization <- input$organizationSelect
     globalReactiveValues$credentials$organization <- organization
     courses <- tmcrstudioaddin::getAllCourses(organization)
+    globalReactiveValues$coursesInfo$all_courses <- courses
     choices <- courses$id
     names(choices) <- courses$title
     shiny::updateSelectInput(session,
@@ -156,31 +157,48 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
       exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
     })
 
-    separateDownloadedExercises(exercises, globalReactiveValues)
+    separateDownloadedExercises(exercises, globalReactiveValues, input$courseSelect)
 
     tmcrstudioaddin::enable_course_tab()
   }, ignoreInit = TRUE)
 
-  separateDownloadedExercises <- function(exercises, globalReactiveValues) {
+  separateDownloadedExercises <- function(exercises, globalReactiveValues, courseid = NA) {
     .dprint("separateDownloadedExercises()")
-    globalReactiveValues$exerciseMap <- list()
-    globalReactiveValues$downloadedExercisesMap <- list()
+    globalReactiveValues$exerciseMap             <- list()
+    globalReactiveValues$downloadedExercisesMap  <- list()
+    # store the coursesId and exercises
+    globalReactiveValues$coursesInfo$exercises   <- exercises
+    if (!is.na(courseid))
+      globalReactiveValues$coursesInfo$courseid  <- courseid
+
 
     #allExercises <- list()
+    .ddprint(str(globalReactiveValues$coursesInfo))
     exercisePaths <- downloadedExercisesPaths()
+    all_courses   <- globalReactiveValues$coursesInfo$all_courses
+    courseid      <- globalReactiveValues$coursesInfo$courseid
+    course_name   <- all_courses$name[all_courses$id == courseid]
+    #
+    .dprint(course_name)
+    .dprint(all_courses$title[all_courses$id == courseid])
 
     downloadedExercise <- list()
     exercise <- list()
 
     exerciseNumber <- 1
 
+    .ddprint(exercisePaths)
     for (name in exercises$name) {
       downloaded <- FALSE
-      for (exercisePath in exercisePaths)
-        if (name == getExerciseName(exercisePath)) {
+      # this needs to be rewritten...
+      for (exercisePath in exercisePaths) {
+        long_name   <- paste(course_name, name, sep = ":")
+        exercisename <- getExerciseName(exercisePath)
+        if (long_name == exercisename) {
           downloaded <- TRUE
           break
         }
+      }
       if (downloaded) {
         downloadedExercise[[exercises$name[[exerciseNumber]]]] <-
           exercises$id[[exerciseNumber]]
