@@ -208,20 +208,21 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
         exercise[[short_name]] <- exercise_id
       }
     }
-    print(str(downloadedExercise))
-    print(str(exercise))
+    .ddprint(str(downloadedExercise))
+    .ddprint(str(exercise))
 
     globalReactiveValues$downloadedExercisesMap <- downloadedExercise
     # rewrite this in a proper R way
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
       globalReactiveValues$downloadedExercisesMap <-
-        .sortList(globalReactiveValues$downloadedExercisesMap)
+        .sort_list(globalReactiveValues$downloadedExercisesMap)
     }
     globalReactiveValues$exerciseMap <- exercise
     if (length(globalReactiveValues$exerciseMap) > 0) {
       globalReactiveValues$exerciseMap <-
-        .sortList(globalReactiveValues$exerciseMap)
+        .sort_list(globalReactiveValues$exerciseMap)
     }
+    .ddprint(str(globalReactiveValues$downloadedExercisesMap))
   }
 
   observe({
@@ -380,11 +381,15 @@ pre_error)
 
     exercises <- list()
 
-    exercises$id <- .addToList(c(globalReactiveValues$downloadedExercisesMap,
-                              globalReactiveValues$exerciseMap))
-    exercises$name <-
-      .addToList(c(names(globalReactiveValues$downloadedExercisesMap),
-                   names(globalReactiveValues$exerciseMap)))
+    exercises$id <- .as_unnamed_list(c(globalReactiveValues$downloadedExercisesMap,
+                                   globalReactiveValues$exerciseMap))
+
+    .ddprint("exercises$id")
+    .ddprint(str(exercises$id))
+    exercises$name <- .as_unnamed_list(c(names(globalReactiveValues$downloadedExercisesMap),
+                                     names(globalReactiveValues$exerciseMap)))
+    .ddprint("exercises$name")
+    .ddprint(str(exercises$name))
 
     hideCourseExercises()
     separateDownloadedExercises(exercises = NULL, exercises, globalReactiveValues)
@@ -393,13 +398,11 @@ pre_error)
   })
 
   downloadFromList <- function(course_directory_path, globalReactiveValues) {
-    exercises <- list()
-    for (id in input$exercises) {
-      exercises[[.returnItem(id, globalReactiveValues$exerciseMap)]] <- id
-    }
-    for (id in input$downloadedExercises) {
-      exercises[[.returnItem(id, globalReactiveValues$downloadedExercisesMap)]] <- id
-    }
+    grv <- globalReactiveValues
+    exercises2 <- grv$exerciseMap[grv$exerciseMap %in% input$exercises]
+    exercises3 <- grv$downloadedExercisesMap[grv$downloadedExercisesMap %in% input$downloadedExercises]
+    exercises <- c(exercises2, exercises3)
+    .ddprint(str(exercises))
     .dprint("downloadFromList()")
     for (name in names(exercises)) {
       tmcrstudioaddin::download_exercise(exercises[[name]],
@@ -457,38 +460,19 @@ pre_error)
   }
 }
 
-# Rewrite this in proper R way
-.returnItem <- function(item, list) {
-  ret <- ""
-  for (name in names(list)) {
-    if (list[[name]] == item) {
-      ret <- name
-    }
-  }
-  return(ret)
-}
 
-# Rewrite this in proper R way
-.addToList <- function(list_to_add_from) {
-  ret_list <- list()
-  for (item in list_to_add_from) {
-    ret_list[[length(ret_list) + 1]] <- item
-  }
-  return(ret_list)
+.as_unnamed_list <- function(x) {
+  return(unname(as.list(x)))
 }
-
 
 # Sorts list based on the names of items
-# rewrite this in a proper R way
-.sortList <- function(list_to_sort) {
-  ret_list <- list()
-  list_items <- unlist(names(list_to_sort))
-  names(list_items) <- unlist(.addToList(list_to_sort))
-  list_items <- sort(list_items)
-  for (name in names(list_items)) {
-    ret_list[[list_items[[name]]]] <- name
-  }
-  return(ret_list)
+.sort_list <- function(list_to_sort) {
+  list_items        <- unlist(names(list_to_sort))
+  names(list_items) <- unlist(.as_unnamed_list(list_to_sort))
+  list_items        <- sort(list_items)
+  ret_list2         <- as.list(names(list_items))
+  names(ret_list2)  <- unname(list_items)
+  return(ret_list2)
 }
 
 .debug_set <- function() {
