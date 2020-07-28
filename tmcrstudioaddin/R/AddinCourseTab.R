@@ -162,12 +162,13 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
     tmcrstudioaddin::enable_course_tab()
   }, ignoreInit = TRUE)
 
-  separateDownloadedExercises <- function(exercises, exercises_old, globalReactiveValues, courseid = NA) {
+  separateDownloadedExercises <- function(exercises, exercises_old, globalReactiveValues,
+                                          courseid = NA) {
     .dprint("separateDownloadedExercises()")
     globalReactiveValues$exerciseMap             <- list()
     globalReactiveValues$downloadedExercisesMap  <- list()
     # store the coursesId and exercises
-    if (!is.na(exercises)) {
+    if (!is.null(exercises)) {
       globalReactiveValues$coursesInfo$exercises   <- exercises
     } else {
       exercises <- globalReactiveValues$coursesInfo$exercises
@@ -327,11 +328,11 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
         if (num_of_downloaded == 0) {
           "You didn't choose any exercises i.e. download was successful"
         } else if (num_of_downloaded == 1) {
-          paste("You downloaded one exercise succesfully", sep = " ")
+          paste("You downloaded one exercise successfully", sep = " ")
         } else {
           paste("You downloaded",
                 as.character(num_of_downloaded),
-                "exercises succesfully", sep = " ")
+                "exercises successfully", sep = " ")
         }
       rstudioapi::showDialog("Success", download_success_message, "")
     }, error = function(e) {
@@ -386,7 +387,7 @@ pre_error)
                    names(globalReactiveValues$exerciseMap)))
 
     hideCourseExercises()
-    separateDownloadedExercises(NA, exercises, globalReactiveValues)
+    separateDownloadedExercises(exercises = NULL, exercises, globalReactiveValues)
 
     tmcrstudioaddin::enable_course_tab()
   })
