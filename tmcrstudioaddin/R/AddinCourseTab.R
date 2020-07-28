@@ -157,22 +157,28 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
       exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
     })
 
-    separateDownloadedExercises(exercises, globalReactiveValues, input$courseSelect)
+    separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
 
     tmcrstudioaddin::enable_course_tab()
   }, ignoreInit = TRUE)
 
-  separateDownloadedExercises <- function(exercises, globalReactiveValues, courseid = NA) {
+  separateDownloadedExercises <- function(exercises, exercises_old, globalReactiveValues, courseid = NA) {
     .dprint("separateDownloadedExercises()")
     globalReactiveValues$exerciseMap             <- list()
     globalReactiveValues$downloadedExercisesMap  <- list()
     # store the coursesId and exercises
-    globalReactiveValues$coursesInfo$exercises   <- exercises
+    if (!is.na(exercises)) {
+      globalReactiveValues$coursesInfo$exercises   <- exercises
+    } else {
+      exercises <- globalReactiveValues$coursesInfo$exercises
+      # exercises <- exercises_old
+    }
     if (!is.na(courseid))
       globalReactiveValues$coursesInfo$courseid  <- courseid
 
 
     #allExercises <- list()
+    .ddprint(courseid)
     .ddprint(str(globalReactiveValues$coursesInfo))
     exercisePaths <- downloadedExercisesPaths()
     all_courses   <- globalReactiveValues$coursesInfo$all_courses
@@ -185,29 +191,24 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
     downloadedExercise <- list()
     exercise <- list()
 
-    exerciseNumber <- 1
-
     .ddprint(exercisePaths)
-    for (name in exercises$name) {
-      downloaded <- FALSE
-      # this needs to be rewritten...
-      for (exercisePath in exercisePaths) {
-        long_name   <- paste(course_name, name, sep = ":")
-        exercisename <- getExerciseName(exercisePath)
-        if (long_name == exercisename) {
-          downloaded <- TRUE
-          break
-        }
-      }
-      if (downloaded) {
-        downloadedExercise[[exercises$name[[exerciseNumber]]]] <-
-          exercises$id[[exerciseNumber]]
+    exercise_names <- sapply(exercisePaths, getExerciseName)
+    .ddprint(exercise_names)
+    for (exercise_number in seq_along(exercises$name)) {
+      short_name  <- exercises$name[[exercise_number]]
+      long_name   <- paste(course_name, short_name, sep = ":")
+      exercise_id <- exercises$id[[exercise_number]]
+      if (long_name %in% exercise_names) {
+        downloadedExercise[[short_name]] <- exercise_id
       } else {
-        exercise[[exercises$name[[exerciseNumber]]]] <-
-          exercises$id[[exerciseNumber]]
+        .ddprint(exercise_number)
+        .ddprint(str(exercises))
+        #print(str(exercises[exercise_number, ]))
+        exercise[[short_name]] <- exercise_id
       }
-      exerciseNumber <- exerciseNumber + 1
     }
+    .ddprint(str(downloadedExercise))
+    .ddprint(str(exercise))
 
     globalReactiveValues$downloadedExercisesMap <- downloadedExercise
     # rewrite this in a proper R way
@@ -385,7 +386,7 @@ pre_error)
                    names(globalReactiveValues$exerciseMap)))
 
     hideCourseExercises()
-    separateDownloadedExercises(exercises, globalReactiveValues)
+    separateDownloadedExercises(NA, exercises, globalReactiveValues)
 
     tmcrstudioaddin::enable_course_tab()
   })
