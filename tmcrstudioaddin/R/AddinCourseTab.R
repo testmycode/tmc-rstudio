@@ -151,7 +151,7 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
 
     tmcrstudioaddin::disable_course_tab()
 
-    hideCourseExercises
+    hideCourseExercises()
 
     withProgress(message = "Fetching exercises", {
       exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
@@ -208,8 +208,8 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
         exercise[[short_name]] <- exercise_id
       }
     }
-    .ddprint(str(downloadedExercise))
-    .ddprint(str(exercise))
+    print(str(downloadedExercise))
+    print(str(exercise))
 
     globalReactiveValues$downloadedExercisesMap <- downloadedExercise
     # rewrite this in a proper R way
