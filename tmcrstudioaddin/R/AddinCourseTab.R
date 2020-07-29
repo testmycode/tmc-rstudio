@@ -405,10 +405,13 @@ pre_error)
     .ddprint(str(exercises))
     .dprint("downloadFromList()")
     for (name in names(exercises)) {
+      zip_name <- paste0(exercises[[name]], ".zip")
       tmcrstudioaddin::download_exercise(exercises[[name]],
-                                         zip_name = paste(exercises[[name]], ".zip"),
+                                         zip_target    = tempdir(),
+                                         zip_name      = zip_name,
                                          exercise_directory = course_directory_path,
-                                         exercise_name = name)
+                                         exercise_name = name,
+                                         unique_random = TRUE)
       incProgress(1 / length(exercises))
     }
     length(exercises)

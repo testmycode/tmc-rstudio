@@ -6,7 +6,8 @@
 #'                          zip_target = getwd(),
 #'                          zip_name = "temp.zip",
 #'                          exercise_directory,
-#'                          exercise_name)
+#'                          exercise_name,
+#'                          unique_random = FALSE)
 #'
 #' @param exercise_id ID of the exercise.
 #' @param zip_target Path to where the temporary \code{zip} file is
@@ -16,6 +17,8 @@
 #' @param exercise_directory Path to the directory where the exercise
 #' directory is unzipped to.
 #' @param exercise_name Name of the downloaded exercise.
+#' @param unique_random logical: should the name of the file be unique
+#' and random? Default is FALSE.
 #'
 #' @details Reads the user credentials from the credentials file,
 #' downloads an zipped exercise matching the given id from the TMC
@@ -31,29 +34,46 @@
 # Exercise_id is the identifier of the exercise. For example, 36463.
 # Target is the place where zip-file is stored, if it's not deleted.
 download_exercise <- function(exercise_id,
-                        zip_target = getwd(),
-                        zip_name = "temp.zip",
-                        exercise_directory,
-                        exercise_name) {
+                              zip_target = getwd(),
+                              zip_name = "temp.zip",
+                              exercise_directory,
+                              exercise_name,
+                              unique_random = FALSE) {
+  randomize_name  <- function(body, tmp_dir) {
+    zip_name <- ""
+    repeat {
+      zip_name <- paste0(paste0(sample(c(0:9, letters[1:6]), size = 12, replace = TRUE),
+                                collapse = ""),
+                         "_",
+                         body)
+      full_name <- paste0(tmp_dir, "/", zip_name)
+      .ddprint("RANDOMIZE")
+      .ddprint(zip_name)
+      .ddprint(full_name)
+      if (!file.exists(paste0(tmp_dir, "/", zip_name))) break
+    }
+    zip_name
+  }
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   serverAddress <- credentials$serverAddress
   .dprint("download_exercise()")
 
+  if (unique_random) {
+    zip_name <- randomize_name(zip_name, zip_target)
+  }
   zip_path <- paste(sep = "", zip_target, "/", zip_name)
+  .ddprint(str(zip_path))
 
   exercises_url <- paste(sep = "", serverAddress, "/", "api/v8/core/exercises/",
                         exercise_id, "/", "download")
-
-  .ddprint(zip_path)
-
-
   exercises_response <- httr::GET(exercises_url,
-                               httr::add_headers(Authorization = token),
-                              config = timeout(30),
-                              write_disk(zip_path, overwrite = FALSE))
+                                  httr::add_headers(Authorization = token),
+                                  config = timeout(30),
+                                  write_disk(zip_path, overwrite = FALSE))
 
   .dprint("exercises_response")
+  .ddprint(str(exercises_response))
 
   # move this to better location
   exercise_forbidden_num <- 403

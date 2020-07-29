@@ -8,7 +8,8 @@ download_exercise(exercise_id,
                          zip_target = getwd(),
                          zip_name = "temp.zip",
                          exercise_directory,
-                         exercise_name)
+                         exercise_name,
+                         unique_random = FALSE)
 }
 \arguments{
 \item{exercise_id}{ID of the exercise.}
@@ -23,6 +24,9 @@ stored. Defaults to the current working directory.}
 directory is unzipped to.}
 
 \item{exercise_name}{Name of the downloaded exercise.}
+
+\item{unique_random}{logical: should the name of the file be unique
+and random? Default is FALSE.}
 }
 \value{
 \code{HTTP} response to the download attempt.
