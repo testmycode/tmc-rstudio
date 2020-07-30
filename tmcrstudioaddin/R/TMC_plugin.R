@@ -64,6 +64,11 @@ tmcGadget <- function() {
     shiny::onStop(function() {
                     cat("RTMC session ended.\n")
                     cat("Restoring environment...\n")
+                    # fix this later
+                    .ddprint(exists(".global_env_copy"))
+                    .ddprint(exists(".global_env_copy", envir = .GlobalEnv))
+                    assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
+                    .ddprint(exists(".global_env_copy", envir = .GlobalEnv))
                     .global_env_copy <- .clear_global_environment(".global_env_copy")
                     .restore_global_environment(.global_env_copy)
                     rstudioapi::executeCommand("refreshEnvironment")
