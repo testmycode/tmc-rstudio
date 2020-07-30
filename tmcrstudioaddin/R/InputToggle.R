@@ -101,6 +101,7 @@ disable_course_tab <- function() {
                    "courseSelect",
                    "download",
                    "all_exercises",
+                   "unpublished_exercises",
                    "exercises")
 }
 

@@ -58,6 +58,11 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
         label = "",
         choices = list()
       ),
+      checkboxGroupInput(
+        inputId = ns("unpublished_exercises"),
+        label = "",
+        choices = list()
+      ),
       fluidRow(
         column(6, class = "col-xs-6",
                checkboxGroupInput(
@@ -166,6 +171,7 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
                                           courseid = NA) {
     .dprint("separateDownloadedExercises()")
     globalReactiveValues$exerciseMap             <- list()
+    globalReactiveValues$unpublishedExercisesMap <- list()
     globalReactiveValues$downloadedExercisesMap  <- list()
     # store the coursesId and exercises
     if (!is.null(exercises)) {
@@ -190,7 +196,8 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
     .dprint(all_courses$title[all_courses$id == courseid])
 
     downloadedExercise <- list()
-    exercise <- list()
+    exercise           <- list()
+    unpublished        <- list()
 
     .ddprint(exercisePaths)
     exercise_names <- sapply(exercisePaths, getExerciseName)
@@ -199,28 +206,32 @@ globalVariables(c(".UI_disabled", ".selectedExercisePath"))
       short_name  <- exercises$name[[exercise_number]]
       long_name   <- paste(course_name, short_name, sep = ":")
       exercise_id <- exercises$id[[exercise_number]]
+      exercise_published <- exercises$unlocked[[exercise_number]]
       if (long_name %in% exercise_names) {
         downloadedExercise[[short_name]] <- exercise_id
+      } else if (exercise_published) {
+        exercise[[short_name]] <- exercise_id
       } else {
         .ddprint(exercise_number)
         .ddprint(str(exercises))
-        #print(str(exercises[exercise_number, ]))
-        exercise[[short_name]] <- exercise_id
+        .ddprint("Not downloaded")
+        .dprint("Not published")
+        .ddprint(str(exercises[exercise_number, ]))
+        unpublished[[short_name]] <- exercise_id
       }
     }
     .ddprint(str(downloadedExercise))
     .ddprint(str(exercise))
+    .ddprint(str(unpublished))
 
-    globalReactiveValues$downloadedExercisesMap <- downloadedExercise
-    # rewrite this in a proper R way
-    if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
-      globalReactiveValues$downloadedExercisesMap <-
-        .sort_list(globalReactiveValues$downloadedExercisesMap)
+    if (length(downloadedExercise) > 0) {
+      globalReactiveValues$downloadedExercisesMap <- .sort_list(downloadedExercise)
     }
-    globalReactiveValues$exerciseMap <- exercise
-    if (length(globalReactiveValues$exerciseMap) > 0) {
-      globalReactiveValues$exerciseMap <-
-        .sort_list(globalReactiveValues$exerciseMap)
+    if (length(exercise) > 0) {
+      globalReactiveValues$exerciseMap <- .sort_list(exercise)
+    }
+    if (length(unpublished) > 0) {
+      globalReactiveValues$unpublishedExercisesMap <- .sort_list(unpublished)
     }
     .ddprint(str(globalReactiveValues$downloadedExercisesMap))
   }
@@ -419,6 +430,20 @@ pre_error)
 
   .dprint("downloadFromList()-2")
 
+  observeEvent(globalReactiveValues$unpublishedExercisesMap, {
+    if (length(globalReactiveValues$unpublishedExercisesMap) > 0) {
+      .dprint("unpublished_exercises")
+      shiny::updateCheckboxGroupInput(session,
+                                      "unpublished_exercises",
+                                      label = "Unpublished exercises",
+                                      choices = globalReactiveValues$unpublishedExercisesMap)
+      .dprint("disabling_unpublished_exercises")
+      # delay is needed, otherwise this will not work
+      shinyjs::delay(ms = 0,
+                     expr = shinyjs::disable("unpublished_exercises"))
+    }
+  })
+
   observeEvent(globalReactiveValues$downloadedExercisesMap, {
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
       .ddprint("update all exercises")
@@ -429,7 +454,7 @@ pre_error)
                                  value = FALSE)
       shiny::updateCheckboxGroupInput(session,
                                       "downloadedExercises",
-                                      label = "Redownload Downloaded Exercises",
+                                      label = "Redownload already downloaded exercises",
                                       choices = globalReactiveValues$downloadedExercisesMap)
     }
   })
@@ -454,6 +479,10 @@ pre_error)
     shinyjs::hide("updateAllExercises")
     shiny::updateCheckboxGroupInput(session,
                                     "exercises",
+                                    label = "",
+                                    choices = list())
+    shiny::updateCheckboxGroupInput(session,
+                                    "unpublished_exercises",
                                     label = "",
                                     choices = list())
     shiny::updateCheckboxGroupInput(session,

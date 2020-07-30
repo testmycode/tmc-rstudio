@@ -58,6 +58,7 @@ tmcGadget <- function() {
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
+                     unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      courseInfo = list())
     shiny::onStop(function() {
