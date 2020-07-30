@@ -231,7 +231,7 @@ getDialogMessage <- function(submitResults) {
 	  next_line <- paste("Server does not have View(...) functionality, so please",
 			     "comment out or remove all the View(...) commands.",
 			     sep = " ")
-	} else if (grep("invalid multibyte character", console_error)) {
+	} else if (grepl("invalid multibyte character", console_error)) {
 	  next_line <- paste("You might have used",
 			     "nordic letters in text with encoding that is not UTF-8.",
 			     "Try using UTF-8 encoding or use only ASCII characters.",
@@ -246,7 +246,7 @@ getDialogMessage <- function(submitResults) {
 ## 			      "#gsub("\n", "<p>", console_error),
 			      sep = "<p>")
 ## 	print(gsub("\n", "<br>", console_error))
-## 	print(server_error)
+        .ddprint(server_error)
 	submitResults$error <- server_error
         message$title <- "Submission succeeded with code problem"
         submitResults$error
