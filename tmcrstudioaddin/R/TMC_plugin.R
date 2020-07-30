@@ -66,6 +66,7 @@ tmcGadget <- function() {
                     cat("Restoring environment...\n")
                     .global_env_copy <- .clear_global_environment(".global_env_copy")
                     .restore_global_environment(.global_env_copy)
+                    rstudioapi::executeCommand("refreshEnvironment")
                   })
     # Function for the exit button
     observeEvent(input$exit, {
