@@ -1,8 +1,6 @@
 .submitTabUI <- function(id, label = "Submit tab") {
-  #init selected exercise:
-  .ddprint(".submitTabUI when is this run??")
-  assign(".selectedExercisePath", exercisePathFromWd(), envir = .GlobalEnv)
-
+  #init selected exercise (this is now done in TMC_plugin.R
+  .dprint("submitTabUI launched")
   ns <- shiny::NS(id)
   miniTabPanel(
     title = "Test & Submit",
@@ -15,7 +13,7 @@
                  selectInput(inputId = ns("selectExercise"),
                              "Exercise:",
                              c(),
-                             selected = .selectedExercisePath)),
+                             selected = exercisePathFromWd())),
           column(6, class = "col-xs-6",
                  actionButton(inputId = ns("refreshExercises"),
                               label = "Refresh exercises",
@@ -61,7 +59,8 @@
   silent_run_tests <- function() {
     guard_test_run <- function() {
       tryCatch({
-        return(tmcRtestrunner::run_tests(project_path = .selectedExercisePath,
+        .ddprint("Run when tests are launched.")
+        return(tmcRtestrunner::run_tests(project_path = globalReactiveValues$selectedExercisePath,
                                          print = TRUE))
       }, error = function(e) {
         rstudioapi::showDialog("Cannot run tests",
@@ -97,7 +96,8 @@
 
     tmcrstudioaddin::disable_submit_tab()
     .dprint("runTestrunner()")
-    if (.selectedExercisePath == "") {
+    .ddprint("Run when tests are launched.")
+    if (globalReactiveValues$selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot run tests",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to test first.")
@@ -163,15 +163,17 @@
     tmcrstudioaddin::disable_submit_tab()
     submitRes <- NULL
     .dprint("submitExercise()")
-    if (.selectedExercisePath == "") {
+    if (globalReactiveValues$selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot submit solutions to server",
                              "You have not selected the exercises. Please
                              choose the assignments you wish to submit first.")
       submitRes <- list(run_results = list(), run_status = "run_failed")
     } else {
-    withProgress(message = "Submitting exercise",
-                 value = 0, {
-      submitRes <- submitExercise(.selectedExercisePath) })
+      .ddprint("Run when tests are submitted.")
+      withProgress(message = "Submitting exercise",
+                   value = 0, {
+                     submitRes <- submitExercise(globalReactiveValues$selectedExercisePath)
+                   })
     }
     if (is.null(submitRes$error)) {
       if (!is.null(reactive$testResults)) {
@@ -236,7 +238,9 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     if (.UI_disabled) return()
-    assign(".selectedExercisePath", input$selectExercise, envir = .GlobalEnv)
+    .ddprint("This is always lauched when a new exercise is selected.")
+    .ddprint(str(input$selectExercise))
+    globalReactiveValues$selectedExercisePath <- input$selectExercise
   })
 
   sourceExercise <- observeEvent(input$source, {
@@ -245,13 +249,14 @@
     tmcrstudioaddin::disable_submit_tab()
 
     .dprint("sourceExercise()")
-    if (.selectedExercisePath == "") {
+    .ddprint("Launched when Source is clicked")
+    if (globalReactiveValues$selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot source exercises",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to source first.")
     } else {
       tryCatch({
-        sourceExercise(.selectedExercisePath, reactive$sourceEcho)
+        sourceExercise(globalReactiveValues$selectedExercisePath, reactive$sourceEcho)
         reactive$sourcing <- TRUE},
         error = function(e) {
           cat("Error in ")
@@ -276,13 +281,14 @@
     if (.UI_disabled) return()
     tmcrstudioaddin::disable_submit_tab()
 
-    if (.selectedExercisePath == "") {
+    .ddprint("Launched when clicking open files")
+    if (globalReactiveValues$selectedExercisePath == "") {
       rstudioapi::showDialog("Cannot open files",
                              "You have not selected the exercises. Please
                              choose the exercises you wish to open first.")
     } else {
       for (file in list.files(full.names = TRUE,
-                              path = file.path(.selectedExercisePath, "R"),
+                              path = file.path(globalReactiveValues$selectedExercisePath, "R"),
                               pattern = "[.]R$")) {
 	.ddprint(file)
         rstudioapi::navigateToFile(file)
@@ -321,8 +327,7 @@
     shiny::tagList(html)
   })
 
-  #Exercises are updated everytime this module is called
-
+  # Exercises are updated everytime this module is called
   group_exercises <- function(exercise_paths) {
     .ddprint("group_exercises")
     .ddprint("exercise_paths")
@@ -362,15 +367,15 @@
     grouped_exercise_paths
   }
 
-  updateExercises <-
-    observeEvent(globalReactiveValues$downloadedExercises, {
-                   .dprint("UPDATE EXERCISES LAUNCHED!")
-                   grouped_downloaded_exercises <-
-                     group_exercises(globalReactiveValues$downloadedExercises)
-                   updateSelectInput(session = session,
-                                     inputId = "selectExercise",
-                                     label = "Exercise:",
-                                     choices = grouped_downloaded_exercises,
-                                     selected = .selectedExercisePath)
-                 })
+  update_exercises <-function() {
+    .dprint("UPDATE EXERCISES LAUNCHED!")
+    .dprint("Only launched when updates via observeEvent")
+    grouped_downloaded_exercises <- group_exercises(globalReactiveValues$downloadedExercises)
+    updateSelectInput(session  = session,
+                      inputId  = "selectExercise",
+                      label    = "Exercise:",
+                      choices  = grouped_downloaded_exercises,
+                      selected = globalReactiveValues$selectedExercisePath)
+  }
+  observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
 }

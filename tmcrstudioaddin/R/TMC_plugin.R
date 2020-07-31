@@ -36,6 +36,7 @@ tmcGadget <- function() {
   assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
   rstudioapi::executeCommand("refreshEnvironment")
 
+  .ddprint("Before...")
 
   ui <- miniPage(
     shinyjs::useShinyjs(),
@@ -51,13 +52,18 @@ tmcGadget <- function() {
       .submitTabUI(id = "testAndSubmit")
     )
   )
+  .ddprint("After...")
 
   server <- function(input, output, session) {
+
+    .ddprint("Later...")
+    .ddprint("Now its set.")
 
     globalReactiveValues <-
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
+                     selectedExercisePath = exercisePathFromWd(),
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      courseInfo = list())

@@ -30,7 +30,7 @@ exercisePathFromWd <- function() {
 
   # Current wd is not an exercise (a folder in exercises_path)
   if (!pathIsExercise(getwd()) || !wd_is_in_projects_dir) {
-    .ddprint("This is most likely to happen")
+    .dprint("This is most likely to happen. This is unnecessary.")
     return(c(" " = " "))
   } else {
     exercise_name <- getExerciseName(getwd())
