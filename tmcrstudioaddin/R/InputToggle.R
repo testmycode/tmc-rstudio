@@ -63,8 +63,6 @@ disable_submit_tab <- function() {
                    "submit",
                    "showAllResults",
                    "toggleEcho")
-# and sets the global boolean \code{.UI_disabled} to \code{FALSE}. 
-  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements in the Test & Submit tab
@@ -105,7 +103,6 @@ disable_course_tab <- function() {
                    "all_exercises",
                    "unpublished_exercises",
                    "exercises")
-  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements in the Course & Exercise tab
@@ -125,8 +122,6 @@ enable_course_tab <- function() {
                   "download",
                   "all_exercises",
                   "exercises")
-  shinyjs::delay(ms = 1000,
-                 expr = assign(".UI_disabled", FALSE, envir = .GlobalEnv))
 }
 
 
@@ -145,7 +140,6 @@ disable_login_tab <- function() {
                    "changeServer",
                    "resetServer",
                    "logout")
-  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements in the Login tab.
@@ -163,6 +157,4 @@ enable_login_tab <- function() {
                   "changeServer",
                   "resetServer",
                   "logout")
-  shinyjs::delay(ms = 1000,
-                 expr = assign(".UI_disabled", FALSE, envir = .GlobalEnv))
 }

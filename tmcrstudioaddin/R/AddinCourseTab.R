@@ -85,10 +85,35 @@ globalVariables(c(".UI_disabled"))
 }
 
 .courseTab <- function(input, output, session, globalReactiveValues) {
-  observeEvent(input$refreshOrganizations, {
-    if (.UI_disabled) return()
-
+  enable_course_tab <- function() {
+    .ddprint("Enabling new way")
+    # Ok. This is just an ad hoc way to do it and is caused by mixing
+    # responsibilities. Actually we should just enable and disable ALL the
+    # buttons.
+    tmcrstudioaddin::enable_course_tab()
+    # and sets the global boolean \code{.UI_disabled} to \code{FALSE}.
+    .ddprint("Ready to do this")
+    shinyjs::delay(ms = 1000,
+                   expr = {
+                     .ddprint("Launching new way...")
+                     assign(".UI_disabled", FALSE, envir = .GlobalEnv)
+                     globalReactiveValues$UI_disabled <- FALSE
+                   })
+  }
+  disable_course_tab <- function() {
+    .ddprint("Disabling new way")
     tmcrstudioaddin::disable_course_tab()
+    assign(".UI_disabled", TRUE, envir = .GlobalEnv)
+    globalReactiveValues$UI_disabled <- TRUE
+  }
+  observeEvent(input$refreshOrganizations, {
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
+
+    disable_course_tab()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organizations <- tmcrstudioaddin::getAllOrganizations()
       choices <- organizations$slug
@@ -104,14 +129,18 @@ globalVariables(c(".UI_disabled"))
                              "Please log in to see organizations",
                              "")
     }
-    tmcrstudioaddin::enable_course_tab()
+    enable_course_tab()
     .dprint("refresh organizations")
   })
 
   observeEvent(input$organizationSelect, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
-    tmcrstudioaddin::disable_course_tab()
+    disable_course_tab()
     organization <- input$organizationSelect
     globalReactiveValues$credentials$organization <- organization
     courses <- tmcrstudioaddin::getAllCourses(organization)
@@ -123,13 +152,17 @@ globalVariables(c(".UI_disabled"))
                              label = "Select course",
                              choices = choices,
                              selected = 1)
-    tmcrstudioaddin::enable_course_tab()
+    enable_course_tab()
   }, ignoreInit = TRUE)
 
   observeEvent(input$refreshCourses, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
-    tmcrstudioaddin::disable_course_tab()
+    disable_course_tab()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organization <- input$organizationSelect
       courses <- tmcrstudioaddin::getAllCourses(organization)
@@ -146,15 +179,19 @@ globalVariables(c(".UI_disabled"))
                              "Please log in to see courses",
                              "")
     }
-    tmcrstudioaddin::enable_course_tab()
+    enable_course_tab()
     .dprint("refresh courses")
   }, ignoreInit = TRUE)
 
   observeEvent(input$courseSelect, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
     .dprint("courseSelect")
 
-    tmcrstudioaddin::disable_course_tab()
+    disable_course_tab()
 
     hideCourseExercises()
 
@@ -164,7 +201,7 @@ globalVariables(c(".UI_disabled"))
 
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
 
-    tmcrstudioaddin::enable_course_tab()
+    enable_course_tab()
   }, ignoreInit = TRUE)
 
   separateDownloadedExercises <- function(exercises, exercises_old, globalReactiveValues,
@@ -316,9 +353,13 @@ globalVariables(c(".UI_disabled"))
   })
 
   observeEvent(input$download, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
-    tmcrstudioaddin::disable_course_tab()
+    disable_course_tab()
 
     tryCatch({
       withProgress(message = "Downloading exercises", {
@@ -405,7 +446,7 @@ pre_error)
     hideCourseExercises()
     separateDownloadedExercises(exercises = NULL, exercises, globalReactiveValues)
 
-    tmcrstudioaddin::enable_course_tab()
+    enable_course_tab()
   })
 
   downloadFromList <- function(course_directory_path, globalReactiveValues) {
