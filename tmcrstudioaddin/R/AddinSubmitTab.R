@@ -50,14 +50,14 @@
 }
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
+  grv <- globalReactiveValues
   enable_submit_tab <- function() {
     .dprint("Enabling new way")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
     tmcrstudioaddin::enable_submit_tab()
-    # and sets the global boolean \code{.UI_disabled} to \code{FALSE}.
-    print("Ready to do this")
+    print("Ready to do this SubmitTab")
     shinyjs::delay(ms = 1000,
                    expr = {
                      print("Launching new way...")
@@ -66,7 +66,7 @@
                    })
   }
   disable_submit_tab <- function() {
-    .dprint("Disabling new way")
+    .dprint("Disabling new way SubmitTab")
     tmcrstudioaddin::disable_submit_tab()
     assign(".UI_disabled", TRUE, envir = .GlobalEnv)
     globalReactiveValues$UI_disabled <- TRUE
@@ -114,11 +114,10 @@
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     disable_submit_tab()
     .dprint("runTestrunner()")
@@ -142,11 +141,10 @@
   })
 
   submitExercise <- observeEvent(input$submit, { 
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
     if (is.null(globalReactiveValues$credentials$token)) {
       disable_submit_tab()
       rstudioapi::showDialog("Not logged in",
@@ -263,31 +261,28 @@
   })
 
   showResults <- observeEvent(input$showAllResults, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     reactive$showAll <- input$showAllResults
   })
 
   sourceEcho <- observeEvent(input$toggleEcho, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     reactive$sourceEcho <- input$toggleEcho
   })
 
   selectedExercises <- observeEvent(input$selectExercise, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     .ddprint("This is always lauched when a new exercise is selected.")
     .ddprint(str(input$selectExercise))
@@ -295,11 +290,10 @@
   })
 
   sourceExercise <- observeEvent(input$source, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     disable_submit_tab()
 
@@ -328,21 +322,19 @@
 
   # Refresh exercises
   observeEvent(input$refreshExercises, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
   })
 
   observeEvent(input$openFiles, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     disable_submit_tab()
 
@@ -363,11 +355,10 @@
   })
 
   observeEvent(input$saveFiles, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     disable_submit_tab()
     .ddprint("Save modifications")
