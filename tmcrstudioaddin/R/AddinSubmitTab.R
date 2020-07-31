@@ -57,10 +57,10 @@
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
     tmcrstudioaddin::enable_submit_tab()
-    print("Ready to do this SubmitTab")
+    .ddprint("Ready to do this SubmitTab")
     shinyjs::delay(ms = 1000,
                    expr = {
-                     print("Launching new way...")
+                     .ddprint("Launching new way...")
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
@@ -113,7 +113,7 @@
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -140,7 +140,7 @@
 
   submitExercise <- observeEvent(input$submit, { 
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
     if (is.null(globalReactiveValues$credentials$token)) {
@@ -260,7 +260,7 @@
 
   showResults <- observeEvent(input$showAllResults, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -269,7 +269,7 @@
 
   sourceEcho <- observeEvent(input$toggleEcho, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -278,7 +278,7 @@
 
   selectedExercises <- observeEvent(input$selectExercise, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -289,7 +289,7 @@
 
   sourceExercise <- observeEvent(input$source, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -321,7 +321,7 @@
   # Refresh exercises
   observeEvent(input$refreshExercises, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -330,7 +330,7 @@
 
   observeEvent(input$openFiles, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -354,7 +354,7 @@
 
   observeEvent(input$saveFiles, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 

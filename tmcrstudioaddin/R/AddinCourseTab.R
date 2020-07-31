@@ -91,10 +91,10 @@
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
     tmcrstudioaddin::enable_course_tab()
-    print("Ready to do this")
+    .ddprint("Ready to do this")
     shinyjs::delay(ms = 1000,
                    expr = {
-                     print("Launching new way...")
+                     .ddprint("Launching new way...")
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
@@ -105,7 +105,7 @@
   }
   observeEvent(input$refreshOrganizations, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -131,7 +131,7 @@
 
   observeEvent(input$organizationSelect, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -152,7 +152,7 @@
 
   observeEvent(input$refreshCourses, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 
@@ -179,7 +179,7 @@
 
   observeEvent(input$courseSelect, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
     .dprint("courseSelect")
@@ -347,7 +347,7 @@
 
   observeEvent(input$download, {
     if (grv$UI_disabled) {
-      print("Disabled... ")
+      .ddprint("Disabled... ")
       return()
     }
 

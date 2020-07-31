@@ -81,7 +81,7 @@ tmcGadget <- function() {
     # Function for the exit button
     observeEvent(input$exit, {
       if (globalReactiveValues$UI_disabled) {
-        print("Disabled... ")
+        .ddprint("Disabled... ")
         return()
       }
 
