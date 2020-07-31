@@ -50,6 +50,28 @@
 }
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
+  enable_submit_tab <- function() {
+    .dprint("Enabling new way")
+    # Ok. This is just an ad hoc way to do it and is caused by mixing
+    # responsibilities. Actually we should just enable and disable ALL the
+    # buttons.
+    tmcrstudioaddin::enable_submit_tab()
+    # and sets the global boolean \code{.UI_disabled} to \code{FALSE}.
+    print("Ready to do this")
+    shinyjs::delay(ms = 1000,
+                   expr = {
+                     print("Launching new way...")
+                     assign(".UI_disabled", FALSE, envir = .GlobalEnv)
+                     globalReactiveValues$UI_disabled <- FALSE
+                   })
+  }
+  disable_submit_tab <- function() {
+    .dprint("Disabling new way")
+    tmcrstudioaddin::disable_submit_tab()
+    assign(".UI_disabled", TRUE, envir = .GlobalEnv)
+    globalReactiveValues$UI_disabled <- TRUE
+  }
+
   reactive <- reactiveValues(submitResults = NULL,
                              testResults = NULL,
                              runStatus = NULL,
@@ -92,9 +114,13 @@
 
   # This function is run when the Run tests -button is pressed
   runTestrunner <- observeEvent(input$runTests, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
-    tmcrstudioaddin::disable_submit_tab()
+    disable_submit_tab()
     .dprint("runTestrunner()")
     .ddprint("Run when tests are launched.")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -110,13 +136,17 @@
     reactive$runStatus <- run_results$run_status
     reactive$submitResults <- NULL
     reactive$sourcing <- FALSE
-    tmcrstudioaddin::enable_submit_tab()
+    enable_submit_tab()
     # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
     rstudioapi::executeCommand("refreshEnvironment")
   })
 
   submitExercise <- observeEvent(input$submit, { 
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     tranlation_df <- 
       as.data.frame(
@@ -160,7 +190,7 @@
                  "exercises 3a", "exercises 3a and 3b is solved correctly")))
     names(tranlation_df) <- c("key", "translation")
 
-    tmcrstudioaddin::disable_submit_tab()
+    disable_submit_tab()
     submitRes <- NULL
     .dprint("submitExercise()")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -221,32 +251,49 @@
       reactive$runStatus <- "success"
       reactive$sourcing <- FALSE
     }
-    tmcrstudioaddin::enable_submit_tab()
+    enable_submit_tab()
   })
 
   showResults <- observeEvent(input$showAllResults, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     reactive$showAll <- input$showAllResults
   })
 
   sourceEcho <- observeEvent(input$toggleEcho, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     reactive$sourceEcho <- input$toggleEcho
   })
 
   selectedExercises <- observeEvent(input$selectExercise, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
+
     .ddprint("This is always lauched when a new exercise is selected.")
     .ddprint(str(input$selectExercise))
     globalReactiveValues$selectedExercisePath <- input$selectExercise
   })
 
   sourceExercise <- observeEvent(input$source, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
-    tmcrstudioaddin::disable_submit_tab()
+    disable_submit_tab()
 
     .dprint("sourceExercise()")
     .ddprint("Launched when Source is clicked")
@@ -268,18 +315,28 @@
                                  "Error while sourcing exercise.")
         })
     }
-    tmcrstudioaddin::enable_submit_tab()
+    enable_submit_tab()
   })
 
   # Refresh exercises
   observeEvent(input$refreshExercises, {
-    if (.UI_disabled) return()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
+
     globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
   })
 
   observeEvent(input$openFiles, {
-    if (.UI_disabled) return()
-    tmcrstudioaddin::disable_submit_tab()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
+
+    disable_submit_tab()
 
     .ddprint("Launched when clicking open files")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -294,15 +351,20 @@
         rstudioapi::navigateToFile(file)
       }
     }
-    tmcrstudioaddin::enable_submit_tab()
+    enable_submit_tab()
   })
 
   observeEvent(input$saveFiles, {
-    if (.UI_disabled) return()
-    tmcrstudioaddin::disable_submit_tab()
+    if (.UI_disabled) {
+      print("Disabled... ")
+      return()
+    }
+    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
+
+    disable_submit_tab()
     .ddprint("Save modifications")
     rstudioapi::documentSaveAll()
-    tmcrstudioaddin::enable_submit_tab()
+    enable_submit_tab()
   })
 
   # Renders a list showing the test results

@@ -64,6 +64,7 @@ tmcGadget <- function() {
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),
+                     UI_disabled = FALSE,
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      courseInfo = list())

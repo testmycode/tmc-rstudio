@@ -7,8 +7,8 @@
 #' @param ... IDs of the \code{Shiny} input elements which are to be
 #' disabled.
 #'
-#' @details Disables the \code{Shiny} input elements and sets the global
-#' boolean \code{.UI_disabled} to \code{FALSE}. This is done in order to
+#' @details Disables the \code{Shiny} input elements.
+#' This is done in order to
 #' prevent excessive buffering of button actions if the user starts
 #' clicking buttons in other tabs during an operation that is taking a
 #' long itme.
@@ -17,10 +17,11 @@
 #' \code{\link[base]{lapply}}, \code{\link[shinyjs]{disable}}
 
 disable_elements <- function(...) {
+  # no access to globalReactiveValues
+  # we move assign to all the callers
   elements <- as.list(substitute(list(...)))[-1L]
   .ddprint("disable_elements")
   lapply(elements, shinyjs::disable)
-  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements
@@ -32,20 +33,16 @@ disable_elements <- function(...) {
 #' @param ... IDs of the \code{Shiny} input elements which are to be
 #' enabled.
 #'
-#' @details Enables the \code{Shiny} input elements and sets the global
-#' boolean \code{.UI_disabled} to \code{FALSE} after 1000 milliseconds
-#' (=1 second) have passed. This is done in order to prevent excessive
-#' buffering of button actions if the user starts clicking buttons in
-#' other tabs during an operation that is taking a long itme.
+#' @details Enables the \code{Shiny} input elements.
 #'
 #' @seealso \code{\link[base]{as.list}},\code{\link[base]{substitute}},
-#' \code{\link[base]{lapply}}, \code{\link[shinyjs]{enable}},
-#' \code{\link[shinyjs]{delay}}
+#' \code{\link[base]{lapply}}, \code{\link[shinyjs]{enable}}
+
 enable_elements <- function(...) {
+  # no access to globalReactiveValues
+  # we move assign to all the callers
   elements <- as.list(substitute(list(...)))[-1L]
   lapply(elements, shinyjs::enable)
-  shinyjs::delay(ms = 1000,
-                 expr = assign(".UI_disabled", FALSE, envir = .GlobalEnv))
 }
 
 #' @title Disable Shiny input elements in the Test & Submit tab
@@ -56,6 +53,7 @@ enable_elements <- function(...) {
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_submit_tab <- function() {
+  # no access to globalReactiveValues
   disable_elements("selectExercise",
                    "refreshExercises",
                    "openFiles",
@@ -65,6 +63,8 @@ disable_submit_tab <- function() {
                    "submit",
                    "showAllResults",
                    "toggleEcho")
+# and sets the global boolean \code{.UI_disabled} to \code{FALSE}. 
+  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements in the Test & Submit tab
@@ -75,6 +75,7 @@ disable_submit_tab <- function() {
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_submit_tab <- function() {
+  # no access to globalReactiveValues
   enable_elements("selectExercise",
                   "refreshExercises",
                   "openFiles",
@@ -95,6 +96,7 @@ enable_submit_tab <- function() {
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_course_tab <- function() {
+  # no access to globalReactiveValues
   disable_elements("refreshOrganizations",
                    "organizationSelect",
                    "refreshCourses",
@@ -103,6 +105,7 @@ disable_course_tab <- function() {
                    "all_exercises",
                    "unpublished_exercises",
                    "exercises")
+  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements in the Course & Exercise tab
@@ -114,6 +117,7 @@ disable_course_tab <- function() {
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_course_tab <- function() {
+  # no access to globalReactiveValues
   enable_elements("refreshOrganizations",
                   "organizationSelect",
                   "refreshCourses",
@@ -121,6 +125,8 @@ enable_course_tab <- function() {
                   "download",
                   "all_exercises",
                   "exercises")
+  shinyjs::delay(ms = 1000,
+                 expr = assign(".UI_disabled", FALSE, envir = .GlobalEnv))
 }
 
 
@@ -132,12 +138,14 @@ enable_course_tab <- function() {
 #'
 #' @seealso \code{\link{disable_elements}}
 disable_login_tab <- function() {
+  # no access to globalReactiveValues
   disable_elements("username",
                    "password",
                    "login",
                    "changeServer",
                    "resetServer",
                    "logout")
+  assign(".UI_disabled", TRUE, envir = .GlobalEnv)
 }
 
 #' @title Enable Shiny input elements in the Login tab.
@@ -148,10 +156,13 @@ disable_login_tab <- function() {
 #'
 #' @seealso \code{\link{enable_elements}}
 enable_login_tab <- function() {
+  # no access to globalReactiveValues
   enable_elements("username",
                   "password",
                   "login",
                   "changeServer",
                   "resetServer",
                   "logout")
+  shinyjs::delay(ms = 1000,
+                 expr = assign(".UI_disabled", FALSE, envir = .GlobalEnv))
 }
