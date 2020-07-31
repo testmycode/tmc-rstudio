@@ -50,14 +50,12 @@
     shinyjs::delay(ms = 1000,
                    expr = {
                      print("Launching new way on login tab...")
-                     assign(".UI_disabled", FALSE, envir = .GlobalEnv)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
   disable_login_tab <- function() {
     .ddprint("Disabling login tab new way")
     tmcrstudioaddin::disable_login_tab()
-    assign(".UI_disabled", TRUE, envir = .GlobalEnv)
     globalReactiveValues$UI_disabled <- TRUE
   }
   ns <- shiny::NS("login")

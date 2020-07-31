@@ -1,6 +1,5 @@
 #downloadedExercisesPaths <- downloadedExercisesPaths
 
-globalVariables(c(".UI_disabled"))
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
   miniTabPanel(
@@ -96,14 +95,12 @@ globalVariables(c(".UI_disabled"))
     shinyjs::delay(ms = 1000,
                    expr = {
                      print("Launching new way...")
-                     assign(".UI_disabled", FALSE, envir = .GlobalEnv)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
   disable_course_tab <- function() {
     .ddprint("Disabling new way")
     tmcrstudioaddin::disable_course_tab()
-    assign(".UI_disabled", TRUE, envir = .GlobalEnv)
     globalReactiveValues$UI_disabled <- TRUE
   }
   observeEvent(input$refreshOrganizations, {

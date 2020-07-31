@@ -61,14 +61,12 @@
     shinyjs::delay(ms = 1000,
                    expr = {
                      print("Launching new way...")
-                     assign(".UI_disabled", FALSE, envir = .GlobalEnv)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
   disable_submit_tab <- function() {
     .dprint("Disabling new way SubmitTab")
     tmcrstudioaddin::disable_submit_tab()
-    assign(".UI_disabled", TRUE, envir = .GlobalEnv)
     globalReactiveValues$UI_disabled <- TRUE
   }
 

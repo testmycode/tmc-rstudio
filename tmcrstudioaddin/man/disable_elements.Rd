@@ -14,8 +14,8 @@ disabled.}
 Disable \code{Shiny} input elements.
 }
 \details{
-Disables the \code{Shiny} input elements and sets the global
-boolean \code{.UI_disabled} to \code{FALSE}. This is done in order to
+Disables the \code{Shiny} input elements.
+This is done in order to
 prevent excessive buffering of button actions if the user starts
 clicking buttons in other tabs during an operation that is taking a
 long itme.
