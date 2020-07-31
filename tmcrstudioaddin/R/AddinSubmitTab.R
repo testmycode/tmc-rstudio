@@ -147,6 +147,14 @@
       return()
     }
     if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
+    if (is.null(globalReactiveValues$credentials$token)) {
+      disable_submit_tab()
+      rstudioapi::showDialog("Not logged in",
+                             "Please log in to submit your solutions to server.",
+                             "")
+      enable_submit_tab()
+      return()
+    }
 
     tranlation_df <- 
       as.data.frame(
