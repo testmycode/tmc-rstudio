@@ -39,13 +39,13 @@
 }
 
 .loginTab <- function(input, output, session, globalReactiveValues) {
+  grv <- globalReactiveValues
   enable_login_tab <- function() {
     print("Enabling login tab new way")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
     tmcrstudioaddin::enable_login_tab()
-    # and sets the global boolean \code{.UI_disabled} to \code{FALSE}.
     print("Ready to do this on login tab")
     shinyjs::delay(ms = 1000,
                    expr = {
@@ -77,11 +77,10 @@
 
 
   observeEvent(input$login, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
 
     disable_login_tab()
 
@@ -106,11 +105,10 @@
   }, ignoreInit = TRUE)
 
   observeEvent(input$logout, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
     # overwrite credentials, so that they contain only the last login address
     tryCatch({
       globalReactiveValues$credentials <-
@@ -121,11 +119,10 @@
   }, ignoreInit = TRUE)
 
   observeEvent(input$resetServer, {
-    if (.UI_disabled) {
+    if (grv$UI_disabled) {
       print("Disabled... ")
       return()
     }
-    if (.UI_disabled != globalReactiveValues$UI_disabled) print("DIFFERING")
     updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
     shinyjs::disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)

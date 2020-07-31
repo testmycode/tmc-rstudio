@@ -82,7 +82,10 @@ tmcGadget <- function() {
                   })
     # Function for the exit button
     observeEvent(input$exit, {
-      if (.UI_disabled) return()
+      if (globalReactiveValues$UI_disabled) {
+        print("Disabled... ")
+        return()
+      }
 
       return(shiny::stopApp())
     })
