@@ -2,85 +2,69 @@
 
 .courseTabUI <- function(id, label = "Course tab") {
   ns <- shiny::NS(id)
-  miniTabPanel(
-    title = "Exercises",
-    icon = icon("folder-open"),
-    miniContentPanel(
-      fluidPage(style = "padding:0px;margin:0px;",
-        fluidRow(
-            column(6, class = "col-xs-6",
-              selectInput(
-                inputId = ns("organizationSelect"),
-                label = "Select organization",
-                choices = list(),
-                selected = 1
-              )
-            ),
-            column(6, class = "col-xs-6",
-              actionButton(
-                 inputId = ns("refreshOrganizations"),
-                 label = "Refresh organizations",
-                 style = "margin-top:25px;"
-              )
-            )
-        ),
-        fluidRow(
-          column(6, class = "col-xs-6",
-            selectInput(
-              inputId = ns("courseSelect"),
-              label = "Select course",
-              choices = list(),
-              selected = 1
-            )
-          ),
-          column(6, class = "col-xs-6",
-            actionButton(
-              inputId = ns("refreshCourses"),
-              label = "Refresh courses",
-              style = "margin-top:25px;"
-            )
-          )
-        )
-      ),
-      actionButton(
-        inputId = ns("download"),
-        label = "Download exercises"),
-      hidden(
-        checkboxInput(
-          inputId = ns("all_exercises"),
-          label = "Download all exercises",
-          value = FALSE
-        )
-      ),
-      checkboxGroupInput(
-        inputId = ns("exercises"),
-        label = "",
-        choices = list()
-      ),
-      checkboxGroupInput(
-        inputId = ns("unpublished_exercises"),
-        label = "",
-        choices = list()
-      ),
-      fluidRow(
-        column(6, class = "col-xs-6",
-               checkboxGroupInput(
-                 inputId = ns("downloadedExercises"),
-                 label = "",
-                 choices = list(),
-               )
-        ),
-        column(6, class = "col-xs-6",
-               hidden(
-                 checkboxInput(
-                   inputId = ns("updateAllExercises"),
-                   label = "Redownload all downloaded exercises (Note: redownloading WILL overwrite your code)"
-                 )
-               )
-        )
-      )
-    )
-  )
+  .ddprint(ns("selectExercise"))
+  inputIDs    <- c("organizationSelect",
+                   "refreshOrganizations",
+                   "courseSelect",
+                   "refreshCourses",
+                   "download",
+                   "exercises",
+                   "unpublished_exercises",
+                   "downloadedExercises",
+                   "all_exercises",
+                   "updateAllExercises")
+  ns_inputIDs <- sapply(inputIDs, ns)
+  fluid_row1 <- fluidRow(column(width = 6,
+                                class = "col-xs-6",
+                                selectInput(inputId   = ns("organizationSelect"),
+                                            label     = "Select organization",
+                                            choices   = list(),
+                                            selected  = 1)),
+                         column(width = 6,
+                                class = "col-xs-6",
+                                actionButton(inputId  = ns("refreshOrganizations"),
+                                             label    = "Refresh organizations",
+                                             style    = "margin-top:25px;")))
+  fluid_row2 <-  fluidRow(column(width = 6,
+                                 class = "col-xs-6",
+                                 selectInput(inputId  = ns("courseSelect"),
+                                             label    = "Select course",
+                                             choices  = list(),
+                                             selected = 1)),
+                          column(width = 6,
+                                 class = "col-xs-6",
+                                 actionButton(inputId = ns("refreshCourses"),
+                                              label   = "Refresh courses",
+                                              style   = "margin-top:25px;")))
+  checkbox_group1 <- checkboxGroupInput(inputId = ns("exercises"),
+                                        label   = "",
+                                        choices = list())
+  checkbox_group2 <- checkboxGroupInput(inputId = ns("unpublished_exercises"),
+                                        label   = "",
+                                        choices = list())
+  checkbox_group3 <- checkboxGroupInput(inputId = ns("downloadedExercises"),
+                                        label   = "",
+                                        choices = list())
+  checkbox1 <- hidden(checkboxInput(inputId = ns("all_exercises"),
+                                    label   = "Download all exercises",
+                                    value   = FALSE))
+  checkbox2 <- hidden(checkboxInput(inputId = ns("updateAllExercises"),
+                                    label   = paste("Redownload all downloaded exercises",
+                                                    "(Note: redownloading WILL overwrite",
+                                                    "your code)")))
+  fluid_row3 <- fluidRow(column(width = 6, class = "col-xs-6", checkbox_group3),
+                         column(width = 6, class = "col-xs-6", checkbox2))
+  tab_panel <- miniTabPanel(title = "Exercises",
+                            icon  = icon("folder-open"),
+                            miniContentPanel(fluidPage(style = "padding:0px;margin:0px;",
+                                                       fluid_row1, fluid_row2),
+                                             actionButton(inputId = ns("download"),
+                                                          label   = "Download exercises"),
+                                             checkbox1,
+                                             checkbox_group1,
+                                             checkbox_group2, fluid_row3))
+  list(ns_inputIDs    = ns_inputIDs,
+       mini_tab_panel = tab_panel)
 }
 
 .courseTab <- function(input, output, session, globalReactiveValues) {

@@ -36,26 +36,23 @@ tmcGadget <- function() {
 
   .ddprint("Before...")
 
-  ui <- miniPage(
-    shinyjs::useShinyjs(),
-
-    gadgetTitleBar(title = "TMC RStudio",
-                   right = NULL,
-                   left = miniTitleBarCancelButton(inputId = "exit",
-                                                   label = "Exit")),
-
-    miniTabstripPanel(
-      .loginTabUI(id = "login"),
-      .courseTabUI(id = "courses"),
-      .submitTabUI(id = "testAndSubmit")
-    )
-  )
+  course_tab_data <- .courseTabUI(id = "courses")
+  submit_tab_data <- .submitTabUI(id = "testAndSubmit")
+  ui <- miniPage(shinyjs::useShinyjs(),
+                 gadgetTitleBar(title = "TMC RStudio",
+                                right = NULL,
+                                left = miniTitleBarCancelButton(inputId = "exit",
+                                                                label = "Exit")),
+                 miniTabstripPanel(.loginTabUI(id = "login"),
+                                   course_tab_data[["mini_tab_panel"]],
+                                   submit_tab_data[["mini_tab_panel"]]))
   .ddprint("After...")
 
   server <- function(input, output, session) {
 
     .ddprint("Later...")
-    .ddprint("Now its set.")
+    .ddprint(str(course_tab_data[["ns_inputIDs"]]))
+    .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
 
     globalReactiveValues <-
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
@@ -63,6 +60,8 @@ tmcGadget <- function() {
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),
                      UI_disabled = FALSE,
+                     UI_elements = list(course_tab = course_tab_data[["ns_inputIDs"]],
+                                        submit_tab = submit_tab_data[["ns_inputIDs"]]),
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      courseInfo = list())

@@ -2,71 +2,80 @@
   #init selected exercise (this is now done in TMC_plugin.R
   .dprint("submitTabUI launched")
   ns <- shiny::NS(id)
-  miniTabPanel(
-    title = "Test & Submit",
-    icon = icon("check"),
-
-    miniContentPanel(
-      fluidPage(style = "padding:0px;margin:0px;",
-        fluidRow(
-          column(6, class = "col-xs-6",
-                 selectInput(inputId = ns("selectExercise"),
-                             "Exercise:",
-                             c(),
-                             selected = exercisePathFromWd())),
-          column(6, class = "col-xs-6",
-                 actionButton(inputId = ns("refreshExercises"),
-                              label = "Refresh exercises",
-                              style = "margin-top:25px;"))
-        ),
-        fluidRow(
-          column(12, class = "col-xs-12",
-                 actionButton(inputId = ns("openFiles"),
-                              label = "Open files",
-                              style = "margin-top:5px;"),
-                 actionButton(inputId = ns("saveFiles"),
-                              label = "Save modifications",
-                              style = "margin-top:5px;"))
-        ),
-        fluidRow(
-          column(12, style = "margin-top:5px;",
-                 actionButton(inputId = ns("source"),
-                              label = "Source"),
-                 actionButton(inputId = ns("runTests"),
-                              label = "Run tests"),
-                 actionButton(inputId = ns("submit"),
-                              label = "Submit to server"),
-                 checkboxInput(inputId = ns("showAllResults"),
-                               label = "Show all results",
-                               value = TRUE),
-                 checkboxInput(inputId = ns("toggleEcho"),
-                               label = "Echo source",
-                               value = TRUE))
-        ),
-        column(12,
-          uiOutput(outputId = ns("testResultsDisplay"))))
-    )
-  )
+  .ddprint(ns("selectExercise"))
+  inputIDs    <- c("selectExercise",
+                   "refreshExercises",
+                   "openFiles",
+                   "saveFiles",
+                   "source",
+                   "runTests",
+                   "submit",
+                   "showAllResults",
+                   "toggleEcho")
+  ns_inputIDs <- sapply(inputIDs, ns)
+  top_row     <- fluidRow(column(width = 6,
+                                 class = "col-xs-6",
+                                 selectInput(inputId   = ns("selectExercise"),
+                                             label     = "Exercise:",
+                                             choices   = c(),
+                                             selected  = exercisePathFromWd())),
+                          column(width = 6,
+                                 class = "col-xs-6",
+                                 actionButton(inputId  = ns("refreshExercises"),
+                                              label    = "Refresh exercises",
+                                              style    = "margin-top:25px;")))
+  second_row  <- fluidRow(column(width = 12,
+                                 class = "col-xs-12",
+                                 actionButton(inputId  = ns("openFiles"),
+                                              label    = "Open files",
+                                              style    = "margin-top:5px;"),
+                                 actionButton(inputId  = ns("saveFiles"),
+                                              label    = "Save modifications",
+                                              style    = "margin-top:5px;")))
+  bottom_row  <- fluidRow(column(width = 12,
+                                 style = "margin-top:5px;",
+                                 actionButton(inputId  = ns("source"),
+                                              label    = "Source"),
+                                 actionButton(inputId  = ns("runTests"),
+                                              label    = "Run tests"),
+                                 actionButton(inputId  = ns("submit"),
+                                              label    = "Submit to server"),
+                                 checkboxInput(inputId = ns("showAllResults"),
+                                               label   = "Show all results",
+                                               value   = TRUE),
+                                 checkboxInput(inputId = ns("toggleEcho"),
+                                               label   = "Echo source",
+                                               value   = TRUE)))
+  fluid_page  <- fluidPage(style = "padding:0px;margin:0px;",
+                           top_row,
+                           second_row,
+                           bottom_row,
+                           column(12, uiOutput(outputId = ns("testResultsDisplay"))))
+  tab_panel   <- miniTabPanel(title = "Test & Submit",
+                              icon  = icon("check"),
+                              miniContentPanel(fluid_page))
+  list(ns_inputIDs    = ns_inputIDs,
+       mini_tab_panel = tab_panel)
 }
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
   grv <- globalReactiveValues
-  enable_submit_tab <- function() {
-    .dprint("Enabling new way")
+  enable_submit__and_course_tab <- function() {
+    .ddprint("Enabling new way")
+    tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
+    .ddprint("Ready to do this SubmitTab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
-    tmcrstudioaddin::enable_submit_tab()
-    .ddprint("Ready to do this SubmitTab")
-    shinyjs::delay(ms = 1000,
+    shinyjs::delay(ms = 100,
                    expr = {
                      .ddprint("Launching new way...")
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
-  disable_submit_tab <- function() {
-    .dprint("Disabling new way SubmitTab")
-    tmcrstudioaddin::disable_submit_tab()
+  disable_submit__and_course_tab <- function() {
+    .ddprint("Disabling new way SubmitTab")
+    tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
   }
 
@@ -117,7 +126,7 @@
       return()
     }
 
-    disable_submit_tab()
+    disable_submit__and_course_tab()
     .dprint("runTestrunner()")
     .ddprint("Run when tests are launched.")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -133,7 +142,7 @@
     reactive$runStatus <- run_results$run_status
     reactive$submitResults <- NULL
     reactive$sourcing <- FALSE
-    enable_submit_tab()
+    enable_submit__and_course_tab()
     # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
     rstudioapi::executeCommand("refreshEnvironment")
   })
@@ -144,11 +153,11 @@
       return()
     }
     if (is.null(globalReactiveValues$credentials$token)) {
-      disable_submit_tab()
+      disable_submit__and_course_tab()
       rstudioapi::showDialog("Not logged in",
                              "Please log in to submit your solutions to server.",
                              "")
-      enable_submit_tab()
+      enable_submit__and_course_tab()
       return()
     }
 
@@ -194,7 +203,7 @@
                  "exercises 3a", "exercises 3a and 3b is solved correctly")))
     names(tranlation_df) <- c("key", "translation")
 
-    disable_submit_tab()
+    disable_submit__and_course_tab()
     submitRes <- NULL
     .dprint("submitExercise()")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -255,7 +264,7 @@
       reactive$runStatus <- "success"
       reactive$sourcing <- FALSE
     }
-    enable_submit_tab()
+    enable_submit__and_course_tab()
   })
 
   showResults <- observeEvent(input$showAllResults, {
@@ -293,7 +302,7 @@
       return()
     }
 
-    disable_submit_tab()
+    disable_submit__and_course_tab()
 
     .dprint("sourceExercise()")
     .ddprint("Launched when Source is clicked")
@@ -315,7 +324,7 @@
                                  "Error while sourcing exercise.")
         })
     }
-    enable_submit_tab()
+    enable_submit__and_course_tab()
   })
 
   # Refresh exercises
@@ -334,7 +343,7 @@
       return()
     }
 
-    disable_submit_tab()
+    disable_submit__and_course_tab()
 
     .ddprint("Launched when clicking open files")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -349,7 +358,7 @@
         rstudioapi::navigateToFile(file)
       }
     }
-    enable_submit_tab()
+    enable_submit__and_course_tab()
   })
 
   observeEvent(input$saveFiles, {
@@ -358,10 +367,10 @@
       return()
     }
 
-    disable_submit_tab()
+    disable_submit__and_course_tab()
     .ddprint("Save modifications")
     rstudioapi::documentSaveAll()
-    enable_submit_tab()
+    enable_submit__and_course_tab()
   })
 
   # Renders a list showing the test results
