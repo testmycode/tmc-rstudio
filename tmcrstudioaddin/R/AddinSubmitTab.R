@@ -59,9 +59,8 @@
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
   grv <- globalReactiveValues
-  enable_submit__and_course_tab <- function() {
+  enable_tab_UI <- function() {
     .ddprint("Enabling new way")
-    tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
     .ddprint("Ready to do this SubmitTab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
@@ -69,10 +68,11 @@
     shinyjs::delay(ms = 100,
                    expr = {
                      .ddprint("Launching new way...")
+                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
-  disable_submit__and_course_tab <- function() {
+  disable_tab_UI <- function() {
     .ddprint("Disabling new way SubmitTab")
     tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
@@ -125,7 +125,7 @@
       return()
     }
 
-    disable_submit__and_course_tab()
+    disable_tab_UI()
     .dprint("runTestrunner()")
     .ddprint("Run when tests are launched.")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -141,7 +141,7 @@
     reactive$runStatus <- run_results$run_status
     reactive$submitResults <- NULL
     reactive$sourcing <- FALSE
-    enable_submit__and_course_tab()
+    enable_tab_UI()
     # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
     rstudioapi::executeCommand("refreshEnvironment")
   })
@@ -152,11 +152,11 @@
       return()
     }
     if (is.null(globalReactiveValues$credentials$token)) {
-      disable_submit__and_course_tab()
+      disable_tab_UI()
       rstudioapi::showDialog("Not logged in",
                              "Please log in to submit your solutions to server.",
                              "")
-      enable_submit__and_course_tab()
+      enable_tab_UI()
       return()
     }
 
@@ -202,7 +202,7 @@
                  "exercises 3a", "exercises 3a and 3b is solved correctly")))
     names(tranlation_df) <- c("key", "translation")
 
-    disable_submit__and_course_tab()
+    disable_tab_UI()
     submitRes <- NULL
     .dprint("submitExercise()")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -263,7 +263,7 @@
       reactive$runStatus <- "success"
       reactive$sourcing <- FALSE
     }
-    enable_submit__and_course_tab()
+    enable_tab_UI()
   })
 
   showResults <- observeEvent(input$showAllResults, {
@@ -301,7 +301,7 @@
       return()
     }
 
-    disable_submit__and_course_tab()
+    disable_tab_UI()
 
     .dprint("sourceExercise()")
     .ddprint("Launched when Source is clicked")
@@ -323,7 +323,7 @@
                                  "Error while sourcing exercise.")
         })
     }
-    enable_submit__and_course_tab()
+    enable_tab_UI()
   })
 
   # Refresh exercises
@@ -342,7 +342,7 @@
       return()
     }
 
-    disable_submit__and_course_tab()
+    disable_tab_UI()
 
     .ddprint("Launched when clicking open files")
     if (globalReactiveValues$selectedExercisePath == "") {
@@ -357,7 +357,7 @@
         rstudioapi::navigateToFile(file)
       }
     }
-    enable_submit__and_course_tab()
+    enable_tab_UI()
   })
 
   observeEvent(input$saveFiles, {
@@ -366,10 +366,10 @@
       return()
     }
 
-    disable_submit__and_course_tab()
+    disable_tab_UI()
     .ddprint("Save modifications")
     rstudioapi::documentSaveAll()
-    enable_submit__and_course_tab()
+    enable_tab_UI()
   })
 
   # Renders a list showing the test results

@@ -69,22 +69,22 @@
 
 .courseTab <- function(input, output, session, globalReactiveValues) {
   grv <- globalReactiveValues
-  enable_course_tab <- function() {
-    .ddprint("Enabling new way")
+  enable_tab_UI <- function() {
+    print("Enabling new way")
+    .ddprint("Ready to do this courseTab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
-    tmcrstudioaddin::enable_course_tab()
-    .ddprint("Ready to do this")
-    shinyjs::delay(ms = 1000,
+    shinyjs::delay(ms = 100,
                    expr = {
-                     .ddprint("Launching new way...")
+                     print("Launching new way...")
+                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
-  disable_course_tab <- function() {
-    .ddprint("Disabling new way")
-    tmcrstudioaddin::disable_course_tab()
+  disable_tab_UI <- function() {
+    print("Disabling new way courseTab")
+    tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
   }
   observeEvent(input$refreshOrganizations, {
@@ -93,7 +93,7 @@
       return()
     }
 
-    disable_course_tab()
+    disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organizations <- tmcrstudioaddin::getAllOrganizations()
       choices <- organizations$slug
@@ -109,7 +109,7 @@
                              "Please log in to see organizations",
                              "")
     }
-    enable_course_tab()
+    enable_tab_UI()
     .dprint("refresh organizations")
   })
 
@@ -119,7 +119,7 @@
       return()
     }
 
-    disable_course_tab()
+    disable_tab_UI()
     organization <- input$organizationSelect
     globalReactiveValues$credentials$organization <- organization
     courses <- tmcrstudioaddin::getAllCourses(organization)
@@ -131,7 +131,7 @@
                              label = "Select course",
                              choices = choices,
                              selected = 1)
-    enable_course_tab()
+    enable_tab_UI()
   }, ignoreInit = TRUE)
 
   observeEvent(input$refreshCourses, {
@@ -140,7 +140,7 @@
       return()
     }
 
-    disable_course_tab()
+    disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organization <- input$organizationSelect
       courses <- tmcrstudioaddin::getAllCourses(organization)
@@ -157,7 +157,7 @@
                              "Please log in to see courses",
                              "")
     }
-    enable_course_tab()
+    enable_tab_UI()
     .dprint("refresh courses")
   }, ignoreInit = TRUE)
 
@@ -168,7 +168,7 @@
     }
     .dprint("courseSelect")
 
-    disable_course_tab()
+    disable_tab_UI()
 
     hideCourseExercises()
 
@@ -178,7 +178,7 @@
 
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
 
-    enable_course_tab()
+    enable_tab_UI()
   }, ignoreInit = TRUE)
 
   separateDownloadedExercises <- function(exercises, exercises_old, globalReactiveValues,
@@ -335,7 +335,7 @@
       return()
     }
 
-    disable_course_tab()
+    disable_tab_UI()
 
     tryCatch({
       withProgress(message = "Downloading exercises", {
@@ -422,7 +422,7 @@ pre_error)
     hideCourseExercises()
     separateDownloadedExercises(exercises = NULL, exercises, globalReactiveValues)
 
-    enable_course_tab()
+    enable_tab_UI()
   })
 
   downloadFromList <- function(course_directory_path, globalReactiveValues) {
