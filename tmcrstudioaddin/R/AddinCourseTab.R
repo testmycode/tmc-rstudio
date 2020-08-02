@@ -9,7 +9,7 @@
                    "refreshCourses",
                    "download",
                    "exercises",
-                   "unpublished_exercises",
+#                  "unpublished_exercises", # this is special.
                    "downloadedExercises",
                    "all_exercises",
                    "updateAllExercises")
