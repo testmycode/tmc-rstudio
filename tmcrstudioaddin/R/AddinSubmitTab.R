@@ -2,7 +2,6 @@
   #init selected exercise (this is now done in TMC_plugin.R
   .dprint("submitTabUI launched")
   ns <- shiny::NS(id)
-  .ddprint(ns("selectExercise"))
   inputIDs    <- c("selectExercise",
                    "refreshExercises",
                    "openFiles",

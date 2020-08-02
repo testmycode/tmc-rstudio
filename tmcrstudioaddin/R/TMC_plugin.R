@@ -36,6 +36,7 @@ tmcGadget <- function() {
 
   .ddprint("Before...")
 
+  login_tab_data  <- .loginTabUI(id = "login")
   course_tab_data <- .courseTabUI(id = "courses")
   submit_tab_data <- .submitTabUI(id = "testAndSubmit")
   ui <- miniPage(shinyjs::useShinyjs(),
@@ -43,7 +44,7 @@ tmcGadget <- function() {
                                 right = NULL,
                                 left = miniTitleBarCancelButton(inputId = "exit",
                                                                 label = "Exit")),
-                 miniTabstripPanel(.loginTabUI(id = "login"),
+                 miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
                                    course_tab_data[["mini_tab_panel"]],
                                    submit_tab_data[["mini_tab_panel"]]))
   .ddprint("After...")
@@ -60,7 +61,8 @@ tmcGadget <- function() {
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),
                      UI_disabled = FALSE,
-                     UI_elements = list(course_tab = course_tab_data[["ns_inputIDs"]],
+                     UI_elements = list(login_tab  = login_tab_data[["ns_inputIDs"]],
+                                        course_tab = course_tab_data[["ns_inputIDs"]],
                                         submit_tab = submit_tab_data[["ns_inputIDs"]]),
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),

@@ -2,14 +2,21 @@
   # Create a namespace function using the provided id
   ns <- shiny::NS(id)
 
-  miniTabPanel(
-    title = "Log in",
-    icon = icon("user-circle-o"),
-    miniContentPanel(
-      uiOutput(outputId = ns("loginPane"))
-    )
-  )
-
+  inputIDs    <- c("username",
+                   "password",
+                   "login",
+#                  "serverAddress",     # this is special, thus not
+                                        # included
+                   "changeServer",
+                   "resetServer",
+                   "logout")
+  ns_inputIDs <- sapply(inputIDs, ns)
+  UI_content  <- uiOutput(outputId = ns("loginPane"))
+  tab_panel   <- miniTabPanel(title = "Log in",
+                              icon  = icon("user-circle-o"),
+                              miniContentPanel(UI_content))
+  list(ns_inputIDs    = ns_inputIDs,
+       mini_tab_panel = tab_panel)
 }
 .loginPane <- function(ns, globalReactiveValues) {
   return(tagList(
