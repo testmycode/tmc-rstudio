@@ -47,22 +47,22 @@
 
 .loginTab <- function(input, output, session, globalReactiveValues) {
   grv <- globalReactiveValues
-  enable_login_tab <- function() {
-    .ddprint("Enabling login tab new way")
+  enable_tab_UI <- function() {
+    print("Enabling new way")
+    .ddprint("Ready to do this login tab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
-    tmcrstudioaddin::enable_login_tab()
-    .ddprint("Ready to do this on login tab")
-    shinyjs::delay(ms = 1000,
+    shinyjs::delay(ms = 10,
                    expr = {
-                     .ddprint("Launching new way on login tab...")
+                     print("Launching new way...")
+                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
-  disable_login_tab <- function() {
-    .ddprint("Disabling login tab new way")
-    tmcrstudioaddin::disable_login_tab()
+  disable_tab_UI <- function() {
+    print("Disabling new way login tab")
+    tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
   }
   ns <- shiny::NS("login")
@@ -87,7 +87,7 @@
       return()
     }
 
-    disable_login_tab()
+    disable_tab_UI()
 
     # Authenticate with the values from the username and password input fields
     response <- tmcrstudioaddin::authenticate(input$username,
@@ -106,7 +106,7 @@
         .logoutPane(ns) })
     }
 
-    enable_login_tab()
+    enable_tab_UI()
   }, ignoreInit = TRUE)
 
   observeEvent(input$logout, {

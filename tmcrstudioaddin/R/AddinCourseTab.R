@@ -70,20 +70,20 @@
 .courseTab <- function(input, output, session, globalReactiveValues) {
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
-    print("Enabling new way")
+    .dprint("Enabling new way")
     .ddprint("Ready to do this courseTab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
-    shinyjs::delay(ms = 100,
+    shinyjs::delay(ms = 10,
                    expr = {
-                     print("Launching new way...")
+                     .dprint("Launching new way...")
                      tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
   disable_tab_UI <- function() {
-    print("Disabling new way courseTab")
+    .dprint("Disabling new way courseTab")
     tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
   }

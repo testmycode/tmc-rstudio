@@ -65,7 +65,7 @@
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
-    shinyjs::delay(ms = 100,
+    shinyjs::delay(ms = 10,
                    expr = {
                      .ddprint("Launching new way...")
                      tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
