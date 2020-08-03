@@ -178,7 +178,9 @@
     hideCourseExercises()
 
     withProgress(message = "Fetching exercises", {
-      exercises <- tmcrstudioaddin::getAllExercises(input$courseSelect)
+      exercises <- tmcrstudioaddin::get_all_exercises(input$courseSelect,
+                                                      grv$credentials)
+      exercises
     })
 
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)

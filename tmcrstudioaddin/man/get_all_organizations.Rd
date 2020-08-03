@@ -10,7 +10,7 @@ get_all_organizations(credentials)
 \item{credentials}{List of user credentials.}
 }
 \value{
-List of TMC organization names and slugs. If 
+List of TMC organization names and slugs. If
 \code{credentials} are not proper or sending the \code{HTTP-GET} request
 failed, returns a list with 2 empty sublists called \code{name}
 and \code{slug}.

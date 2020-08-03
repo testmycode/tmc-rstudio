@@ -343,7 +343,6 @@ get_all_organizations <- function(credentials) {
 get_all_courses <- function(organization, credentials) {
   # no access to globalReactiveValues
   courses <- tryCatch({
-    # .dprint("getCredentials site B")
     # credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
@@ -363,37 +362,30 @@ get_all_courses <- function(organization, credentials) {
   return(list(id = courses$id, name = courses$name, title = courses$title))
 }
 
-## getAllCourses <- function(organization) {
-##   # no access to globalReactiveValues
-##   .dprint("getCredentials site B")
-##   credentials <- tmcrstudioaddin::getCredentials()
-##   return(get_all_courses(organization, credentials))
-## }
-
 #' @title Get all exercises of a TMC course
 #'
 #' @description Get all exercises of a TMC course.
 #'
-#' @usage getAllExercises(course)
+#' @usage get_all_exercises(course, credentials)
 #'
 #' @param course ID of the course.
 #'
+#' @param credentials List of user credentials.
+#'
 #' @details Reads the \code{OAuth2} token and server address from
-#' \code{.credentials.json} and uses them to make a \code{HTTP-GET}
+#' \code{credentials} and uses them to make a \code{HTTP-GET}
 #' request for the list of exercises in the course.
 #'
-#' @return List of exercises in the course. If reading
-#' \code{.credentials.json} or sending the \code{HTTP-GET} request
+#' @return List of exercises in the course. If
+#' \code{credentials} are not proper or sending the \code{HTTP-GET} request
 #' failed, returns an empty list.
 #'
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
-getAllExercises <- function(course) {
-  .dprint("getAllExercises()")
+get_all_exercises <- function(course, credentials) {
+  .dprint("get_all_exercises()")
   .ddprint(course)
   exercises <- tryCatch({
-    .dprint("getCredentials site C")
-    credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
     url <- paste(serverAddress,
