@@ -1,0 +1,114 @@
+.btn-default {
+  background-color: #000000;
+  color: aliceblue;
+  /* color: #aabbcc; */
+}
+
+body {
+  background-color: #000000;
+  color: aliceblue;
+  /* color: #aabbcc; */
+}
+
+.selectize-input.full {
+  background-color: #000000;
+  color: aliceblue;
+  /* color: #aabbcc; */
+}
+
+.selectize-input {
+  background-color: #000000;
+  color: aliceblue;
+  /* color: #aabbcc; */
+}
+
+button, input, select, textarea  {
+  background-color: #000000;
+  color: aliceblue;
+  /* color: #aabbcc; */
+}
+
+.selectize-control .selectize-input.disabled {
+  opacity: 0.5;
+  background-color: #111111;
+  color: aqua;
+}
+
+.btn-default.focus,
+.btn-default:focus,
+.btn-default:hover {
+ background-color: #123456;
+ color: aliceblue;
+ /* color: #aabbcc; */
+ border-color: #aabbcc;
+}
+
+.btn-default.disabled.focus,
+.btn-default.disabled:focus,
+.btn-default.disabled:hover {
+ opacity: 0.5;
+ background-color: #111111;
+ color: aliceblue;
+ /* color: #aabbcc; */
+ border-color :#aabbcc;
+}
+
+.selectize-input,
+.selectize-control.single .selectize-input.input-active {
+  background: #000000;
+  cursor: text;
+  display: inline-block;
+  color: aliceblue;
+/*  color: #aabbcc; */
+}
+
+.selectize-control.single .selectize-input,
+.selectize-control.single .selectize-input input {
+  cursor: pointer;
+  color: aliceblue;
+}
+
+.selectize-dropdown-content .active {
+  background-color: #123456;
+ color: aliceblue;
+ /* color: #aabbcc; */
+}
+
+
+.selectize-dropdown-content {
+  background-color: #000000;
+ color: aliceblue;
+ /* color: #aabbcc; */
+}
+
+.gadget-title {
+  background-color: #111111;
+ color: aliceblue;
+ /* color: #aabbcc; */
+}
+.gadget-tabs-container {
+  background-color: #222222;
+ color: aliceblue;
+ /* color: #aabbcc; */
+}
+
+.gadget-tabs-container ul.gadget-tabs>li.active>a {
+ color:#337ab7;
+ background-color: #112233;
+}
+
+.gadget-tabs-container ul.gadget-tabs>li>a {
+ background-color:  #000000;
+}
+
+.dropdown-menu {
+  background-color: #10a023
+}
+
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
+  color: #0000000;
+  background-color: #10a023
+}
+
