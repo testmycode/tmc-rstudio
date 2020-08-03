@@ -97,7 +97,8 @@
 
     disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
-      organizations <- tmcrstudioaddin::getAllOrganizations()
+      # .dprint("getAllOrganizations site 2")
+      organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
       choices <- organizations$slug
       names(choices) <- organizations$name
       shiny::updateSelectInput(session,
@@ -270,7 +271,8 @@
       hideCourseExercises()
     }
     else {
-      organizations <- tmcrstudioaddin::getAllOrganizations()
+      # .dprint("getAllOrganizations site 1")
+      organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
       choices <- organizations$slug
       names(choices) <- organizations$name
       shiny::updateSelectInput(session,

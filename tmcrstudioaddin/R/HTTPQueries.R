@@ -285,24 +285,25 @@ upload_current_exercise <- function(token,
 #'
 #' @description Get all TMC organizations.
 #'
-#' @usage getAllOrganizations()
+#' @usage get_all_organizations(credentials)
+#'
+#' @param credentials List of user credentials.
 #'
 #' @details Reads the \code{OAuth2} token and server address from
-#' \code{.credentials.json} and uses them to make a \code{HTTP-GET}
+#' \code{credentials} and uses them to make a \code{HTTP-GET}
 #' request for the list of organizations.
 #'
-#' @return List of TMC organization names and slugs. If reading
-#' \code{.credentials.json} or sending the \code{HTTP-GET} request
+#' @return List of TMC organization names and slugs. If
+#' \code{credentials} are not proper or sending the \code{HTTP-GET} request
 #' failed, returns a list with 2 empty sublists called \code{name}
 #' and \code{slug}.
 #'
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
 #' \code{\link[jsonlite]{fromJSON}}
-getAllOrganizations <- function() {
+get_all_organizations <- function(credentials) {
   organizations <- tryCatch({
-    .dprint("getCredentials site A")
-    credentials <- tmcrstudioaddin::getCredentials()
+    # credentials <- tmcrstudioaddin::getCredentials()
     url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
     req <-  httr::stop_for_status(
