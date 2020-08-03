@@ -54,6 +54,7 @@ download_exercise <- function(exercise_id,
     }
     zip_name
   }
+  .dprint("getCredentials site D")
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   serverAddress <- credentials$serverAddress
@@ -258,6 +259,7 @@ upload_current_exercise <- function(token,
   response <-
     if (!is.null(metadata$id[[1]])) {
       id <- metadata$id[[1]]
+      .dprint("getCredentials site E")
       credentials <- tmcrstudioaddin::getCredentials()
       address <- paste(sep = "", credentials$serverAddress, "/")
       tryCatch({
@@ -299,6 +301,7 @@ upload_current_exercise <- function(token,
 #' \code{\link[jsonlite]{fromJSON}}
 getAllOrganizations <- function() {
   organizations <- tryCatch({
+    .dprint("getCredentials site A")
     credentials <- tmcrstudioaddin::getCredentials()
     url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
@@ -318,24 +321,29 @@ getAllOrganizations <- function() {
 #'
 #' @description Get all courses offered by a TMC organization.
 #'
-#' @usage getAllCourses(organization)
+#' @usage get_all_courses(organization, credentials)
 #'
 #' @param organization Organization slug (Identifying URL-friendly name).
 #'
+#' @param credentials List of user credentials.
+#'
 #' @details Reads the \code{OAuth2} token and server address from
 #' \code{.credentials.json} and uses them to make a \code{HTTP-GET}
-#' request for the list of courses belonging to the organization.
+#' request for the list of courses belonging to the organization,
+#' given the user has proper credentials.
 #'
 #' @return List of course names and course ids belonging to the given
-#' organization.  If reading \code{.credentials.json} or sending the
+#' organization.  If \code{credentials} are not proper or sending the
 #' \code{HTTP-GET} request failed, returns a list with 2 empty sublists
 #' called \code{id} and \code{name}.
 #'
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
-getAllCourses <- function(organization) {
+get_all_courses <- function(organization, credentials) {
+  # no access to globalReactiveValues
   courses <- tryCatch({
-    credentials <- tmcrstudioaddin::getCredentials()
+    # .dprint("getCredentials site B")
+    # credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
     url <- paste(serverAddress, "/api/v8/core/org/",
@@ -353,6 +361,13 @@ getAllCourses <- function(organization) {
   })
   return(list(id = courses$id, name = courses$name, title = courses$title))
 }
+
+## getAllCourses <- function(organization) {
+##   # no access to globalReactiveValues
+##   .dprint("getCredentials site B")
+##   credentials <- tmcrstudioaddin::getCredentials()
+##   return(get_all_courses(organization, credentials))
+## }
 
 #' @title Get all exercises of a TMC course
 #'
@@ -376,6 +391,7 @@ getAllExercises <- function(course) {
   .dprint("getAllExercises()")
   .ddprint(course)
   exercises <- tryCatch({
+    .dprint("getCredentials site C")
     credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token

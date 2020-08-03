@@ -56,7 +56,10 @@ tmcGadget <- function() {
     .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
 
     globalReactiveValues <-
-      reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
+      reactiveValues(##credentials = tmcrstudioaddin::getCredentials(),
+                     credentials = list(), # this doesn't work, when
+                     ## not logged in
+                     ## credentials = NULL,  # this should work
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),

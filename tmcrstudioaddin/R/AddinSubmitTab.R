@@ -1,6 +1,6 @@
 .submitTabUI <- function(id, label = "Submit tab") {
   #init selected exercise (this is now done in TMC_plugin.R
-  .dprint("submitTabUI launched")
+  .dprint(".submitTabUI launched")
   ns <- shiny::NS(id)
   inputIDs    <- c("selectExercise",
                    "refreshExercises",
@@ -58,6 +58,7 @@
 }
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
+  .dprint(".submitTab launched")
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
     .ddprint("Enabling new way")

@@ -30,6 +30,7 @@ library(jsonlite)
 # authentication first fetches clientId and secret after that logs in
 # with username and password
 authenticate <- function(username, password, serverAddress) {
+  .dprint("authenticate()")
   tryCatch({
     response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
     status_code <- status_code(response)
@@ -94,6 +95,7 @@ login <- function(clientID, secret, username, password, serverAddress) {
     credentials <- list(username = username,
                         token = token,
                         serverAddress = serverAddress)
+    .dprint("saveCredentials site A")
     tmcrstudioaddin::saveCredentials(credentials)
     return(token)
   } else if (status_code(req) == 401) {
@@ -123,6 +125,7 @@ login <- function(clientID, secret, username, password, serverAddress) {
 #'
 #' @seealso \code{\link[httr]{GET}}
 fetchClientIdAndSecret <- function(serverAddress) {
+  .dprint("fetchClientIdAndSecret()")
   url <- paste(serverAddress,
                "/api/v8/application/rstudio_plugin/credentials.json",
                sep = "")
@@ -146,7 +149,6 @@ deleteCredentials <- function() {
     file.remove(".credentials")
   }
 }
-
 
 #' @title Get the saved server address
 #'
@@ -189,6 +191,7 @@ getServerAddress <- function() {
 #'
 #' @seealso \code{\link{get_tmcr_directory}}, \code{\link[base]{readRDS}}
 saveCredentials <- function(credentials) {
+  .dprint("saveCredentials()")
   credentials_path <- paste(get_tmcr_directory(),
                             ".credentials.rds",
                             sep = .Platform$file.sep)

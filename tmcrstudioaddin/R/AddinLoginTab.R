@@ -1,5 +1,6 @@
 .loginTabUI <- function(id, label = "Login tab") {
   # Create a namespace function using the provided id
+  .dprint(".loginTabUI launched")
   ns <- shiny::NS(id)
 
   inputIDs    <- c("username",
@@ -19,6 +20,7 @@
        mini_tab_panel = tab_panel)
 }
 .loginPane <- function(ns, globalReactiveValues) {
+  .dprint(".loginPane()")
   return(tagList(
     h1("Log in"),
     textInput(inputId = ns("username"), label = "Username", value = ""),
@@ -41,11 +43,13 @@
   ))
 }
 .logoutPane <- function(ns) {
+  .dprint(".logoutPane()")
   return(tagList(h1("Log out"),
                  actionButton(inputId = ns("logout"), label = "Log out")))
 }
 
 .loginTab <- function(input, output, session, globalReactiveValues) {
+  .dprint(".loginTab launched")
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
     print("Enabling new way")
@@ -67,21 +71,25 @@
   }
   ns <- shiny::NS("login")
 
-  observe({
+  observer1 <- function() {
+    .dprint("loginTab observer1 launched...")
+    print(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
       #if token is not defined, user is not logged in
-      if (is.null(globalReactiveValues$credentials$token)) {
+      if (is.null(grv$credentials$token)) {
         .loginPane(ns, globalReactiveValues)
       } else {
+        .dprint("Site A*")
         .logoutPane(ns)
       }
     })
+    .dprint("saveCredentials site B*")
     tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials)
-  })
+  }
 
-
-  observeEvent(input$login, {
+  observer2 <- function() {
+    .dprint("input$login launched...")
     if (grv$UI_disabled) {
       .ddprint("Disabled... ")
       return()
@@ -103,13 +111,26 @@
 
     if (!is.null(globalReactiveValues$credentials$token)) {
       output$loginPane <- renderUI({
+        .dprint("Site B")
         .logoutPane(ns) })
     }
 
     enable_tab_UI()
-  }, ignoreInit = TRUE)
+  }
+
+
+  print("observer1...")
+  observeEvent(grv$credentials, observer1())
+  print("... initialised")
+
+  print("observer2...")
+  observeEvent(input$login, observer2(), ignoreInit = TRUE)
+  print("... initialised")
+  print("getCredentials site 1")
+  grv$credentials <- getCredentials()
 
   observeEvent(input$logout, {
+    .dprint("input$logout launched...")
     if (grv$UI_disabled) {
       .ddprint("Disabled... ")
       return()
@@ -118,12 +139,14 @@
     tryCatch({
       globalReactiveValues$credentials <-
         list(serverAddress = globalReactiveValues$credentials$serverAddress)
+      .ddprint("saveCredentials site C")
       tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials) })
     output$loginPane <- renderUI({
       .loginPane(ns, globalReactiveValues)})
   }, ignoreInit = TRUE)
 
   observeEvent(input$resetServer, {
+    .dprint("input$resetServer launched...")
     if (grv$UI_disabled) {
       .ddprint("Disabled... ")
       return()
@@ -141,7 +164,7 @@
 
 # Sets "https://tmc.mooc.fi" as the suggested server address
 .suggest_server <- function(globalReactiveValues) {
-  .ddprint(".suggest_server")
+  .dprint(".suggest_server()")
   drop_warning <- function(err) {
   }
   tryCatch({
@@ -154,6 +177,7 @@
 # Return a title and a message string for login dialog based on
 # authentication results
 .get_title_and_message <- function(response) {
+    .dprint(".get_title_and_message()")
   # if Bearer token is retrieved login was successful
   if (grepl("Bearer", response[1])) {
     title <- "Success!"

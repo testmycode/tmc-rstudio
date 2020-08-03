@@ -62,6 +62,7 @@ submitExercise <- function(path) {
 submitCurrent <- function(path) {
   submitJson <- list()
   .dprint("submitCurrent()")
+  .dprint("getCredentials site F")
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
   response <- upload_current_exercise(token, project_path = path)

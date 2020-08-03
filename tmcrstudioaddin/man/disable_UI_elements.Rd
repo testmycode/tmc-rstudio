@@ -14,7 +14,7 @@ Disable \code{Shiny} input elements given by UI list
 }
 \details{
 Disables the \code{Shiny} input elements.
-This is done in order to prevent button actions while an 
+This is done in order to prevent button actions while an
 operation that might take a long itme is running.
 }
 \seealso{

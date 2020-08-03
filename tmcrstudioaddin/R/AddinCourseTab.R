@@ -1,6 +1,7 @@
 #downloadedExercisesPaths <- downloadedExercisesPaths
 
 .courseTabUI <- function(id, label = "Course tab") {
+  .dprint(".courseTabUI launched")
   ns <- shiny::NS(id)
   .ddprint(ns("selectExercise"))
   inputIDs    <- c("organizationSelect",
@@ -68,6 +69,7 @@
 }
 
 .courseTab <- function(input, output, session, globalReactiveValues) {
+  .dprint(".courseTab launched")
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
     .dprint("Enabling new way")
@@ -122,7 +124,8 @@
     disable_tab_UI()
     organization <- input$organizationSelect
     globalReactiveValues$credentials$organization <- organization
-    courses <- tmcrstudioaddin::getAllCourses(organization)
+    # .dprint("getAllCourses site 4")
+    courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
     globalReactiveValues$coursesInfo$all_courses <- courses
     choices <- courses$id
     names(choices) <- courses$title
@@ -143,7 +146,8 @@
     disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organization <- input$organizationSelect
-      courses <- tmcrstudioaddin::getAllCourses(organization)
+      # .ddprint("getAllCourses site 1")
+      courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
       choices <- courses$id
       names(choices) <- courses$title
       shiny::updateSelectInput(session,
@@ -251,7 +255,7 @@
   }
 
   observe({
-    .dprint("observer()")
+    .dprint("courseTab observe launched...")
     if (is.null(globalReactiveValues$credentials$token)) {
       shiny::updateSelectInput(session,
                                "organizationSelect",
@@ -276,10 +280,12 @@
                                selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
                                                  globalReactiveValues$credentials$organization,
                                                  1))
-      courses <-
-        tmcrstudioaddin::getAllCourses(ifelse(!is.null(globalReactiveValues$credentials$organization),
-                                              globalReactiveValues$credentials$organization,
-                                              1))
+      # .dprint("getAllCourses site 2")
+      # this ifelse(...) is not correct, so this has to be fixed
+      courses <- tmcrstudioaddin::get_all_courses(ifelse(!is.null(grv$credentials$organization),
+                                                         grv$credentials$organization,
+                                                         1),
+                                                  grv$credentials)
       choices2 <- courses$id
       names(choices2) <- courses$title
       shiny::updateSelectInput(session,
@@ -340,7 +346,8 @@
     tryCatch({
       withProgress(message = "Downloading exercises", {
         organization <- input$organizationSelect
-        courses <- tmcrstudioaddin::getAllCourses(organization)
+        # .dprint("getAllCourses site 3")
+        courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
         courseName <- courses$name[courses$id == input$courseSelect]
 
         course_directory_path <- file.path(get_projects_folder(), courseName,
