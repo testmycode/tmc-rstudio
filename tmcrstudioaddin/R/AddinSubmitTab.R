@@ -59,7 +59,19 @@
 
 .submitTab <- function(input, output, session, globalReactiveValues) {
   .dprint(".submitTab launched")
-  grv <- globalReactiveValues
+#
+# submitTab reactives
+#
+  grv      <- globalReactiveValues
+  reactive <- reactiveValues(submitResults = NULL,
+                             testResults   = NULL,
+                             runStatus     = NULL,
+                             showAll       = TRUE,
+                             sourcing      = FALSE,
+                             sourceEcho    = TRUE)
+#
+# normal functions
+#
   enable_tab_UI <- function() {
     .ddprint("Enabling new way")
     .ddprint("Ready to do this SubmitTab")
@@ -79,12 +91,6 @@
     globalReactiveValues$UI_disabled <- TRUE
   }
 
-  reactive <- reactiveValues(submitResults = NULL,
-                             testResults = NULL,
-                             runStatus = NULL,
-                             showAll = TRUE,
-                             sourcing = FALSE,
-                             sourceEcho = TRUE)
   silent_run_tests <- function() {
     guard_test_run <- function() {
       tryCatch({
@@ -118,14 +124,52 @@
     }
     run_results
   }
+  group_exercises <- function(exercise_paths) {
+    .ddprint("group_exercises")
+    .ddprint("exercise_paths")
+    .ddprint(exercise_paths)
+    .ddprint("strsplit")
+    .ddprint(strsplit(names(exercise_paths), ":"))
+    course_names <- sapply(strsplit(names(exercise_paths), ":"),
+                           function (x) {
+                             if (!length(x)) return("Unnamed")
+                             x[[1]]
+                           })
+    .ddprint("course_names")
+    .ddprint(course_names)
+    exercise_names <- sapply(strsplit(names(exercise_paths), ":"),
+                             function (x) {
+                               if (!length(x)) return("Unnamed")
+                               x[[2]]
+                             })
+    .ddprint("exercise_names")
+    .ddprint(exercise_names)
+    names(exercise_paths) <- exercise_names
+    unique_course_names <-  sort(unique(course_names))
+    .ddprint("unique_course_names")
+    .ddprint(unique_course_names)
+    grouped_exercise_paths <- lapply(unique_course_names,
+                                     function(course_name) {
+                                       exercise_paths[course_names == course_name]
+                                     })
+    course_titles <-
+      sub("hy-tiltu-ja-r-i-", "Tilastotiede ja R tutuksi I, ",
+          sub("hy-tiltu-ja-r-ii-", "Tilastotiede ja R tutuksi II, ",
+              sub("kevat-", "Spring 20",
+                  sub("kesa-", "Summer 20",
+                      sub("syksy-", "Autumn 20", unique_course_names)))))
+    names(grouped_exercise_paths) <- course_titles
+    .ddprint(grouped_exercise_paths)
+    grouped_exercise_paths
+  }
 
-  # This function is run when the Run tests -button is pressed
-  runTestrunner <- observeEvent(input$runTests, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
+#
+# observer functions
+#
 
+  observer31 <- function() {
+    print("observer31 launching...")
+    # This function is run when the Run tests -button is pressed
     disable_tab_UI()
     .dprint("runTestrunner()")
     .ddprint("Run when tests are launched.")
@@ -145,13 +189,10 @@
     enable_tab_UI()
     # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
     rstudioapi::executeCommand("refreshEnvironment")
-  })
+  }
 
-  submitExercise2 <- observeEvent(input$submit, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
+  observer32 <-function() {
+    print("observer32 launching...")
     if (is.null(globalReactiveValues$credentials$token)) {
       disable_tab_UI()
       rstudioapi::showDialog("Not logged in",
@@ -266,43 +307,21 @@
       reactive$sourcing <- FALSE
     }
     enable_tab_UI()
-  })
-
-  showResults <- observeEvent(input$showAllResults, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
+  }
+  observer33 <- function() {
+    print("observer33 launching...")
     reactive$showAll <- input$showAllResults
-  })
-
-  sourceEcho <- observeEvent(input$toggleEcho, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
+  }
+  observer34 <- function() {
+    print("observer34 launching...")
     reactive$sourceEcho <- input$toggleEcho
-  })
-
-  selectedExercises <- observeEvent(input$selectExercise, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
-    .ddprint("This is always lauched when a new exercise is selected.")
-    .ddprint(str(input$selectExercise))
+  }
+  observer35 <- function() {
+    print("observer35 launching...")
     globalReactiveValues$selectedExercisePath <- input$selectExercise
-  })
-
-  sourceExercise <- observeEvent(input$source, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
+  }
+  observer36 <- function() {
+    print("observer36 launching...")
     disable_tab_UI()
 
     .dprint("sourceExercise()")
@@ -326,24 +345,13 @@
         })
     }
     enable_tab_UI()
-  })
-
-  # Refresh exercises
-  observeEvent(input$refreshExercises, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
-    globalReactiveValues$downloadedExercises <- downloadedExercisesPaths()
-  })
-
-  observeEvent(input$openFiles, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
+  }
+  observer37 <- function() {
+    print("observer37 launching...")
+    globalReactiveValues$downloadedExercises <- tmcrstudioaddin::downloadedExercisesPaths()
+  }
+  observer38 <- function() {
+    print("observer38 launching...")
     disable_tab_UI()
 
     .ddprint("Launched when clicking open files")
@@ -360,20 +368,69 @@
       }
     }
     enable_tab_UI()
-  })
-
-  observeEvent(input$saveFiles, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
+  }
+  observer39 <- function() {
+    print("observer39 launching...")
     disable_tab_UI()
-    .ddprint("Save modifications")
     rstudioapi::documentSaveAll()
     enable_tab_UI()
-  })
+  }
+  update_exercises <- function() {
+    print("observer40 (update_exercises) launching...")
+    .dprint("Only launched when updates via observeEvent")
+    grouped_downloaded_exercises <- group_exercises(globalReactiveValues$downloadedExercises)
+    updateSelectInput(session  = session,
+                      inputId  = "selectExercise",
+                      label    = "Exercise:",
+                      choices  = grouped_downloaded_exercises,
+                      selected = globalReactiveValues$selectedExercisePath)
+  }
+#
+# observer initializers
+#
 
+  print("observer31...")
+  runTestrunner <- observeEvent(input$runTests, observer31())
+  print("..initialised")
+
+  print("observer32...")
+  submitExercise2 <- observeEvent(input$submit, observer32())
+  print("..initialised")
+
+  print("observer33...")
+  showResults <- observeEvent(input$showAllResults, observer33())
+  print("..initialised")
+
+  print("observer34 ...")
+  sourceEcho <- observeEvent(input$toggleEcho, observer34())
+  print("..initialised")
+
+  print("observer35 ...")
+  selectedExercises <- observeEvent(input$selectExercise, observer35())
+  print("..initialised")
+
+  print("observer36 ...")
+  sourceExercise <- observeEvent(input$source, observer36())
+  print("..initialised")
+
+  print("observer37 ...")
+  observeEvent(input$refreshExercises, observer37())
+  print("..initialised")
+
+  print("observer38 ...")
+  observeEvent(input$openFiles, observer38())
+  print("..initialised")
+
+  print("observer39 ...")
+  observeEvent(input$saveFiles, observer39())
+  print("..initialised")
+
+  print("observer40 (update_exercises) ...")
+  observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
+  print("..initialised")
+#
+# rendering
+#
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
     if (is.null(reactive$testResults) & !reactive$sourcing) {
@@ -384,9 +441,9 @@
       html <- tags$p("Sourced exercise to console.")
     } else {
       testResults <- reactive$testResults
-      runResults <- reactive$runResults
-      showAll <- reactive$showAll
-      html <- ""
+      runResults  <- reactive$runResults
+      showAll     <- reactive$showAll
+      html        <- ""
       if (reactive$runStatus == "success") {
         html <- createTestResultsHtml(testResults, showAll)
       } else {
@@ -395,56 +452,4 @@
     }
     shiny::tagList(html)
   })
-
-  # Exercises are updated everytime this module is called
-  group_exercises <- function(exercise_paths) {
-    .ddprint("group_exercises")
-    .ddprint("exercise_paths")
-    .ddprint(exercise_paths)
-    .ddprint("strsplit")
-    .ddprint(strsplit(names(exercise_paths), ":"))
-    course_names <- sapply(strsplit(names(exercise_paths), ":"),
-                           function (x) {
-                             if (!length(x)) return("Unnamed")
-                             x[[1]]
-                           })
-    .ddprint("course_names")
-    .ddprint(course_names)
-    exercise_names <- sapply(strsplit(names(exercise_paths), ":"),
-                             function (x) {
-                               if (!length(x)) return("Unnamed")
-                               x[[2]]
-                             })
-    .ddprint("exercise_names")
-    .ddprint(exercise_names)
-    names(exercise_paths) <- exercise_names
-    unique_course_names <-  sort(unique(course_names))
-    .ddprint("unique_course_names")
-    .ddprint(unique_course_names)
-    grouped_exercise_paths <- lapply(unique_course_names,
-                                     function(course_name) {
-                                       exercise_paths[course_names == course_name]
-                                     })
-    course_titles <-
-      sub("hy-tiltu-ja-r-i-", "Tilastotiede ja R tutuksi I, ",
-          sub("hy-tiltu-ja-r-ii-", "Tilastotiede ja R tutuksi II, ",
-              sub("kevat-", "Spring 20",
-                  sub("kesa-", "Summer 20",
-                      sub("syksy-", "Autumn 20", unique_course_names)))))
-    names(grouped_exercise_paths) <- course_titles
-    .ddprint(grouped_exercise_paths)
-    grouped_exercise_paths
-  }
-
-  update_exercises <-function() {
-    .dprint("UPDATE EXERCISES LAUNCHED!")
-    .dprint("Only launched when updates via observeEvent")
-    grouped_downloaded_exercises <- group_exercises(globalReactiveValues$downloadedExercises)
-    updateSelectInput(session  = session,
-                      inputId  = "selectExercise",
-                      label    = "Exercise:",
-                      choices  = grouped_downloaded_exercises,
-                      selected = globalReactiveValues$selectedExercisePath)
-  }
-  observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
 }
