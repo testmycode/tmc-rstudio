@@ -52,27 +52,27 @@
   .dprint(".loginTab launched")
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
-    print("Enabling new way")
+    .dprint("Enabling new way")
     .ddprint("Ready to do this login tab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
     shinyjs::delay(ms = 10,
                    expr = {
-                     print("Launching new way...")
+                     .dprint("Launching new way...")
                      tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
   disable_tab_UI <- function() {
-    print("Disabling new way login tab")
+    .dprint("Disabling new way login tab")
     tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
   }
   ns <- shiny::NS("login")
 
   observer1 <- function() {
-    print("loginTab observer1 launched...")
+    .dprint("loginTab observer1 launched...")
     .dprint(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
@@ -84,12 +84,12 @@
         .logoutPane(ns)
       }
     })
-    print("saveCredentials site B*")
+    .dprint("saveCredentials site B*")
     tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials)
   }
 
   observer2 <- function() {
-    print("input$login launched...")
+    .dprint("input$login launched...")
     disable_tab_UI()
 
     # Authenticate with the values from the username and password input fields
@@ -116,7 +116,7 @@
   }
 
   observer3 <- function() {
-    print("input$logout launched...")
+    .dprint("input$logout launched...")
     # overwrite credentials, so that they contain only the last login address
     grv$credentials <-
       list(username      = NULL,
@@ -131,46 +131,46 @@
   }
 
   observer4 <- function() {
-    print("input$resetServer launched...")
+    .dprint("input$resetServer launched...")
     shiny::updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
     shinyjs::disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)
   }
 
   observer5 <- function() {
-    print("c(input$username, input$serverAddress) launched...")
+    .dprint("c(input$username, input$serverAddress) launched...")
     shinyjs::toggleState("login",
                          (input$username != "") && (input$serverAddress != ""))
   }
 
   observer6 <- function() {
-    print("input$changeServer launched...")
+    .dprint("input$changeServer launched...")
     shinyjs::toggleState("serverAddress", input$changeServer == TRUE)
   }
 
-  print("observer1...")
+  .dprint("observer1...")
   observeEvent(grv$credentials, observer1())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("observer2...")
+  .dprint("observer2...")
   observeEvent(input$login, observer2(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("observer3...")
+  .dprint("observer3...")
   observeEvent(input$logout, observer3(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("observer4...")
+  .dprint("observer4...")
   observeEvent(input$resetServer, observer4(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("observer5...")
+  .dprint("observer5...")
   observeEvent(c(input$username, input$serverAddress), observer5())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("observer5...")
+  .dprint("observer5...")
   observeEvent(input$changeServer, observer6())
-  print("... initialised")
+  .dprint("... initialised")
 
   # grv$credentials <- getCredentials()
 
