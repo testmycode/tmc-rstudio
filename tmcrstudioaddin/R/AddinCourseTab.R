@@ -210,7 +210,7 @@
 #
 
   CT_observer1 <- function() {
-    print("input$refreshOrganizations launched...")
+    .dprint("input$refreshOrganizations launched...")
     disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
       # .dprint("getAllOrganizations site 2")
@@ -233,7 +233,7 @@
   }
 
   CT_observer2 <- function() {
-    print("CT_observer2 launched...")
+    .dprint("CT_observer2 launched...")
 
     disable_tab_UI()
     organization <- input$organizationSelect
@@ -252,7 +252,7 @@
   }
 
   CT_observer3 <- function() {
-    print("CT_observer3 launched...")
+    .dprint("CT_observer3 launched...")
     disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organization <- input$organizationSelect
@@ -274,7 +274,7 @@
   }
 
   CT_observer4 <- function() {
-    print("CT_observer4 launched...")
+    .dprint("CT_observer4 launched...")
     disable_tab_UI()
     hideCourseExercises()
     withProgress(message = "Fetching exercises", {
@@ -287,7 +287,7 @@
   }
 
   CT_observer5 <- function() {
-    print("CT_observer5 launched...")
+    .dprint("CT_observer5 launched...")
     shinyjs::disable("all_exercises")
 
     if (input$all_exercises) {
@@ -306,7 +306,7 @@
   }
 
   CT_observer6 <- function() {
-    print("CT_observer6 launched...")
+    .dprint("CT_observer6 launched...")
     shinyjs::disable("updateAllExercises")
 
     if (input$updateAllExercises) {
@@ -324,7 +324,7 @@
     shinyjs::enable("updateAllExercises")
   }
   CT_observer7 <- function() {
-    print("CT_observer7 launched...")
+    .dprint("CT_observer7 launched...")
     disable_tab_UI()
 
     tryCatch({
@@ -418,7 +418,7 @@ pre_error)
   }
 
   CT_observer8 <- function() {
-    print("CT_observer8 launched...")
+    .dprint("CT_observer8 launched...")
     if (length(globalReactiveValues$unpublishedExercisesMap) > 0) {
       .dprint("unpublished_exercises")
       shiny::updateCheckboxGroupInput(session,
@@ -433,7 +433,7 @@ pre_error)
   }
 
   CT_observer9 <- function() {
-    print("CT_observer9 launched...")
+    .dprint("CT_observer9 launched...")
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
       .ddprint("update all exercises")
       show("updateAllExercises")
@@ -449,7 +449,7 @@ pre_error)
   }
 
   CT_observer10 <- function() {
-    print("CT_observer10 launched...")
+    .dprint("CT_observer10 launched...")
     if (length(globalReactiveValues$exerciseMap) > 0) {
       .ddprint("showing all exercises")
       show("all_exercises")
@@ -464,7 +464,7 @@ pre_error)
   }
 
   CT_observer11 <- function() {
-    print("CT_observer11 launched...")
+    .dprint("CT_observer11 launched...")
     if (is.null(globalReactiveValues$credentials$token)) {
       shiny::updateSelectInput(session,
                                "organizationSelect",
@@ -508,51 +508,51 @@ pre_error)
 # CT_observer initializers
 #
 
-  print("CT_observer1...")
+  .dprint("CT_observer1...")
   observeEvent(input$refreshOrganizations, CT_observer1())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer2...")
+  .dprint("CT_observer2...")
   observeEvent(input$organizationSelect, CT_observer2(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer3...")
+  .dprint("CT_observer3...")
   observeEvent(input$refreshCourses, CT_observer3(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer4...")
+  .dprint("CT_observer4...")
   observeEvent(input$courseSelect, CT_observer4(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer5...")
+  .dprint("CT_observer5...")
   observeEvent(input$all_exercises, CT_observer5())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer6...")
+  .dprint("CT_observer6...")
   observeEvent(input$updateAllExercises, CT_observer6())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer7...")
+  .dprint("CT_observer7...")
   observeEvent(input$download, CT_observer7())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer8 ...")
+  .dprint("CT_observer8 ...")
   observeEvent(globalReactiveValues$unpublishedExercisesMap, CT_observer8())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer9 ...")
+  .dprint("CT_observer9 ...")
   observeEvent(globalReactiveValues$downloadedExercisesMap, CT_observer9())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer10 ...")
+  .dprint("CT_observer10 ...")
   observeEvent(globalReactiveValues$exerciseMap, CT_observer10())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("CT_observer11 ...")
+  .dprint("CT_observer11 ...")
   observeEvent(c(globalReactiveValues$credentials$token,
                  globalReactiveValues$credentials$organization),
                CT_observer11())
-  print("... initialised")
+  .dprint("... initialised")
 #
 # CT_observers
 #

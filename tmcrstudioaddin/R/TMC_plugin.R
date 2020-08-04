@@ -49,12 +49,12 @@ tmcGadget <- function() {
   .ddprint("After...")
 
   tmc_shiny_server <- function(input, output, session) {
-    print("After...")
+    .dprint("After...")
     .ddprint("Later...")
     .ddprint(str(course_tab_data[["ns_inputIDs"]]))
     .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
 
-    print("Initial launch of observer1 with getCredentials...")
+    .dprint("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
@@ -98,6 +98,6 @@ tmcGadget <- function() {
                       globalReactiveValues = globalReactiveValues)
   }
 
-  print("Before...")
+  .dprint("Before...")
   shiny::runGadget(app = ui, server = tmc_shiny_server)
 }

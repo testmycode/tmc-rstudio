@@ -168,7 +168,7 @@
 #
 
   ST_observer1 <- function() {
-    print("ST_observer1 launching...")
+    .dprint("ST_observer1 launching...")
     # This function is run when the Run tests -button is pressed
     disable_tab_UI()
     .dprint("runTestrunner()")
@@ -192,7 +192,7 @@
   }
 
   ST_observer2 <-function() {
-    print("ST_observer2 launching...")
+    .dprint("ST_observer2 launching...")
     if (is.null(globalReactiveValues$credentials$token)) {
       disable_tab_UI()
       rstudioapi::showDialog("Not logged in",
@@ -309,19 +309,19 @@
     enable_tab_UI()
   }
   ST_observer3 <- function() {
-    print("ST_observer3 launching...")
+    .dprint("ST_observer3 launching...")
     reactive$showAll <- input$showAllResults
   }
   ST_observer4 <- function() {
-    print("ST_observer4 launching...")
+    .dprint("ST_observer4 launching...")
     reactive$sourceEcho <- input$toggleEcho
   }
   ST_observer5 <- function() {
-    print("ST_observer5 launching...")
+    .dprint("ST_observer5 launching...")
     globalReactiveValues$selectedExercisePath <- input$selectExercise
   }
   ST_observer6 <- function() {
-    print("ST_observer6 launching...")
+    .dprint("ST_observer6 launching...")
     disable_tab_UI()
 
     .dprint("sourceExercise()")
@@ -347,11 +347,11 @@
     enable_tab_UI()
   }
   ST_observer7 <- function() {
-    print("ST_observer7 launching...")
+    .dprint("ST_observer7 launching...")
     globalReactiveValues$downloadedExercises <- tmcrstudioaddin::downloadedExercisesPaths()
   }
   ST_observer8 <- function() {
-    print("ST_observer8 launching...")
+    .dprint("ST_observer8 launching...")
     disable_tab_UI()
 
     .ddprint("Launched when clicking open files")
@@ -370,13 +370,13 @@
     enable_tab_UI()
   }
   ST_observer9 <- function() {
-    print("ST_observer9 launching...")
+    .dprint("ST_observer9 launching...")
     disable_tab_UI()
     rstudioapi::documentSaveAll()
     enable_tab_UI()
   }
   update_exercises <- function() {
-    print("ST_observer10 (update_exercises) launching...")
+    .dprint("ST_observer10 (update_exercises) launching...")
     .dprint("Only launched when updates via observeEvent")
     grouped_downloaded_exercises <- group_exercises(globalReactiveValues$downloadedExercises)
     updateSelectInput(session  = session,
@@ -389,45 +389,45 @@
 # observer initializers
 #
 
-  print("ST_observer1...")
+  .dprint("ST_observer1...")
   runTestrunner <- observeEvent(input$runTests, ST_observer1())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer2...")
+  .dprint("ST_observer2...")
   submitExercise2 <- observeEvent(input$submit, ST_observer2())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer3...")
+  .dprint("ST_observer3...")
   showResults <- observeEvent(input$showAllResults, ST_observer3())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer4 ...")
+  .dprint("ST_observer4 ...")
   sourceEcho <- observeEvent(input$toggleEcho, ST_observer4())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer5 ...")
+  .dprint("ST_observer5 ...")
   selectedExercises <- observeEvent(input$selectExercise, ST_observer5())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer6 ...")
+  .dprint("ST_observer6 ...")
   sourceExercise <- observeEvent(input$source, ST_observer6())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer7 ...")
+  .dprint("ST_observer7 ...")
   observeEvent(input$refreshExercises, ST_observer7())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer8 ...")
+  .dprint("ST_observer8 ...")
   observeEvent(input$openFiles, ST_observer8())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer9 ...")
+  .dprint("ST_observer9 ...")
   observeEvent(input$saveFiles, ST_observer9())
-  print("..initialised")
+  .dprint("..initialised")
 
-  print("ST_observer10 (update_exercises) ...")
+  .dprint("ST_observer10 (update_exercises) ...")
   observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
-  print("..initialised")
+  .dprint("..initialised")
 #
 # rendering
 #

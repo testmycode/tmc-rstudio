@@ -49,7 +49,7 @@
 }
 
 .loginTab <- function(input, output, session, globalReactiveValues) {
-  print(".loginTab launched")
+  .dprint(".loginTab launched")
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
     .dprint("Enabling new way")
@@ -72,7 +72,7 @@
   ns <- shiny::NS("login")
 
   LT_observer1 <- function() {
-    print("loginTab LT_observer1 launched...")
+    .dprint("loginTab LT_observer1 launched...")
     .dprint(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
@@ -89,7 +89,7 @@
   }
 
   LT_observer2 <- function() {
-    print("input$login launched...")
+    .dprint("input$login launched...")
     disable_tab_UI()
 
     # Authenticate with the values from the username and password input fields
@@ -116,7 +116,7 @@
   }
 
   LT_observer3 <- function() {
-    print("input$logout launched...")
+    .dprint("input$logout launched...")
     # overwrite credentials, so that they contain only the last login address
     grv$credentials <-
       list(username      = NULL,
@@ -131,46 +131,46 @@
   }
 
   LT_observer4 <- function() {
-    print("input$resetServer launched...")
+    .dprint("input$resetServer launched...")
     shiny::updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
     shinyjs::disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)
   }
 
   LT_observer5 <- function() {
-    print("c(input$username, input$serverAddress) launched...")
+    .dprint("c(input$username, input$serverAddress) launched...")
     shinyjs::toggleState("login",
                          (input$username != "") && (input$serverAddress != ""))
   }
 
   LT_observer6 <- function() {
-    print("input$changeServer launched...")
+    .dprint("input$changeServer launched...")
     shinyjs::toggleState("serverAddress", input$changeServer == TRUE)
   }
 
-  print("LT_observer1...")
+  .dprint("LT_observer1...")
   observeEvent(grv$credentials, LT_observer1())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("LT_observer2...")
+  .dprint("LT_observer2...")
   observeEvent(input$login, LT_observer2(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("LT_observer3...")
+  .dprint("LT_observer3...")
   observeEvent(input$logout, LT_observer3(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("LT_observer4...")
+  .dprint("LT_observer4...")
   observeEvent(input$resetServer, LT_observer4(), ignoreInit = TRUE)
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("LT_observer5...")
+  .dprint("LT_observer5...")
   observeEvent(c(input$username, input$serverAddress), LT_observer5())
-  print("... initialised")
+  .dprint("... initialised")
 
-  print("LT_observer5...")
+  .dprint("LT_observer5...")
   observeEvent(input$changeServer, LT_observer6())
-  print("... initialised")
+  .dprint("... initialised")
 
   # grv$credentials <- getCredentials()
 
