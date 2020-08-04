@@ -34,7 +34,6 @@ tmcGadget <- function() {
   assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
   rstudioapi::executeCommand("refreshEnvironment")
 
-  .ddprint("Before...")
 
   login_tab_data  <- .loginTabUI(id = "login")
   course_tab_data <- .courseTabUI(id = "courses")
@@ -49,13 +48,13 @@ tmcGadget <- function() {
                                    submit_tab_data[["mini_tab_panel"]]))
   .ddprint("After...")
 
-  server <- function(input, output, session) {
-
+  tmc_shiny_server <- function(input, output, session) {
+    print("After...")
     .ddprint("Later...")
     .ddprint(str(course_tab_data[["ns_inputIDs"]]))
     .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
 
-    .dprint("Initial launch of observer1 with getCredentials...")
+    print("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
@@ -99,5 +98,6 @@ tmcGadget <- function() {
                       globalReactiveValues = globalReactiveValues)
   }
 
-  shiny::runGadget(app = ui, server = server)
+  print("Before...")
+  shiny::runGadget(app = ui, server = tmc_shiny_server)
 }
