@@ -72,7 +72,7 @@
   ns <- shiny::NS("login")
 
   observer1 <- function() {
-    .dprint("loginTab observer1 launched...")
+    print("loginTab observer1 launched...")
     print(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
@@ -84,7 +84,7 @@
         .logoutPane(ns)
       }
     })
-    .dprint("saveCredentials site B*")
+    print("saveCredentials site B*")
     tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials)
   }
 
@@ -118,8 +118,11 @@
   observer3 <- function() {
     print("input$logout launched...")
     # overwrite credentials, so that they contain only the last login address
-    globalReactiveValues$credentials <-
-      list(serverAddress = globalReactiveValues$credentials$serverAddress)
+    grv$credentials <-
+      list(username      = NULL,
+           token         = NULL,
+           serverAddress = globalReactiveValues$credentials$serverAddress,
+           organization  = NULL)
     tryCatch({
       .ddprint("saveCredentials site C")
       tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials) })

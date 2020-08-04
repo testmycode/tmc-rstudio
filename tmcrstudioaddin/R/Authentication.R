@@ -92,9 +92,10 @@ login <- function(clientID, secret, username, password, serverAddress) {
   # if http status is ok return token
   if (status_code(req) == 200) {
     token <- paste("Bearer", httr::content(req)$access_token)
-    credentials <- list(username = username,
-                        token = token,
-                        serverAddress = serverAddress)
+    credentials <- list(username      = username,
+                        token         = token,
+                        serverAddress = serverAddress,
+                        organization  = NULL)
     .dprint("saveCredentials site A")
     tmcrstudioaddin::saveCredentials(credentials)
     return(token)
