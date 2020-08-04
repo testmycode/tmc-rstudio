@@ -107,7 +107,8 @@
                            message = title_and_message$message,
                            url = "")
     # If user has saved credentials update view
-    globalReactiveValues$credentials <- tmcrstudioaddin::getCredentials()
+    .dprint("getCredentials site 2")
+    grv$credentials <- tmcrstudioaddin::getCredentials()
 
     if (!is.null(globalReactiveValues$credentials$token)) {
       output$loginPane <- renderUI({
@@ -126,7 +127,7 @@
   print("observer2...")
   observeEvent(input$login, observer2(), ignoreInit = TRUE)
   print("... initialised")
-  print("getCredentials site 1")
+  .dprint("Initial launch of observer1 with getCredentials...")
   grv$credentials <- getCredentials()
 
   observeEvent(input$logout, {

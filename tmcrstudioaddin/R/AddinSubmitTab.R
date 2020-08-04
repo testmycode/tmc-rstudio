@@ -147,7 +147,7 @@
     rstudioapi::executeCommand("refreshEnvironment")
   })
 
-  submitExercise <- observeEvent(input$submit, { 
+  submitExercise2 <- observeEvent(input$submit, {
     if (grv$UI_disabled) {
       .ddprint("Disabled... ")
       return()
@@ -215,7 +215,8 @@
       .ddprint("Run when tests are submitted.")
       withProgress(message = "Submitting exercise",
                    value = 0, {
-                     submitRes <- submitExercise(globalReactiveValues$selectedExercisePath)
+                     submitRes <- tmcrstudioaddin::submit_exercise(grv$selectedExercisePath,
+                                                                   grv$credentials)
                    })
     }
     if (is.null(submitRes$error)) {

@@ -262,10 +262,7 @@ upload_current_exercise <- function(credentials,
   response <-
     if (!is.null(metadata$id[[1]])) {
       id <- metadata$id[[1]]
-      .dprint("getCredentials site E")
       token <- credentials$token
-      # credentials <- tmcrstudioaddin::getCredentials()
-      .dprint(str(credentials))
       address <- paste(sep = "", credentials$serverAddress, "/")
       tryCatch({
       response <- upload_exercise(token = token, exercise_id = id,

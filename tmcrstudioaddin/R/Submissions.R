@@ -3,9 +3,10 @@
 #' @description Submit the currently chosen exercise to the TMC server
 #' and process the \code{JSON} received from the response.
 #'
-#' @usage submitExercise(path)
+#' @usage submit_exercise(path, credentials)
 #'
 #' @param path Path to the currently chosen directory.
+#' @param credentials List of user credentials.
 #'
 #' @details Submits the currently open exercise to the TMC server,
 #' queries the server until it has finished processing the submission,
@@ -18,13 +19,13 @@
 #' \code{all_tests_passed}, \code{points}, \code{error}.  \code{error}
 #' is not \code{NULL}if submitting the exercise to the server failed
 #'
-#' @seealso \code{\link{submitCurrent}},
+#' @seealso \code{\link{submit_current}},
 #' \code{\link{processSubmissionJson}}, \code{\link{showMessage}}
 
-submitExercise <- function(path) {
-  .dprint("submitExercise()")
+submit_exercise <- function(path, credentials) {
+  .dprint("submit_exercise()")
   submitJson <- list()
-  submitJson <- submitCurrent(path)
+  submitJson <- submit_current(path, credentials)
   submitRes <- list()
   if (is.null(submitJson$error)) {
     .ddprint(str(submitJson))
@@ -41,12 +42,13 @@ submitExercise <- function(path) {
 #' @description Submit the currently chosen exercise to the TMC server
 #' and return the submission result \code{JSON}.
 #'
-#' @usage submitCurrent(path)
+#' @usage submit_current(path, credentials)
 #'
 #' @param path Path to the currently chosen directory.
+#' @param credentials List of user credentials.
 #'
 #' @details Reads the \code{OAuth2} token and TMC server address from
-#' \code{.crendentials.rds} and uploads the currently open exercise to
+#' \code{crendentials} and uploads the currently open exercise to
 #' the TMC server. If the upload was successful, starts querying the TMC
 #' server for the submission result \code{JSON} until the server has
 #' finished processing the tests.
@@ -59,13 +61,10 @@ submitExercise <- function(path) {
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link{upload_current_exercise}},
 #' \code{\link{getExerciseFromServer}}
-submitCurrent <- function(path) {
+submit_current <- function(path, credentials) {
   submitJson <- list()
-  .dprint("submitCurrent()")
-  .dprint("getCredentials site F")
-  credentials <- tmcrstudioaddin::getCredentials()
+  .dprint("submit_current()")
   token <- credentials$token
-  # response <- upload_current_exercise(token, project_path = path)
   response <- upload_current_exercise(credentials, project_path = path)
   if (is.null(response$error)) {
     .ddprint("upload_response..")
