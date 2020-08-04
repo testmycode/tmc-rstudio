@@ -450,6 +450,7 @@ pre_error)
                                          zip_name      = zip_name,
                                          exercise_directory = course_directory_path,
                                          exercise_name = name,
+                                         credentials   = grv$credentials,
                                          unique_random = TRUE)
       incProgress(1 / length(exercises))
     }

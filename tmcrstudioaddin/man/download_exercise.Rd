@@ -9,6 +9,7 @@ download_exercise(exercise_id,
                          zip_name = "temp.zip",
                          exercise_directory,
                          exercise_name,
+                         credentials,
                          unique_random = FALSE)
 }
 \arguments{
@@ -25,6 +26,8 @@ directory is unzipped to.}
 
 \item{exercise_name}{Name of the downloaded exercise.}
 
+\item{credentials}{List of user credentials.}
+
 \item{unique_random}{logical: should the name of the file be unique
 and random? Default is FALSE.}
 }
@@ -35,8 +38,7 @@ and random? Default is FALSE.}
 Download an exercise from the TMC server.
 }
 \details{
-Reads the user credentials from the credentials file,
-downloads an zipped exercise matching the given id from the TMC
+Downloads an zipped exercise matching the given id from the TMC
 server, unzips it to the given directory and creates a \code{JSON}
 file containing the exercise name and id on the exercise directory.
 }

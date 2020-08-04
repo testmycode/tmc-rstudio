@@ -4,12 +4,11 @@
 \alias{upload_current_exercise}
 \title{Upload the currently open exercise to the TMC server}
 \usage{
-upload_current_exercise(token, project_path, zip_name =
+upload_current_exercise(credentials, project_path, zip_name =
 "temp", remove_zip = TRUE)
 }
 \arguments{
-\item{token}{\code{OAuth2} token associated with the current login
-session.}
+\item{credentials}{List of user credentials.}
 
 \item{project_path}{Path to the directory of the submitted exercise.}
 
@@ -30,7 +29,8 @@ Upload the currently open exercise to the TMC server.
 }
 \details{
 Reads the exercise id from \code{.metadata.json} and the
-server address from \code{.credentials.json} which are used to form
+\code{OAuth2} token associated with the current login session and the
+server address from \code{credentials} which are used to form
 the correct uploading address.
 }
 \seealso{

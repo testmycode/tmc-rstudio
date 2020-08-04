@@ -7,6 +7,7 @@
 #'                          zip_name = "temp.zip",
 #'                          exercise_directory,
 #'                          exercise_name,
+#'                          credentials,
 #'                          unique_random = FALSE)
 #'
 #' @param exercise_id ID of the exercise.
@@ -17,11 +18,11 @@
 #' @param exercise_directory Path to the directory where the exercise
 #' directory is unzipped to.
 #' @param exercise_name Name of the downloaded exercise.
+#' @param credentials List of user credentials.
 #' @param unique_random logical: should the name of the file be unique
 #' and random? Default is FALSE.
 #'
-#' @details Reads the user credentials from the credentials file,
-#' downloads an zipped exercise matching the given id from the TMC
+#' @details Downloads an zipped exercise matching the given id from the TMC
 #' server, unzips it to the given directory and creates a \code{JSON}
 #' file containing the exercise name and id on the exercise directory.
 #'
@@ -38,6 +39,7 @@ download_exercise <- function(exercise_id,
                               zip_name = "temp.zip",
                               exercise_directory,
                               exercise_name,
+                              credentials,
                               unique_random = FALSE) {
   randomize_name  <- function(body, tmp_dir) {
     zip_name <- ""
@@ -54,11 +56,9 @@ download_exercise <- function(exercise_id,
     }
     zip_name
   }
-  .dprint("getCredentials site D")
-  credentials <- tmcrstudioaddin::getCredentials()
+  .dprint("download_exercise()")
   token <- credentials$token
   serverAddress <- credentials$serverAddress
-  .dprint("download_exercise()")
 
   if (unique_random) {
     zip_name <- randomize_name(zip_name, zip_target)
@@ -210,15 +210,17 @@ get_submission_json <- function(token, url) {
   return(exercises_response)
 }
 
+# #' @param token \code{OAuth2} token associated with the current login
+# #' session.
+
 #' @title Upload the currently open exercise to the TMC server
 #'
 #' @description Upload the currently open exercise to the TMC server.
 #'
-#' @usage upload_current_exercise(token, project_path, zip_name =
+#' @usage upload_current_exercise(credentials, project_path, zip_name =
 #' "temp", remove_zip = TRUE)
 #'
-#' @param token \code{OAuth2} token associated with the current login
-#' session.
+#' @param credentials List of user credentials.
 #' @param project_path Path to the directory of the submitted exercise.
 #' @param zip_name Name of the \code{zip} file which contains the
 #' exercise submission. Default is \code{temp}.
@@ -227,7 +229,8 @@ get_submission_json <- function(token, url) {
 #' server. Defaults to \code{TRUE}.
 #'
 #' @details Reads the exercise id from \code{.metadata.json} and the
-#' server address from \code{.credentials.json} which are used to form
+#' \code{OAuth2} token associated with the current login session and the
+#' server address from \code{credentials} which are used to form
 #' the correct uploading address.
 #'
 #' @return \code{HTTP} response as a list to the submission attempt.
@@ -241,7 +244,7 @@ get_submission_json <- function(token, url) {
 # Zips the current working directory and uploads it to the server Uses
 # the path of the currently active R-project by default For testing
 # purposes, you can provide some other file path
-upload_current_exercise <- function(token,
+upload_current_exercise <- function(credentials,
                                     project_path,
                                     zip_name = "temp",
                                     remove_zip = TRUE) {
@@ -260,7 +263,9 @@ upload_current_exercise <- function(token,
     if (!is.null(metadata$id[[1]])) {
       id <- metadata$id[[1]]
       .dprint("getCredentials site E")
-      credentials <- tmcrstudioaddin::getCredentials()
+      token <- credentials$token
+      # credentials <- tmcrstudioaddin::getCredentials()
+      .dprint(str(credentials))
       address <- paste(sep = "", credentials$serverAddress, "/")
       tryCatch({
       response <- upload_exercise(token = token, exercise_id = id,
@@ -303,7 +308,6 @@ upload_current_exercise <- function(token,
 #' \code{\link[jsonlite]{fromJSON}}
 get_all_organizations <- function(credentials) {
   organizations <- tryCatch({
-    # credentials <- tmcrstudioaddin::getCredentials()
     url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
     req <-  httr::stop_for_status(
@@ -343,7 +347,6 @@ get_all_organizations <- function(credentials) {
 get_all_courses <- function(organization, credentials) {
   # no access to globalReactiveValues
   courses <- tryCatch({
-    # credentials <- tmcrstudioaddin::getCredentials()
     serverAddress <- credentials$serverAddress
     token <- credentials$token
     url <- paste(serverAddress, "/api/v8/core/org/",

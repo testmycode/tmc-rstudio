@@ -65,7 +65,8 @@ submitCurrent <- function(path) {
   .dprint("getCredentials site F")
   credentials <- tmcrstudioaddin::getCredentials()
   token <- credentials$token
-  response <- upload_current_exercise(token, project_path = path)
+  # response <- upload_current_exercise(token, project_path = path)
+  response <- upload_current_exercise(credentials, project_path = path)
   if (is.null(response$error)) {
     .ddprint("upload_response..")
     .ddprint(str(response))
