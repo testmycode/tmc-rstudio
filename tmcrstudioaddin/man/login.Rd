@@ -19,8 +19,9 @@ login(clientID, secret, username, password, serverAddress)
 to log in to.}
 }
 \value{
-An \code{OAuth2} token if the authentication was succesful,
-otherwise returns an error message.
+a named list of an \code{OAuth2} token if the authentication was succesful,
+with NULL error message. Otherwise returns an error message with NULL
+token.
 }
 \description{
 Logs in to a TMC server using an username and a password

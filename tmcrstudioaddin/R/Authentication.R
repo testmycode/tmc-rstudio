@@ -17,8 +17,9 @@ library(jsonlite)
 #' the client id and secret from the server and uses them along with the
 #' username and password to login to the server.
 #'
-#' @return An \code{OAuth2} token if the authentication was succesful,
-#' otherwise returns an error message.
+#' @return a named list of an \code{OAuth2} token if the authentication was succesful,
+#' with NULL error message. Otherwise returns an error message with NULL
+#' token.
 #'
 #' @examples authenticate(username = "test", password = "hello123",
 #' serverAddress = "https://tmc.mooc.fi")
@@ -32,23 +33,27 @@ library(jsonlite)
 authenticate <- function(username, password, serverAddress) {
   .dprint("authenticate()")
   tryCatch({
-    response <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
+    response   <- tmcrstudioaddin::fetchClientIdAndSecret(serverAddress)
     status_code <- status_code(response)
     if (status_code == 200) {
       clientID <- httr::content(response)$application_id
-      secret <- httr::content(response)$secret
-      return(tmcrstudioaddin::login(clientID,
-                                    secret,
-                                    username,
-                                    password,
-                                    serverAddress))
+      secret   <- httr::content(response)$secret
+      response <- tmcrstudioaddin::login(clientID,
+                                         secret,
+                                         username,
+                                         password,
+                                         serverAddress)
+      return(response)
     } else {
         stop()
-    } },
-    error = function(e) {
-      response <- list(error = "Bad request",
-                       error_description = "Invalid request")
-      return(response) })
+    }
+  },
+  error = function(e) {
+    response <- list(token             = NULL,
+                     error             = "Bad request",
+                     error_description = "Invalid request")
+    return(response)
+  })
 }
 
 #' @title Login to a TMC server
@@ -70,8 +75,9 @@ authenticate <- function(username, password, serverAddress) {
 #' (username, access-token and the server address) in the
 #' \code{.credentials} file.
 #'
-#' @return An \code{OAuth2} token if the authentication was succesful,
-#' otherwise returns an error message.
+#' @return a named list of an \code{OAuth2} token if the authentication was succesful,
+#' with NULL error message. Otherwise returns an error message with NULL
+#' token.
 #'
 #' @seealso \code{\link[httr]{POST}}, \code{\link[httr]{status_code}},
 #' \code{\link[httr]{content}}, \code{\link{saveCredentials}}
@@ -98,17 +104,19 @@ login <- function(clientID, secret, username, password, serverAddress) {
                         organization  = NULL)
     .dprint("saveCredentials site A")
     tmcrstudioaddin::saveCredentials(credentials)
-    return(token)
+    response <- list(token             = token,
+                     error             = NULL,
+                     error_description = NULL)
   } else if (status_code(req) == 401) {
-    response <- list(error = "Invalid credentials",
+    response <- list(token             = NULL,
+                     error             = "Invalid credentials",
                      error_description = "Check your username and/or password")
-    return(response)
   } else {
-    response <-
-      list(error = "Error",
-           error_description = "Something went wrong. Try again later")
-    return(response)
+    response <- list(token             = NULL,
+                     error             = "Error",
+                     error_description = "Something went wrong. Try again later")
   }
+  return(response)
 }
 
 

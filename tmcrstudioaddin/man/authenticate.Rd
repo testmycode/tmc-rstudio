@@ -15,8 +15,9 @@ authenticate(username, password, serverAddress)
 to log in to.}
 }
 \value{
-An \code{OAuth2} token if the authentication was succesful,
-otherwise returns an error message.
+a named list of an \code{OAuth2} token if the authentication was succesful,
+with NULL error message. Otherwise returns an error message with NULL
+token.
 }
 \description{
 Fetches the client id and secret from the server and

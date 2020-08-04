@@ -73,7 +73,7 @@
 
   observer1 <- function() {
     print("loginTab observer1 launched...")
-    print(str(grv$credentials))
+    .dprint(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
       #if token is not defined, user is not logged in
@@ -96,12 +96,12 @@
     response <- tmcrstudioaddin::authenticate(input$username,
                                               input$password,
                                               input$serverAddress)
-    title_and_message <- .get_title_and_message(response = response)
-
     # showDialog() needs RStudio version > 1.1.67
-    rstudioapi::showDialog(title = title_and_message$title,
-                           message = title_and_message$message,
-                           url = "")
+    if (!is.null(response$error)) {
+      rstudioapi::showDialog(title   = response$error,
+                             message = response$error_description,
+                             url = "")
+    }
     # If user has saved credentials update view
     .dprint("getCredentials site 2")
     grv$credentials <- tmcrstudioaddin::getCredentials()
@@ -190,18 +190,3 @@
     }}, warning = drop_warning)
 }
 
-# Return a title and a message string for login dialog based on
-# authentication results
-.get_title_and_message <- function(response) {
-    .dprint(".get_title_and_message()")
-  # if Bearer token is retrieved login was successful
-  if (grepl("Bearer", response[1])) {
-    title <- "Success!"
-    message <- "Login successful!"
-  } else {
-    title <- response$error
-    message <- response$error_description
-  }
-
-  return(list("title" = title, "message" = message))
-}
