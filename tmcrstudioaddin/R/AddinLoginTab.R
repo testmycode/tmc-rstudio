@@ -49,7 +49,7 @@
 }
 
 .loginTab <- function(input, output, session, globalReactiveValues) {
-  .dprint(".loginTab launched")
+  print(".loginTab launched")
   grv <- globalReactiveValues
   enable_tab_UI <- function() {
     .dprint("Enabling new way")
@@ -71,8 +71,8 @@
   }
   ns <- shiny::NS("login")
 
-  observer1 <- function() {
-    print("loginTab observer1 launched...")
+  LT_observer1 <- function() {
+    print("loginTab LT_observer1 launched...")
     .dprint(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
@@ -88,8 +88,8 @@
     tmcrstudioaddin::saveCredentials(globalReactiveValues$credentials)
   }
 
-  observer2 <- function() {
-    .dprint("input$login launched...")
+  LT_observer2 <- function() {
+    print("input$login launched...")
     disable_tab_UI()
 
     # Authenticate with the values from the username and password input fields
@@ -115,8 +115,8 @@
     enable_tab_UI()
   }
 
-  observer3 <- function() {
-    .dprint("input$logout launched...")
+  LT_observer3 <- function() {
+    print("input$logout launched...")
     # overwrite credentials, so that they contain only the last login address
     grv$credentials <-
       list(username      = NULL,
@@ -130,47 +130,47 @@
       .loginPane(ns, globalReactiveValues)})
   }
 
-  observer4 <- function() {
-    .dprint("input$resetServer launched...")
+  LT_observer4 <- function() {
+    print("input$resetServer launched...")
     shiny::updateTextInput(session, "serverAddress", value = "https://tmc.mooc.fi")
     shinyjs::disable("serverAddress")
     updateCheckboxInput(session, "changeServer", value = FALSE)
   }
 
-  observer5 <- function() {
-    .dprint("c(input$username, input$serverAddress) launched...")
+  LT_observer5 <- function() {
+    print("c(input$username, input$serverAddress) launched...")
     shinyjs::toggleState("login",
                          (input$username != "") && (input$serverAddress != ""))
   }
 
-  observer6 <- function() {
-    .dprint("input$changeServer launched...")
+  LT_observer6 <- function() {
+    print("input$changeServer launched...")
     shinyjs::toggleState("serverAddress", input$changeServer == TRUE)
   }
 
-  print("observer1...")
-  observeEvent(grv$credentials, observer1())
+  print("LT_observer1...")
+  observeEvent(grv$credentials, LT_observer1())
   print("... initialised")
 
-  .dprint("observer2...")
-  observeEvent(input$login, observer2(), ignoreInit = TRUE)
-  .dprint("... initialised")
+  print("LT_observer2...")
+  observeEvent(input$login, LT_observer2(), ignoreInit = TRUE)
+  print("... initialised")
 
-  .dprint("observer3...")
-  observeEvent(input$logout, observer3(), ignoreInit = TRUE)
-  .dprint("... initialised")
+  print("LT_observer3...")
+  observeEvent(input$logout, LT_observer3(), ignoreInit = TRUE)
+  print("... initialised")
 
-  .dprint("observer4...")
-  observeEvent(input$resetServer, observer4(), ignoreInit = TRUE)
-  .dprint("... initialised")
+  print("LT_observer4...")
+  observeEvent(input$resetServer, LT_observer4(), ignoreInit = TRUE)
+  print("... initialised")
 
-  .dprint("observer5...")
-  observeEvent(c(input$username, input$serverAddress), observer5())
-  .dprint("... initialised")
+  print("LT_observer5...")
+  observeEvent(c(input$username, input$serverAddress), LT_observer5())
+  print("... initialised")
 
-  .dprint("observer5...")
-  observeEvent(input$changeServer, observer6())
-  .dprint("... initialised")
+  print("LT_observer5...")
+  observeEvent(input$changeServer, LT_observer6())
+  print("... initialised")
 
   # grv$credentials <- getCredentials()
 

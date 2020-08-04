@@ -167,8 +167,8 @@
 # observer functions
 #
 
-  observer31 <- function() {
-    print("observer31 launching...")
+  ST_observer1 <- function() {
+    print("ST_observer1 launching...")
     # This function is run when the Run tests -button is pressed
     disable_tab_UI()
     .dprint("runTestrunner()")
@@ -191,8 +191,8 @@
     rstudioapi::executeCommand("refreshEnvironment")
   }
 
-  observer32 <-function() {
-    print("observer32 launching...")
+  ST_observer2 <-function() {
+    print("ST_observer2 launching...")
     if (is.null(globalReactiveValues$credentials$token)) {
       disable_tab_UI()
       rstudioapi::showDialog("Not logged in",
@@ -308,20 +308,20 @@
     }
     enable_tab_UI()
   }
-  observer33 <- function() {
-    print("observer33 launching...")
+  ST_observer3 <- function() {
+    print("ST_observer3 launching...")
     reactive$showAll <- input$showAllResults
   }
-  observer34 <- function() {
-    print("observer34 launching...")
+  ST_observer4 <- function() {
+    print("ST_observer4 launching...")
     reactive$sourceEcho <- input$toggleEcho
   }
-  observer35 <- function() {
-    print("observer35 launching...")
+  ST_observer5 <- function() {
+    print("ST_observer5 launching...")
     globalReactiveValues$selectedExercisePath <- input$selectExercise
   }
-  observer36 <- function() {
-    print("observer36 launching...")
+  ST_observer6 <- function() {
+    print("ST_observer6 launching...")
     disable_tab_UI()
 
     .dprint("sourceExercise()")
@@ -346,12 +346,12 @@
     }
     enable_tab_UI()
   }
-  observer37 <- function() {
-    print("observer37 launching...")
+  ST_observer7 <- function() {
+    print("ST_observer7 launching...")
     globalReactiveValues$downloadedExercises <- tmcrstudioaddin::downloadedExercisesPaths()
   }
-  observer38 <- function() {
-    print("observer38 launching...")
+  ST_observer8 <- function() {
+    print("ST_observer8 launching...")
     disable_tab_UI()
 
     .ddprint("Launched when clicking open files")
@@ -369,14 +369,14 @@
     }
     enable_tab_UI()
   }
-  observer39 <- function() {
-    print("observer39 launching...")
+  ST_observer9 <- function() {
+    print("ST_observer9 launching...")
     disable_tab_UI()
     rstudioapi::documentSaveAll()
     enable_tab_UI()
   }
   update_exercises <- function() {
-    print("observer40 (update_exercises) launching...")
+    print("ST_observer10 (update_exercises) launching...")
     .dprint("Only launched when updates via observeEvent")
     grouped_downloaded_exercises <- group_exercises(globalReactiveValues$downloadedExercises)
     updateSelectInput(session  = session,
@@ -389,43 +389,43 @@
 # observer initializers
 #
 
-  print("observer31...")
-  runTestrunner <- observeEvent(input$runTests, observer31())
+  print("ST_observer1...")
+  runTestrunner <- observeEvent(input$runTests, ST_observer1())
   print("..initialised")
 
-  print("observer32...")
-  submitExercise2 <- observeEvent(input$submit, observer32())
+  print("ST_observer2...")
+  submitExercise2 <- observeEvent(input$submit, ST_observer2())
   print("..initialised")
 
-  print("observer33...")
-  showResults <- observeEvent(input$showAllResults, observer33())
+  print("ST_observer3...")
+  showResults <- observeEvent(input$showAllResults, ST_observer3())
   print("..initialised")
 
-  print("observer34 ...")
-  sourceEcho <- observeEvent(input$toggleEcho, observer34())
+  print("ST_observer4 ...")
+  sourceEcho <- observeEvent(input$toggleEcho, ST_observer4())
   print("..initialised")
 
-  print("observer35 ...")
-  selectedExercises <- observeEvent(input$selectExercise, observer35())
+  print("ST_observer5 ...")
+  selectedExercises <- observeEvent(input$selectExercise, ST_observer5())
   print("..initialised")
 
-  print("observer36 ...")
-  sourceExercise <- observeEvent(input$source, observer36())
+  print("ST_observer6 ...")
+  sourceExercise <- observeEvent(input$source, ST_observer6())
   print("..initialised")
 
-  print("observer37 ...")
-  observeEvent(input$refreshExercises, observer37())
+  print("ST_observer7 ...")
+  observeEvent(input$refreshExercises, ST_observer7())
   print("..initialised")
 
-  print("observer38 ...")
-  observeEvent(input$openFiles, observer38())
+  print("ST_observer8 ...")
+  observeEvent(input$openFiles, ST_observer8())
   print("..initialised")
 
-  print("observer39 ...")
-  observeEvent(input$saveFiles, observer39())
+  print("ST_observer9 ...")
+  observeEvent(input$saveFiles, ST_observer9())
   print("..initialised")
 
-  print("observer40 (update_exercises) ...")
+  print("ST_observer10 (update_exercises) ...")
   observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
   print("..initialised")
 #
