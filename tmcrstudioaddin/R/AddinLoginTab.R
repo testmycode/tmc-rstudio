@@ -144,7 +144,7 @@
   }
 
   observer6 <- function() {
-    print("observe2 launched")
+    print("input$changeServer launched...")
     shinyjs::toggleState("serverAddress", input$changeServer == TRUE)
   }
 
@@ -172,8 +172,7 @@
   observeEvent(input$changeServer, observer6())
   print("... initialised")
 
-  print("Initial launch of observer1 with getCredentials...")
-  grv$credentials <- getCredentials()
+  # grv$credentials <- getCredentials()
 
 
 }

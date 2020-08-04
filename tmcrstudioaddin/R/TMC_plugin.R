@@ -55,11 +55,9 @@ tmcGadget <- function() {
     .ddprint(str(course_tab_data[["ns_inputIDs"]]))
     .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
 
+    print("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
-      reactiveValues(##credentials = tmcrstudioaddin::getCredentials(),
-                     credentials = list(), # this doesn't work, when
-                     ## not logged in
-                     ## credentials = NULL,  # this should work
+      reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),
