@@ -72,7 +72,7 @@
   ns <- shiny::NS("login")
 
   observer1 <- function() {
-    .dprint("loginTab observer1 launched...")
+    print("loginTab observer1 launched...")
     .dprint(str(grv$credentials))
     .suggest_server(globalReactiveValues)
     output$loginPane <- renderUI({
@@ -148,9 +148,9 @@
     shinyjs::toggleState("serverAddress", input$changeServer == TRUE)
   }
 
-  .dprint("observer1...")
+  print("observer1...")
   observeEvent(grv$credentials, observer1())
-  .dprint("... initialised")
+  print("... initialised")
 
   .dprint("observer2...")
   observeEvent(input$login, observer2(), ignoreInit = TRUE)

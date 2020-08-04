@@ -55,7 +55,7 @@ tmcGadget <- function() {
     .ddprint(str(course_tab_data[["ns_inputIDs"]]))
     .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
 
-    print("Initial launch of observer1 with getCredentials...")
+    .dprint("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),

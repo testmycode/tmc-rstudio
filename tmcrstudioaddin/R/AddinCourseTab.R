@@ -71,6 +71,11 @@
 .courseTab <- function(input, output, session, globalReactiveValues) {
   .dprint(".courseTab launched")
   grv <- globalReactiveValues
+
+#
+# normal functions
+#
+
   enable_tab_UI <- function() {
     .dprint("Enabling new way")
     .ddprint("Ready to do this courseTab")
@@ -89,106 +94,10 @@
     tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
     globalReactiveValues$UI_disabled <- TRUE
   }
-  observeEvent(input$refreshOrganizations, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
 
-    disable_tab_UI()
-    if (!is.null(globalReactiveValues$credentials$token)) {
-      # .dprint("getAllOrganizations site 2")
-      organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
-      choices <- organizations$slug
-      names(choices) <- organizations$name
-      shiny::updateSelectInput(session,
-                               "organizationSelect",
-                               label = "Select organization",
-                               choices = choices,
-                               selected = 1)
-    }
-    else{
-      rstudioapi::showDialog("Not logged in",
-                             "Please log in to see organizations",
-                             "")
-    }
-    enable_tab_UI()
-    .dprint("refresh organizations")
-  })
-
-  observeEvent(input$organizationSelect, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
-    disable_tab_UI()
-    organization <- input$organizationSelect
-    globalReactiveValues$credentials$organization <- organization
-    # .dprint("getAllCourses site 4")
-    courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
-    globalReactiveValues$coursesInfo$all_courses <- courses
-    choices <- courses$id
-    names(choices) <- courses$title
-    shiny::updateSelectInput(session,
-                             "courseSelect",
-                             label = "Select course",
-                             choices = choices,
-                             selected = 1)
-    enable_tab_UI()
-  }, ignoreInit = TRUE)
-
-  observeEvent(input$refreshCourses, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
-    disable_tab_UI()
-    if (!is.null(globalReactiveValues$credentials$token)) {
-      organization <- input$organizationSelect
-      # .ddprint("getAllCourses site 1")
-      courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
-      choices <- courses$id
-      names(choices) <- courses$title
-      shiny::updateSelectInput(session,
-                               "courseSelect",
-                               label = "Select course",
-                               choices = choices,
-                               selected = 1)
-    }
-    else{
-      rstudioapi::showDialog("Not logged in",
-                             "Please log in to see courses",
-                             "")
-    }
-    enable_tab_UI()
-    .dprint("refresh courses")
-  }, ignoreInit = TRUE)
-
-  observeEvent(input$courseSelect, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-    .dprint("courseSelect")
-
-    disable_tab_UI()
-
-    hideCourseExercises()
-
-    withProgress(message = "Fetching exercises", {
-      exercises <- tmcrstudioaddin::get_all_exercises(input$courseSelect,
-                                                      grv$credentials)
-      exercises
-    })
-
-    separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
-
-    enable_tab_UI()
-  }, ignoreInit = TRUE)
-
-  separateDownloadedExercises <- function(exercises, exercises_old, globalReactiveValues,
+  separateDownloadedExercises <- function(exercises,
+                                          exercises_old,
+                                          globalReactiveValues,
                                           courseid = NA) {
     .dprint("separateDownloadedExercises()")
     globalReactiveValues$exerciseMap             <- list()
@@ -257,23 +166,54 @@
     .ddprint(str(globalReactiveValues$downloadedExercisesMap))
   }
 
-  observe({
-    .dprint("courseTab observe launched...")
-    if (is.null(globalReactiveValues$credentials$token)) {
-      shiny::updateSelectInput(session,
-                               "organizationSelect",
-                               label = "Select organization",
-                               choices = list(),
-                               selected = 1)
-      shiny::updateSelectInput(session,
-                               "courseSelect",
-                               label = "Select course",
-                               choices = list(),
-                               selected = 1)
-      hideCourseExercises()
+  downloadFromList <- function(course_directory_path, globalReactiveValues) {
+    grv <- globalReactiveValues
+    exercises2 <- grv$exerciseMap[grv$exerciseMap %in% input$exercises]
+    exercises3 <- grv$downloadedExercisesMap[grv$downloadedExercisesMap %in% input$downloadedExercises]
+    exercises <- c(exercises2, exercises3)
+    .ddprint(str(exercises))
+    .dprint("downloadFromList()")
+    for (name in names(exercises)) {
+      zip_name <- paste0(exercises[[name]], ".zip")
+      tmcrstudioaddin::download_exercise(exercises[[name]],
+                                         zip_target    = tempdir(),
+                                         zip_name      = zip_name,
+                                         exercise_directory = course_directory_path,
+                                         exercise_name = name,
+                                         credentials   = grv$credentials,
+                                         unique_random = TRUE)
+      incProgress(1 / length(exercises))
     }
-    else {
-      # .dprint("getAllOrganizations site 1")
+    length(exercises)
+  }
+
+  hideCourseExercises <- function() {
+    .ddprint("hideCourseExercises")
+    shinyjs::hide("all_exercises")
+    shinyjs::hide("updateAllExercises")
+    shiny::updateCheckboxGroupInput(session,
+                                    "exercises",
+                                    label = "",
+                                    choices = list())
+    shiny::updateCheckboxGroupInput(session,
+                                    "unpublished_exercises",
+                                    label = "",
+                                    choices = list())
+    shiny::updateCheckboxGroupInput(session,
+                                    "downloadedExercises",
+                                    label = "",
+                                    choices = list())
+  }
+
+#
+# observer functions
+#
+
+  observer1 <- function() {
+    print("input$refreshOrganizations launched...")
+    disable_tab_UI()
+    if (!is.null(globalReactiveValues$credentials$token)) {
+      # .dprint("getAllOrganizations site 2")
       organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
       choices <- organizations$slug
       names(choices) <- organizations$name
@@ -281,28 +221,73 @@
                                "organizationSelect",
                                label = "Select organization",
                                choices = choices,
-                               selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
-                                                 globalReactiveValues$credentials$organization,
-                                                 1))
-      # .dprint("getAllCourses site 2")
-      # this ifelse(...) is not correct, so this has to be fixed
-      courses <- tmcrstudioaddin::get_all_courses(ifelse(!is.null(grv$credentials$organization),
-                                                         grv$credentials$organization,
-                                                         1),
-                                                  grv$credentials)
-      choices2 <- courses$id
-      names(choices2) <- courses$title
+                               selected = 1)
+    }
+    else{
+      rstudioapi::showDialog("Not logged in",
+                             "Please log in to see organizations",
+                             "")
+    }
+    enable_tab_UI()
+    .dprint("refresh organizations")
+  }
+
+  observer2 <- function() {
+    print("observer2 launched...")
+
+    disable_tab_UI()
+    organization <- input$organizationSelect
+    globalReactiveValues$credentials$organization <- organization
+    # .dprint("getAllCourses site 4")
+    courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
+    globalReactiveValues$coursesInfo$all_courses <- courses
+    choices <- courses$id
+    names(choices) <- courses$title
+    shiny::updateSelectInput(session,
+                             "courseSelect",
+                             label = "Select course",
+                             choices = choices,
+                             selected = 1)
+    enable_tab_UI()
+  }
+
+  observer3 <- function() {
+    print("observer3 launched...")
+    disable_tab_UI()
+    if (!is.null(globalReactiveValues$credentials$token)) {
+      organization <- input$organizationSelect
+      courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
+      choices <- courses$id
+      names(choices) <- courses$title
       shiny::updateSelectInput(session,
                                "courseSelect",
                                label = "Select course",
-                               choices = choices2,
+                               choices = choices,
                                selected = 1)
+    } else {
+      rstudioapi::showDialog("Not logged in",
+                             "Please log in to see courses",
+                             "")
     }
-  })
+    enable_tab_UI()
+    .dprint("refresh courses")
+  }
 
+  observer4 <- function() {
+    print("observer4 launched...")
+    disable_tab_UI()
+    hideCourseExercises()
+    withProgress(message = "Fetching exercises", {
+      exercises <- tmcrstudioaddin::get_all_exercises(input$courseSelect,
+                                                      grv$credentials)
+      exercises
+    })
+    separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
+    enable_tab_UI()
+  }
 
-  observeEvent(input$all_exercises, {
-    .dprint("all_exercises()")
+  observer5 <- function() {
+    print("observer5 launched...")
     shinyjs::disable("all_exercises")
 
     if (input$all_exercises) {
@@ -318,11 +303,11 @@
                                       selected = list())
     }
     shinyjs::enable("all_exercises")
-  })
+  }
 
-  observeEvent(input$updateAllExercises, {
+  observer6 <- function() {
+    print("observer6 launched...")
     shinyjs::disable("updateAllExercises")
-    .dprint("updateAllExercises()")
 
     if (input$updateAllExercises) {
       shiny::updateCheckboxGroupInput(session,
@@ -337,14 +322,9 @@
                                       selected = list())
     }
     shinyjs::enable("updateAllExercises")
-  })
-
-  observeEvent(input$download, {
-    if (grv$UI_disabled) {
-      .ddprint("Disabled... ")
-      return()
-    }
-
+  }
+  observer7 <- function() {
+    print("observer7 launched...")
     disable_tab_UI()
 
     tryCatch({
@@ -375,13 +355,14 @@
                 "exercises successfully", sep = " ")
         }
       rstudioapi::showDialog("Success", download_success_message, "")
-    }, error = function(e) {
-    pre_error <- e$message
-    download_errormsgs <- list(keys = c("Path exists and overwrite is FALSE",
-                                        "argument is of length zero",
-                                        "Forbidden (HTTP 403)",
-                                        pre_error))
-    download_errormsgs$msgs_win <- c("Your download failed \
+    },
+    error = function(e) {
+      pre_error <- e$message
+      download_errormsgs <- list(keys = c("Path exists and overwrite is FALSE",
+                                          "argument is of length zero",
+                                          "Forbidden (HTTP 403)",
+                                          pre_error))
+      download_errormsgs$msgs_win <- c("Your download failed \
 (Path exists and overwrite is FALSE). There is something wrong with the \
 file permissions or previous download failed in halfway.<p>Please \
 contact the course instructors in this case.",
@@ -389,7 +370,7 @@ contact the course instructors in this case.",
 Remember to refresh the lists.",
 "One or more exercises you chose have not been published yet",
 pre_error)
-    download_errormsgs$msgs_unix <- c("Your download failed \
+      download_errormsgs$msgs_unix <- c("Your download failed \
 (Path exists and overwrite is FALSE). There is something wrong with the \
 file permissions or previous download failed in halfway.<p>Please \
 contact the course instructors in this case.",
@@ -434,32 +415,10 @@ pre_error)
     separateDownloadedExercises(exercises = NULL, exercises, globalReactiveValues)
 
     enable_tab_UI()
-  })
-
-  downloadFromList <- function(course_directory_path, globalReactiveValues) {
-    grv <- globalReactiveValues
-    exercises2 <- grv$exerciseMap[grv$exerciseMap %in% input$exercises]
-    exercises3 <- grv$downloadedExercisesMap[grv$downloadedExercisesMap %in% input$downloadedExercises]
-    exercises <- c(exercises2, exercises3)
-    .ddprint(str(exercises))
-    .dprint("downloadFromList()")
-    for (name in names(exercises)) {
-      zip_name <- paste0(exercises[[name]], ".zip")
-      tmcrstudioaddin::download_exercise(exercises[[name]],
-                                         zip_target    = tempdir(),
-                                         zip_name      = zip_name,
-                                         exercise_directory = course_directory_path,
-                                         exercise_name = name,
-                                         credentials   = grv$credentials,
-                                         unique_random = TRUE)
-      incProgress(1 / length(exercises))
-    }
-    length(exercises)
   }
 
-  .dprint("downloadFromList()-2")
-
-  observeEvent(globalReactiveValues$unpublishedExercisesMap, {
+  observer8 <- function() {
+    print("observer8 launched...")
     if (length(globalReactiveValues$unpublishedExercisesMap) > 0) {
       .dprint("unpublished_exercises")
       shiny::updateCheckboxGroupInput(session,
@@ -471,9 +430,10 @@ pre_error)
       shinyjs::delay(ms = 0,
                      expr = shinyjs::disable("unpublished_exercises"))
     }
-  })
+  }
 
-  observeEvent(globalReactiveValues$downloadedExercisesMap, {
+  observer9 <- function() {
+    print("observer9 launched...")
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
       .ddprint("update all exercises")
       show("updateAllExercises")
@@ -486,9 +446,10 @@ pre_error)
                                       label = "Redownload already downloaded exercises",
                                       choices = globalReactiveValues$downloadedExercisesMap)
     }
-  })
+  }
 
-  observeEvent(globalReactiveValues$exerciseMap, {
+  observer10 <- function() {
+    print("observer10 launched...")
     if (length(globalReactiveValues$exerciseMap) > 0) {
       .ddprint("showing all exercises")
       show("all_exercises")
@@ -500,25 +461,102 @@ pre_error)
                                       label = "Downloadable exercises",
                                       choices = globalReactiveValues$exerciseMap)
     }
-  })
-
-  hideCourseExercises <- function() {
-    .ddprint("hideCourseExercises")
-    shinyjs::hide("all_exercises")
-    shinyjs::hide("updateAllExercises")
-    shiny::updateCheckboxGroupInput(session,
-                                    "exercises",
-                                    label = "",
-                                    choices = list())
-    shiny::updateCheckboxGroupInput(session,
-                                    "unpublished_exercises",
-                                    label = "",
-                                    choices = list())
-    shiny::updateCheckboxGroupInput(session,
-                                    "downloadedExercises",
-                                    label = "",
-                                    choices = list())
   }
+
+  observer11 <- function() {
+    print("observer11 launched...")
+    if (is.null(globalReactiveValues$credentials$token)) {
+      shiny::updateSelectInput(session,
+                               "organizationSelect",
+                               label = "Select organization",
+                               choices = list(),
+                               selected = 1)
+      shiny::updateSelectInput(session,
+                               "courseSelect",
+                               label = "Select course",
+                               choices = list(),
+                               selected = 1)
+      hideCourseExercises()
+    } else {
+      # .dprint("getAllOrganizations site 1")
+      organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
+      choices <- organizations$slug
+      names(choices) <- organizations$name
+      shiny::updateSelectInput(session,
+                               "organizationSelect",
+                               label = "Select organization",
+                               choices = choices,
+                               selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
+                                                 globalReactiveValues$credentials$organization,
+                                                 1))
+      # .dprint("getAllCourses site 2")
+      # this ifelse(...) is not correct, so this has to be fixed
+      courses <- tmcrstudioaddin::get_all_courses(ifelse(!is.null(grv$credentials$organization),
+                                                         grv$credentials$organization,
+                                                         1),
+                                                  grv$credentials)
+      choices2 <- courses$id
+      names(choices2) <- courses$title
+      shiny::updateSelectInput(session,
+                               "courseSelect",
+                               label = "Select course",
+                               choices = choices2,
+                               selected = 1)
+    }
+  }
+#
+# observer initializers
+#
+
+  print("observer1...")
+  observeEvent(input$refreshOrganizations, observer1())
+  print("... initialised")
+
+  print("observer2...")
+  observeEvent(input$organizationSelect, observer2(), ignoreInit = TRUE)
+  print("... initialised")
+
+  print("observer3...")
+  observeEvent(input$refreshCourses, observer3(), ignoreInit = TRUE)
+  print("... initialised")
+
+  print("observer4...")
+  observeEvent(input$courseSelect, observer4(), ignoreInit = TRUE)
+  print("... initialised")
+
+  print("observer5...")
+  observeEvent(input$all_exercises, observer5())
+  print("... initialised")
+
+  print("observer6...")
+  observeEvent(input$updateAllExercises, observer6())
+  print("... initialised")
+
+  print("observer7...")
+  observeEvent(input$download, observer7())
+  print("... initialised")
+
+  print("observer8 ...")
+  observeEvent(globalReactiveValues$unpublishedExercisesMap, observer8())
+  print("... initialised")
+
+  print("observer9 ...")
+  observeEvent(globalReactiveValues$downloadedExercisesMap, observer9())
+  print("... initialised")
+
+  print("observer10 ...")
+  observeEvent(globalReactiveValues$exerciseMap, observer10())
+  print("... initialised")
+
+  print("observer11 ...")
+  observeEvent(c(globalReactiveValues$credentials$token,
+                 globalReactiveValues$credentials$organization),
+               observer11())
+  print("... initialised")
+#
+# observers
+#
+
 }
 
 
