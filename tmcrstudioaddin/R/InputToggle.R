@@ -45,9 +45,30 @@ enable_elements <- function(...) {
   lapply(elements, shinyjs::enable)
 }
 
-#' @title Disable Shiny input elements using UI list
+#' @title Disable Shiny input elements using UI tab list
 #'
 #' @description Disable \code{Shiny} input elements given by UI list
+#'
+#' @param tab A named input element vectors or NULL.
+#'
+#' @usage disable_tab_UI_list(tab)
+#'
+#' @details Disables the \code{Shiny} input elements.
+#' This is done in order to prevent button actions while an
+#' operation that might take a long itme is running.
+#'
+#' @seealso \code{\link{enable_UI_elements}}
+
+disable_tab_UI_list <- function(tab) {
+  disable_single_element <- function(element) {
+    shinyjs::disable(element, asis = TRUE)
+  }
+  lapply(tab, disable_single_element)
+}
+
+#' @title Disable Shiny input elements using UI elements
+#'
+#' @description Disable \code{Shiny} input elements given by UI elements
 #'
 #' @param UI_list A named list of input element vectors or NULL.
 #'
@@ -60,16 +81,10 @@ enable_elements <- function(...) {
 #' @seealso \code{\link{enable_UI_elements}}
 
 disable_UI_elements <- function(UI_list = NULL) {
-  disable_single_element <- function(element) {
-    shinyjs::disable(element, asis = TRUE)
-  }
-  disable_tab_UI_list <- function(tab) {
-    .ddprint(str(tab))
-    lapply(tab, disable_single_element)
-  }
-  .dprint("Disabling...")
+  print("Disabling...")
+  .ddprint(str(UI_list))
 
-  lapply(UI_list, disable_tab_UI_list)
+  lapply(UI_list$UI_normal, disable_tab_UI_list)
 }
 
 #' @title Enable Shiny input elements using UI list
@@ -77,14 +92,21 @@ disable_UI_elements <- function(UI_list = NULL) {
 #' @details Enables the \code{Shiny} input elements given by UI list.
 #'
 #' @param UI_list A named list of vectors of input element IDs or NULL.
+#' @param UI_state A named logical vector showing have we selected exercise or
+#' not.
 #'
-#' @usage enable_UI_elements(UI_list)
+#' @usage enable_UI_elements(UI_list = NULL,
+#'                           UI_state = c("not_logged_in" = FALSE,
+#'                                        "not_selected"  = FALSE))
 #'
 #' @details Enables the \code{Shiny} input elements.
 #'
 #' @seealso \code{\link{disable_UI_elements}}
 
-enable_UI_elements <- function(UI_list = NULL) {
+enable_UI_elements <- function(UI_list  = NULL,
+                               UI_state = c("not_logged_in"   = FALSE,
+                                            "not_selected"    = FALSE,
+                                            "not_downloading" = FALSE)) {
   enable_single_element <- function(element) {
     shinyjs::enable(element, asis = TRUE)
   }
@@ -92,9 +114,21 @@ enable_UI_elements <- function(UI_list = NULL) {
     .ddprint(str(tab))
     lapply(tab, enable_single_element)
   }
-  .dprint("Enabling...")
+  print("Enabling...")
+  .ddprint(str(UI_list))
+  not_logged_in    <- UI_state["not_logged_in"]
+  not_selected     <- UI_state["not_selected"]
+  not_downloading  <- UI_state["not_downloading"]
 
-  lapply(UI_list, enable_tab_UI_list)
+  print(UI_state)
+  lapply(UI_list$UI_normal, enable_tab_UI_list)
+  if (not_logged_in) lapply(UI_list$UI_limited, disable_tab_UI_list)
+  if (not_selected)  {
+    lapply(UI_list$UI_no_selected_exercise, disable_tab_UI_list)
+  }
+  if (not_downloading)  {
+    lapply(UI_list$UI_nothing_to_download, disable_tab_UI_list)
+  }
 }
 
 #' @title Disable Shiny input elements in the Test & Submit tab

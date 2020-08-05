@@ -51,8 +51,24 @@ tmcGadget <- function() {
   tmc_shiny_server <- function(input, output, session) {
     .dprint("After...")
     .ddprint("Later...")
+    login_tab_ui  <- login_tab_data[["ns_inputIDs"]]
+    course_tab_ui <- course_tab_data[["ns_inputIDs"]]
+    submit_tab_ui <- submit_tab_data[["ns_inputIDs"]]
+    UI_limited    <- list(login_tab  = login_tab_ui["login"],
+                          course_tab = course_tab_ui,
+                          submit_tab = submit_tab_ui[c("refreshExercises", "submit")])
+    UI_limited2   <- list(submit_tab = submit_tab_ui[c("openFiles", "saveFiles",
+                                                       "source", "runTests", "submit")])
+    UI_limited3   <- list(course_tab = course_tab_ui[c("download")])
+    UI_normal     <- list(all_tabs   = c("exit"),
+                          login_tab  = login_tab_ui,
+                          course_tab = course_tab_ui,
+                          submit_tab = submit_tab_ui)
+
+
     .ddprint(str(course_tab_data[["ns_inputIDs"]]))
-    .ddprint(str(submit_tab_data[["ns_inputIDs"]]))
+    .ddprint(str(submit_tab_ui))
+    .ddprint(str(submit_tab_ui[c("refreshExercises", "submit")]))
 
     .dprint("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
@@ -61,13 +77,16 @@ tmcGadget <- function() {
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),
                      UI_disabled = FALSE,
-                     UI_elements = list(all_tabs   = c("exit"),
-                                        login_tab  = login_tab_data[["ns_inputIDs"]],
-                                        course_tab = course_tab_data[["ns_inputIDs"]],
-                                        submit_tab = submit_tab_data[["ns_inputIDs"]]),
+                     UI_state    = c("not_logged_in"   = FALSE,
+                                     "not_selected"    = FALSE,
+                                     "not_downloading" = FALSE),
+                     UI_elements = list(UI_limited               = UI_limited,
+                                        UI_no_selected_exercise  = UI_limited2,
+                                        UI_nothing_to_download   = UI_limited3,
+                                        UI_normal                = UI_normal),
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
-                     courseInfo = list())
+                     coursesInfo = list())
     shiny::onStop(function() {
                     cat("RTMC session ended.\n")
                     cat("Restoring environment...\n")
@@ -81,14 +100,7 @@ tmcGadget <- function() {
                     rstudioapi::executeCommand("refreshEnvironment")
                   })
     # Function for the exit button
-    observeEvent(input$exit, {
-      if (globalReactiveValues$UI_disabled) {
-        .ddprint("Disabled... ")
-        return()
-      }
-
-      return(shiny::stopApp())
-    })
+    observeEvent(input$exit, { shiny::stopApp() })
 
     shiny::callModule(.loginTab, "login",
                       globalReactiveValues = globalReactiveValues)

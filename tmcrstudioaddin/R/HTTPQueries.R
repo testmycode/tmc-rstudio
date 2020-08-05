@@ -304,6 +304,7 @@ upload_current_exercise <- function(credentials,
 #' \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
 #' \code{\link[jsonlite]{fromJSON}}
 get_all_organizations <- function(credentials) {
+  print("get_all_organizations launched...")
   organizations <- tryCatch({
     url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
@@ -316,6 +317,7 @@ get_all_organizations <- function(credentials) {
   }, error = function(e) {
     list(name = list(), slug = list())
   })
+  print("get_all_organizations done...")
   return(organizations)
 }
 
@@ -342,6 +344,7 @@ get_all_organizations <- function(credentials) {
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 get_all_courses <- function(organization, credentials) {
+  print("get_all_courses launched...")
   # no access to globalReactiveValues
   courses <- tryCatch({
     serverAddress <- credentials$serverAddress
@@ -359,6 +362,7 @@ get_all_courses <- function(organization, credentials) {
   }, error = function(e) {
     list(id = list(), name = list(), title = list())
   })
+  print("get_all_courses done...")
   return(list(id = courses$id, name = courses$name, title = courses$title))
 }
 
@@ -383,7 +387,7 @@ get_all_courses <- function(organization, credentials) {
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 get_all_exercises <- function(course, credentials) {
-  .dprint("get_all_exercises()")
+  .dprint("get_all_exercises launched")
   .ddprint(course)
   exercises <- tryCatch({
     serverAddress <- credentials$serverAddress
@@ -403,6 +407,8 @@ get_all_exercises <- function(course, credentials) {
   }, error = function(e) {
       list()
   })
+  .dprint("get_all_exercises done")
+  exercises
 }
 
 #' @title Get exercise submission result JSON

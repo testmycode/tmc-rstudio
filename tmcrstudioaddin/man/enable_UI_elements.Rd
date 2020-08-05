@@ -4,10 +4,15 @@
 \alias{enable_UI_elements}
 \title{Enable Shiny input elements using UI list}
 \usage{
-enable_UI_elements(UI_list)
+enable_UI_elements(UI_list = NULL,
+                          UI_state = c("not_logged_in" = FALSE,
+                                       "not_selected"  = FALSE))
 }
 \arguments{
 \item{UI_list}{A named list of vectors of input element IDs or NULL.}
+
+\item{UI_state}{A named logical vector showing have we selected exercise or
+not.}
 }
 \description{
 Enable Shiny input elements using UI list

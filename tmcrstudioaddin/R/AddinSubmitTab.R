@@ -73,7 +73,7 @@
 # normal functions
 #
   enable_tab_UI <- function() {
-    .ddprint("Enabling new way")
+    .dprint("Enabling new way")
     .ddprint("Ready to do this SubmitTab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
@@ -81,8 +81,9 @@
     shinyjs::delay(ms = 10,
                    expr = {
                      .ddprint("Launching new way...")
-                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
-                     globalReactiveValues$UI_disabled <- FALSE
+                     not_logged_in      <- is.null(grv$credentials$token)
+                     course_tab_UI_list <- grv$UI_elements$course_tab
+                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
                    })
   }
   disable_tab_UI <- function() {
@@ -385,6 +386,12 @@
                       choices  = grouped_downloaded_exercises,
                       selected = globalReactiveValues$selectedExercisePath)
   }
+   ST_observer11 <- function() {
+     print("ST_observer11 launched...")
+     not_selected  <- input$selectExercise == ""
+     grv$UI_state["not_selected"] <- not_selected
+     tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
+   }
 #
 # observer initializers
 #
@@ -428,6 +435,11 @@
   .dprint("ST_observer10 (update_exercises) ...")
   observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
   .dprint("..initialised")
+
+  .dprint("ST_observer11 ...")
+  observeEvent(input$selectExercise, { ST_observer11() })
+  .dprint("..initialised")
+
 #
 # rendering
 #

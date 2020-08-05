@@ -60,7 +60,7 @@
     shinyjs::delay(ms = 10,
                    expr = {
                      .dprint("Launching new way...")
-                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
+                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }

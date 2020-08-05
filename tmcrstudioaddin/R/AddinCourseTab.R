@@ -71,7 +71,23 @@
 .courseTab <- function(input, output, session, globalReactiveValues) {
   .dprint(".courseTab launched")
   grv <- globalReactiveValues
-
+  rv  <- reactiveValues(selection = list(course = character(0),
+                                         org    = character(0),
+                                         state  = c(#
+                                                    #
+                                                    "has_courses"     = FALSE,
+                                                    "course_chose"    = FALSE,
+                                                    "org_visible"     = FALSE,
+                                                    "course_visible"  = FALSE)),
+                        state  = list("logged_in"       = FALSE,
+                                      "org_chosen"      = FALSE,
+                                      "has_courses"     = FALSE,
+                                      "course_chose"    = FALSE,
+                                      "org_visible"     = FALSE,
+                                      "course_visible"  = FALSE),
+                        logged_in           = FALSE,
+                        stored_org          = NULL,
+                        organization_toggle = FALSE)
 #
 # normal functions
 #
@@ -85,7 +101,7 @@
     shinyjs::delay(ms = 10,
                    expr = {
                      .dprint("Launching new way...")
-                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements)
+                     tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
                      globalReactiveValues$UI_disabled <- FALSE
                    })
   }
@@ -210,45 +226,70 @@
 #
 
   CT_observer1 <- function() {
-    .dprint("input$refreshOrganizations launched...")
+    .dprint("CT_observer1 launched...")
     disable_tab_UI()
-    if (!is.null(globalReactiveValues$credentials$token)) {
       # .dprint("getAllOrganizations site 2")
-      organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
-      choices <- organizations$slug
-      names(choices) <- organizations$name
-      shiny::updateSelectInput(session,
-                               "organizationSelect",
-                               label = "Select organization",
-                               choices = choices,
-                               selected = 1)
-    }
-    else{
-      rstudioapi::showDialog("Not logged in",
-                             "Please log in to see organizations",
-                             "")
-    }
+      # when pressing refersh, so this is ok
+    organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
+    choices <- organizations$slug
+    names(choices) <- organizations$name
+    #
+    selected_org   <- rv$selection$org
+    print_rv()
+    shiny::updateSelectInput(session,
+                             "organizationSelect",
+                             label    = "Select organization",
+                             choices  = choices,
+                             selected = selected_org)
+#                             selected = character(0))
     enable_tab_UI()
-    .dprint("refresh organizations")
+    .dprint("CT_observer1 done...")
   }
 
-  CT_observer2 <- function() {
-    .dprint("CT_observer2 launched...")
+  CT_observer2b <- function() {
+    .dprint("CT_observer2b launched...")
 
     disable_tab_UI()
     organization <- input$organizationSelect
-    globalReactiveValues$credentials$organization <- organization
-    # .dprint("getAllCourses site 4")
+    grv$credentials$organization <- organization
+    rv$stored_org    <- organization
+    rv$selection$org <- organization
+    # $stored_org == $selection$org
+    rv$state$org_chosen    <- TRUE
+    rv$selection$state["org_visible"] <- TRUE
+    rv$state$org_visible   <- TRUE
+    # this is initialisation, so this is ok
     courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
-    globalReactiveValues$coursesInfo$all_courses <- courses
+    rv$selection$state["has_courses"] <- TRUE
+    # it is now stored
+    grv$coursesInfo$all_courses <- courses
+    #
     choices <- courses$id
     names(choices) <- courses$title
+    if (is.null(courses$id)) {
+      choices <- character(0)
+      rv$selection$state["has_courses"] <- FALSE
+    }
+    rv$selection$state["course_chose"]   <- as.numeric(input$courseSelect) %in% courses$id
+    rv$selection$state["course_visible"] <- rv$selection$state["course_chose"]
+    rv$selection$course <-
+      if (rv$selection$state["course_visible"]) input$courseSelect else character(0)
+    #
+    print_rv()
     shiny::updateSelectInput(session,
                              "courseSelect",
-                             label = "Select course",
-                             choices = choices,
-                             selected = 1)
-    enable_tab_UI()
+                             label    = "Select course",
+                             choices  = choices,
+                             selected = rv$selection$course)
+    if (rv$selection$state["course_chose"]) {
+      # enable_tab_UI()
+      fetch_exercises()
+    } else {
+      print("NOT FETCHING")
+      hideCourseExercises()
+      enable_tab_UI()
+    }
+    .dprint("CT_observer2b done")
   }
 
   CT_observer3 <- function() {
@@ -256,6 +297,7 @@
     disable_tab_UI()
     if (!is.null(globalReactiveValues$credentials$token)) {
       organization <- input$organizationSelect
+      # this is refresh, so this is ok
       courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
       choices <- courses$id
       names(choices) <- courses$title
@@ -273,17 +315,27 @@
     .dprint("refresh courses")
   }
 
-  CT_observer4 <- function() {
-    .dprint("CT_observer4 launched...")
+  fetch_exercises <- function() {
+    print("fetch_exercises()")
     disable_tab_UI()
     hideCourseExercises()
     withProgress(message = "Fetching exercises", {
-      exercises <- tmcrstudioaddin::get_all_exercises(input$courseSelect,
-                                                      grv$credentials)
+      exercises <- tmcrstudioaddin::get_all_exercises(rv$selection$course, grv$credentials)
       exercises
     })
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
     enable_tab_UI()
+  }
+
+
+  CT_observer4 <- function() {
+    .dprint("CT_observer4 launched...")
+    rv$selection$course <- input$courseSelect
+    rv$selection$state["course_chose"]   <- TRUE
+    rv$selection$state["course_visible"] <- TRUE
+    print_rv()
+    fetch_exercises()
+    .dprint("CT_observer4 done")
   }
 
   CT_observer5 <- function() {
@@ -331,7 +383,8 @@
       withProgress(message = "Downloading exercises", {
         organization <- input$organizationSelect
         # .dprint("getAllCourses site 3")
-        courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
+        courses <- grv$coursesInfo$all_courses
+        # courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
         courseName <- courses$name[courses$id == input$courseSelect]
 
         course_directory_path <- file.path(get_projects_folder(), courseName,
@@ -430,6 +483,7 @@ pre_error)
       shinyjs::delay(ms = 0,
                      expr = shinyjs::disable("unpublished_exercises"))
     }
+    .dprint("CT_observer8 done ...")
   }
 
   CT_observer9 <- function() {
@@ -446,6 +500,7 @@ pre_error)
                                       label = "Redownload already downloaded exercises",
                                       choices = globalReactiveValues$downloadedExercisesMap)
     }
+    .dprint("CT_observer9 done ...")
   }
 
   CT_observer10 <- function() {
@@ -461,68 +516,183 @@ pre_error)
                                       label = "Downloadable exercises",
                                       choices = globalReactiveValues$exerciseMap)
     }
+    .dprint("CT_observer10 launched...")
   }
 
-  CT_observer11 <- function() {
-    .dprint("CT_observer11 launched...")
-    if (is.null(globalReactiveValues$credentials$token)) {
+  
+  CT_observer11b_logged_out <- function() {
+    print_rv()
+    print(input$organizationSelect)
+    print(grv$credentials$organization)
+    print(input$courseSelect)
+    if (input$organizationSelect != "" & input$courseSelect != "") {
+      print("RELOADING THE STATE, SO BOTH BECOME VISIBLE DURING LOGOUT")
+      rv$selection$org <- input$organizationSelect
+      rv$state$org_chosen  <- TRUE
+      rv$selection$state["org_visible"] <- TRUE
+      grv$credentials$organization <- rv$selection$org
+      rv$selection$course <- input$courseSelect
+      rv$selection$state["course_chose"]   <- TRUE
+      rv$selection$state["course_visible"] <- TRUE
+      print_rv()
+      return()
+    } 
+    if (input$organizationSelect != "") {
+      print("RELOADING THE STATE, SO ORG BECOMES VISIBLE DURING LOGOUT")
+      rv$selection$org <- input$organizationSelect
+      rv$state$org_chosen  <- TRUE
+      rv$selection$state["org_visible"] <- TRUE
+      grv$credentials$organization <- rv$selection$org
+    } else if (!is.null(grv$credentials$organization)) {
+      print("ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
+      print("BUT AT LOG IN THIS IS GLOBBERED... SO THIS HAS TO BE FIXED LATER...")
+      print(grv$credentials$organization)
+      # rv$selection$org <- grv$credentials$organization
+      # rv$state$org_chosen  <- TRUE 
+      # the correct ones after fix
+      # 
+      # temporary ones
+      rv$selection$org <- character(0)
+      rv$state$org_chosen  <- FALSE
+      # 
+      rv$selection$state["org_visible"] <- FALSE
       shiny::updateSelectInput(session,
                                "organizationSelect",
-                               label = "Select organization",
-                               choices = list(),
-                               selected = 1)
+                               label    = "Select organization",
+                               choices  = character(0),
+                               selected = character(0))
+    } else {
+      print("NO ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
+      rv$selection$org <- character(0)
+      rv$state$org_chosen  <- FALSE
+      rv$selection$state["org_visible"] <- FALSE
       shiny::updateSelectInput(session,
-                               "courseSelect",
-                               label = "Select course",
-                               choices = list(),
-                               selected = 1)
-      hideCourseExercises()
+                               "organizationSelect",
+                               label    = "Select organization",
+                               choices  = character(0),
+                               selected = character(0))
+    }
+    print_rv()
+  }
+  CT_observer_meta <- function() {
+    print("CT_observer_meta launched..")
+    rv$logged_in <- rv$state$logged_in
+    print("CT_observer_meta done")
+  }
+
+  CT_observer11b <- function() {
+    .dprint("CT_observer11b launched...")
+    print("This follows logged_in status")
+    if (is.null(globalReactiveValues$credentials$token)) {
+      CT_observer11b_logged_out()
     } else {
       # .dprint("getAllOrganizations site 1")
-      organizations <- tmcrstudioaddin::get_all_organizations(grv$credentials)
-      choices <- organizations$slug
+      # this is initalisation so this is ok
+      organizations  <- tmcrstudioaddin::get_all_organizations(grv$credentials)
+      choices        <- organizations$slug
+      # ... this is the guard
+      if (!is.null(rv$stored_org) & is.null(grv$credentials$organization)) {
+        print("Old stored version: restored")
+        rv$selection$org <- rv$stored_org
+        rv$state$org_chosen  <- TRUE
+        rv$selection$state["org_visible"] <- TRUE
+        grv$credentials$organization <- rv$stored_org
+        # rv$stored_org     <- grv$credentials$organization
+        # this makes the next event launch
+        rv$organization_toggle <- !rv$organization_toggle
+      } else if (!is.null(grv$credentials$organization)) {
+        print("Using grv version: restored")
+        rv$selection$org <- grv$credentials$organization
+        rv$stored_org    <- rv$selection$org
+        rv$state$org_chosen  <- TRUE
+        rv$selection$state["org_visible"] <- TRUE
+      } else {
+        print("NULL grv")
+        rv$selection$org <- character(0)
+        rv$stored_org    <- NULL
+        rv$state$org_chosen  <- FALSE
+        rv$selection$state["org_visible"] <- FALSE
+      }
+      # this will erase the previous value, so let's guard it ...
+      print("NOW HERE!!!!")
+      # rv$stored_org     <- grv$credentials$organization
+      print_rv()
+      # print(grv$credentials$organization)
       names(choices) <- organizations$name
+      selected_org   <- rv$selection$org
       shiny::updateSelectInput(session,
                                "organizationSelect",
                                label = "Select organization",
                                choices = choices,
-                               selected = ifelse(!is.null(globalReactiveValues$credentials$organization),
-                                                 globalReactiveValues$credentials$organization,
-                                                 1))
-      # .dprint("getAllCourses site 2")
-      # this ifelse(...) is not correct, so this has to be fixed
-      courses <- tmcrstudioaddin::get_all_courses(ifelse(!is.null(grv$credentials$organization),
-                                                         grv$credentials$organization,
-                                                         1),
-                                                  grv$credentials)
-      choices2 <- courses$id
-      names(choices2) <- courses$title
-      shiny::updateSelectInput(session,
-                               "courseSelect",
-                               label = "Select course",
-                               choices = choices2,
-                               selected = 1)
+                               selected = selected_org)
+      print(input$courseSelect)
     }
+    .dprint("CT_observer11b done")
   }
+  print_rv <- function() {
+    cat("Printing rv....\n")
+    cat("rv$logged_in:", rv$logged_in)
+    cat("\n")
+    cat("rv$stored_org:", rv$stored_org)
+    cat("\n")
+    cat("rv$organization_toggle:", rv$organization_toggle)
+    cat("\nrv$selection:\n")
+    print(rv$selection)
+    cat("\nrv$state:\n")
+    tmp <- as.logical(rv$state)
+    names(tmp) <- names(rv$state)
+    print(tmp)
+    cat(".... printed\n")
+  }
+  CT_observer11a <- function() {
+    .dprint("CT_observer11a launched...")
+    print_rv()
+    # for printing
+    # rv$selection$state["logged_in"] <- !is.null(grv$credentials$token)
+    rv$state$logged_in             <- !is.null(grv$credentials$token)
+    .dprint("CT_observer11a done")
+  }
+
+
+  CT_observer12 <- function(tab_UI_list, UI_state) {
+    .dprint("CT_observer12 launched...")
+    not_logged_in      <- is.null(grv$credentials$token)
+    tab_UI_list        <- grv$UI_elements
+    grv$UI_state["not_logged_in"] <- not_logged_in
+    UI_state           <- grv$UI_state
+    tmcrstudioaddin::enable_UI_elements(tab_UI_list, UI_state)
+  }
+
+  CT_observer13 <- function() {
+    .dprint("CT_observer13 launched...")
+    grv$UI_state["not_downloading"] <-
+      is.null(input$exercises) &
+      is.null(input$downloadedExercises)
+    tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
+    .dprint("CT_observer13 done")
+  }
+
+
 #
 # CT_observer initializers
 #
+##### -------------------
+##    the refresh buttons
+##### -------------------
+
 
   .dprint("CT_observer1...")
   observeEvent(input$refreshOrganizations, CT_observer1())
   .dprint("... initialised")
+##
+##   .dprint("CT_observer3...")
+##   observeEvent(input$refreshCourses, CT_observer3(), ignoreInit = TRUE)
+##   .dprint("... initialised")
 
-  .dprint("CT_observer2...")
-  observeEvent(input$organizationSelect, CT_observer2(), ignoreInit = TRUE)
-  .dprint("... initialised")
 
-  .dprint("CT_observer3...")
-  observeEvent(input$refreshCourses, CT_observer3(), ignoreInit = TRUE)
-  .dprint("... initialised")
-
-  .dprint("CT_observer4...")
-  observeEvent(input$courseSelect, CT_observer4(), ignoreInit = TRUE)
-  .dprint("... initialised")
+##### -------------------
+##    the select buttons
+##### -------------------
 
   .dprint("CT_observer5...")
   observeEvent(input$all_exercises, CT_observer5())
@@ -532,27 +702,55 @@ pre_error)
   observeEvent(input$updateAllExercises, CT_observer6())
   .dprint("... initialised")
 
+   .dprint("CT_observer8 ...")
+   observeEvent(grv$unpublishedExercisesMap, CT_observer8())
+   .dprint("... initialised")
+
+   .dprint("CT_observer9 ...")
+   observeEvent(grv$downloadedExercisesMap, CT_observer9())
+   .dprint("... initialised")
+
+   .dprint("CT_observer10 ...")
+   observeEvent(grv$exerciseMap, CT_observer10())
+   .dprint("... initialised")
+
+
+##### -------------------
+
+  .dprint("CT_observer2b ...")
+  observeEvent(c(input$organizationSelect, 
+                 rv$organization_toggle),
+               CT_observer2b(), ignoreInit = TRUE)
+  .dprint("... initialised")
+
+  .dprint("CT_observer4...")
+  observeEvent(input$courseSelect, CT_observer4(), ignoreInit = TRUE)
+  .dprint("... initialised")
+
   .dprint("CT_observer7...")
   observeEvent(input$download, CT_observer7())
   .dprint("... initialised")
 
-  .dprint("CT_observer8 ...")
-  observeEvent(globalReactiveValues$unpublishedExercisesMap, CT_observer8())
+  .dprint("CT_observer11a ...")
+  observeEvent(grv$credentials$token, { CT_observer11a() }, ignoreNULL = FALSE)
+  .dprint("... initialised")
+  .dprint("CT_observer11b ...")
+  # ok... having a state vector triggers this event always...
+  # so each trigger reactive needs to be separate... not good...
+  observeEvent({ rv$logged_in }, { CT_observer11b() }, ignoreInit = TRUE)
+  observeEvent({ rv$state },     { CT_observer_meta() })
+
+   .dprint("CT_observer12 ...")
+   observeEvent(grv$credentials$token, { CT_observer12() }, ignoreNULL = FALSE)
+   .dprint("... initialised")
+
+#### ----- disable/enable observers
+
+  .dprint("CT_observer13 ...")
+  observeEvent(c(input$exercises, input$downloadedExercises), ignoreNULL = FALSE,
+               { CT_observer13() })
   .dprint("... initialised")
 
-  .dprint("CT_observer9 ...")
-  observeEvent(globalReactiveValues$downloadedExercisesMap, CT_observer9())
-  .dprint("... initialised")
-
-  .dprint("CT_observer10 ...")
-  observeEvent(globalReactiveValues$exerciseMap, CT_observer10())
-  .dprint("... initialised")
-
-  .dprint("CT_observer11 ...")
-  observeEvent(c(globalReactiveValues$credentials$token,
-                 globalReactiveValues$credentials$organization),
-               CT_observer11())
-  .dprint("... initialised")
 #
 # CT_observers
 #
