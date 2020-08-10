@@ -288,24 +288,35 @@
   CT_observer3 <- function() {
     .dprint("CT_observer3 launched...")
     disable_tab_UI()
-    if (!is.null(globalReactiveValues$credentials$token)) {
-      organization <- input$organizationSelect
-      # this is refresh, so this is ok
-      courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
-      choices <- courses$id
-      names(choices) <- courses$title
-      shiny::updateSelectInput(session,
-                               "courseSelect",
-                               label = "Select course",
-                               choices = choices,
-                               selected = 1)
-    } else {
-      rstudioapi::showDialog("Not logged in",
-                             "Please log in to see courses",
-                             "")
+    organization <- input$organizationSelect
+    # this is refresh, so this is ok
+    courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
+    rv$state$has_courses <- TRUE
+    choices <- courses$id
+    names(choices) <- courses$title
+    if (is.null(courses$id)) {
+      choices <- character(0)
+      rv$state$has_courses <- FALSE
     }
-    enable_tab_UI()
-    .dprint("refresh courses")
+    rv$state$course_chosen   <- as.numeric(input$courseSelect) %in% courses$id
+    rv$state$course_visible <- rv$state$course_chosen
+    rv$selection$course <-
+      if (rv$state$course_visible) input$courseSelect else character(0)
+    print_rv()
+    shiny::updateSelectInput(session,
+                             "courseSelect",
+                             label = "Select course",
+                             choices = choices,
+                             selected = rv$selection$course)
+    if (rv$state$course_chosen) {
+      # enable_tab_UI()
+      fetch_exercises()
+    } else {
+      .dprint("NOT FETCHING")
+      hideCourseExercises()
+      enable_tab_UI()
+    }
+    .dprint("CT_observer3 done")
   }
 
   fetch_exercises <- function() {
@@ -675,10 +686,10 @@ pre_error)
   .dprint("CT_observer1...")
   observeEvent(input$refreshOrganizations, CT_observer1())
   .dprint("... initialised")
-##
-##   .dprint("CT_observer3...")
-##   observeEvent(input$refreshCourses, CT_observer3(), ignoreInit = TRUE)
-##   .dprint("... initialised")
+
+  .dprint("CT_observer3...")
+  observeEvent(input$refreshCourses, CT_observer3(), ignoreInit = TRUE)
+  .dprint("... initialised")
 
 
 ##### -------------------
