@@ -320,7 +320,7 @@ get_all_organizations <- function(credentials) {
                         })
   }, error = function(e) {
     cat("An error occured while connecting to server:\n")
-    cat(simplify_error_message(e$message))
+    cat(.simplify_error_message(e$message))
     cat("\n")
     list(name = list(), slug = list())
   })
@@ -372,7 +372,7 @@ get_all_courses <- function(organization, credentials) {
                         })
   }, error = function(e) {
     cat("An error occured while connecting to server.\n")
-    cat(simplify_error_message(e$message))
+    cat(.simplify_error_message(e$message))
     cat("\n")
     list(id = list(), name = list(), title = list())
   })
@@ -421,14 +421,14 @@ get_all_exercises <- function(course, credentials) {
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e) {
       cat("An error occured while connecting to server.\n")
-      cat(simplify_error_message(e$message))
+      cat(.simplify_error_message(e$message))
       list()
   })
   .dprint("get_all_exercises done")
   exercises
 }
 
-simplify_error_message <- function(msg) {
+.simplify_error_message <- function(msg) {
   standard_reply <- paste("Most likely you don't have working connection, something",
                           "is blocking your access or the server is down.",
                           "Check connection and try again.")

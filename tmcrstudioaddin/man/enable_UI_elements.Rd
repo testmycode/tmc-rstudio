@@ -6,7 +6,8 @@
 \usage{
 enable_UI_elements(UI_list = NULL,
                           UI_state = c("not_logged_in" = FALSE,
-                                       "not_selected"  = FALSE))
+                                       "not_selected"  = FALSE,
+                                       "not_downloading" = FALSE))
 }
 \arguments{
 \item{UI_list}{A named list of vectors of input element IDs or NULL.}

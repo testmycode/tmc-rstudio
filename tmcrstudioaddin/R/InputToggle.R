@@ -97,7 +97,8 @@ disable_UI_elements <- function(UI_list = NULL) {
 #'
 #' @usage enable_UI_elements(UI_list = NULL,
 #'                           UI_state = c("not_logged_in" = FALSE,
-#'                                        "not_selected"  = FALSE))
+#'                                        "not_selected"  = FALSE,
+#'                                        "not_downloading" = FALSE))
 #'
 #' @details Enables the \code{Shiny} input elements.
 #'
