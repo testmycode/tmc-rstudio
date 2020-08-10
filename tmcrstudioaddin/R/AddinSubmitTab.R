@@ -387,10 +387,11 @@
                       selected = globalReactiveValues$selectedExercisePath)
   }
    ST_observer11 <- function() {
-     print("ST_observer11 launched...")
+     .dprint("ST_observer11 launched...")
      not_selected  <- input$selectExercise == ""
      grv$UI_state["not_selected"] <- not_selected
      tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
+     .dprint("ST_observer11 done")
    }
 #
 # observer initializers

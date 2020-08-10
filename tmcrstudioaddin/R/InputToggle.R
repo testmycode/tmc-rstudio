@@ -114,13 +114,13 @@ enable_UI_elements <- function(UI_list  = NULL,
     .ddprint(str(tab))
     lapply(tab, enable_single_element)
   }
-  print("Enabling...")
+  .dprint("Enabling...")
   .ddprint(str(UI_list))
   not_logged_in    <- UI_state["not_logged_in"]
   not_selected     <- UI_state["not_selected"]
   not_downloading  <- UI_state["not_downloading"]
 
-  print(UI_state)
+  .dprint(UI_state)
   lapply(UI_list$UI_normal, enable_tab_UI_list)
   if (not_logged_in) lapply(UI_list$UI_limited, disable_tab_UI_list)
   if (not_selected)  {

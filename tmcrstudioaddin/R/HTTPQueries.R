@@ -308,13 +308,19 @@ get_all_organizations <- function(credentials) {
   organizations <- tryCatch({
     url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
-    req <-  httr::stop_for_status(
-      httr::GET(url = url,
-                httr::add_headers(Authorization = token),
-                config = httr::timeout(30),
-                encode = "json"))
-    jsonlite::fromJSON(httr::content(req, "text"))
+    shiny::withProgress(message = "Connecting to server",
+                        {
+                          req <-
+                            httr::stop_for_status(httr::GET(url = url,
+                                                            httr::add_headers(Authorization = token),
+                                                            config = httr::timeout(30),
+                                                            encode = "json"))
+                          jsonlite::fromJSON(httr::content(req, "text"))
+                        })
   }, error = function(e) {
+    cat("An error occured while connecting to server.\n")
+    cat(e$message)
+    cat("\n")
     list(name = list(), slug = list())
   })
   print("get_all_organizations done...")

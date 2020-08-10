@@ -71,22 +71,16 @@
 .courseTab <- function(input, output, session, globalReactiveValues) {
   .dprint(".courseTab launched")
   grv <- globalReactiveValues
-  rv  <- reactiveValues(selection = list(course = character(0),
-                                         org    = character(0),
-                                         state  = c(#
-                                                    #
-                                                    "has_courses"     = FALSE,
-                                                    "course_chose"    = FALSE,
-                                                    "org_visible"     = FALSE,
-                                                    "course_visible"  = FALSE)),
-                        state  = list("logged_in"       = FALSE,
-                                      "org_chosen"      = FALSE,
-                                      "has_courses"     = FALSE,
-                                      "course_chose"    = FALSE,
-                                      "org_visible"     = FALSE,
-                                      "course_visible"  = FALSE),
-                        logged_in           = FALSE,
-                        stored_org          = NULL,
+  rv  <- reactiveValues(selection  = list(course = character(0),
+                                          org    = character(0)),
+                        state      = list(logged_in       = FALSE,
+                                          org_chosen      = FALSE,
+                                          has_courses     = FALSE,
+                                          course_chosen   = FALSE,
+                                          org_visible     = FALSE,
+                                          course_visible  = FALSE),
+                        logged_in  = FALSE,
+                        stored_org = NULL,
                         organization_toggle = FALSE)
 #
 # normal functions
@@ -256,11 +250,10 @@
     rv$selection$org <- organization
     # $stored_org == $selection$org
     rv$state$org_chosen    <- TRUE
-    rv$selection$state["org_visible"] <- TRUE
     rv$state$org_visible   <- TRUE
     # this is initialisation, so this is ok
     courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
-    rv$selection$state["has_courses"] <- TRUE
+    rv$state$has_courses <- TRUE
     # it is now stored
     grv$coursesInfo$all_courses <- courses
     #
@@ -268,12 +261,12 @@
     names(choices) <- courses$title
     if (is.null(courses$id)) {
       choices <- character(0)
-      rv$selection$state["has_courses"] <- FALSE
+      rv$state$has_courses <- FALSE
     }
-    rv$selection$state["course_chose"]   <- as.numeric(input$courseSelect) %in% courses$id
-    rv$selection$state["course_visible"] <- rv$selection$state["course_chose"]
+    rv$state$course_chosen   <- as.numeric(input$courseSelect) %in% courses$id
+    rv$state$course_visible <- rv$state$course_chosen
     rv$selection$course <-
-      if (rv$selection$state["course_visible"]) input$courseSelect else character(0)
+      if (rv$state$course_visible) input$courseSelect else character(0)
     #
     print_rv()
     shiny::updateSelectInput(session,
@@ -281,7 +274,7 @@
                              label    = "Select course",
                              choices  = choices,
                              selected = rv$selection$course)
-    if (rv$selection$state["course_chose"]) {
+    if (rv$state$course_chosen) {
       # enable_tab_UI()
       fetch_exercises()
     } else {
@@ -319,7 +312,7 @@
     print("fetch_exercises()")
     disable_tab_UI()
     hideCourseExercises()
-    withProgress(message = "Fetching exercises", {
+    shiny::withProgress(message = "Fetching exercises", {
       exercises <- tmcrstudioaddin::get_all_exercises(rv$selection$course, grv$credentials)
       exercises
     })
@@ -331,8 +324,8 @@
   CT_observer4 <- function() {
     .dprint("CT_observer4 launched...")
     rv$selection$course <- input$courseSelect
-    rv$selection$state["course_chose"]   <- TRUE
-    rv$selection$state["course_visible"] <- TRUE
+    rv$state$course_chosen   <- TRUE
+    rv$state$course_visible <- TRUE
     print_rv()
     fetch_exercises()
     .dprint("CT_observer4 done")
@@ -529,11 +522,11 @@ pre_error)
       print("RELOADING THE STATE, SO BOTH BECOME VISIBLE DURING LOGOUT")
       rv$selection$org <- input$organizationSelect
       rv$state$org_chosen  <- TRUE
-      rv$selection$state["org_visible"] <- TRUE
+      rv$state$org_visible <- TRUE
       grv$credentials$organization <- rv$selection$org
       rv$selection$course <- input$courseSelect
-      rv$selection$state["course_chose"]   <- TRUE
-      rv$selection$state["course_visible"] <- TRUE
+      rv$state$course_chosen   <- TRUE
+      rv$state$course_visible <- TRUE
       print_rv()
       return()
     } 
@@ -541,7 +534,7 @@ pre_error)
       print("RELOADING THE STATE, SO ORG BECOMES VISIBLE DURING LOGOUT")
       rv$selection$org <- input$organizationSelect
       rv$state$org_chosen  <- TRUE
-      rv$selection$state["org_visible"] <- TRUE
+      rv$state$org_visible <- TRUE
       grv$credentials$organization <- rv$selection$org
     } else if (!is.null(grv$credentials$organization)) {
       print("ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
@@ -555,7 +548,7 @@ pre_error)
       rv$selection$org <- character(0)
       rv$state$org_chosen  <- FALSE
       # 
-      rv$selection$state["org_visible"] <- FALSE
+      rv$state$org_visible <- FALSE
       shiny::updateSelectInput(session,
                                "organizationSelect",
                                label    = "Select organization",
@@ -565,7 +558,7 @@ pre_error)
       print("NO ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
       rv$selection$org <- character(0)
       rv$state$org_chosen  <- FALSE
-      rv$selection$state["org_visible"] <- FALSE
+      rv$state$org_visible <- FALSE
       shiny::updateSelectInput(session,
                                "organizationSelect",
                                label    = "Select organization",
@@ -575,14 +568,14 @@ pre_error)
     print_rv()
   }
   CT_observer_meta <- function() {
-    print("CT_observer_meta launched..")
+    .dprint("CT_observer_meta launched..")
     rv$logged_in <- rv$state$logged_in
-    print("CT_observer_meta done")
+    .dprint("CT_observer_meta done")
   }
 
   CT_observer11b <- function() {
     .dprint("CT_observer11b launched...")
-    print("This follows logged_in status")
+    .dprint("This follows logged_in status")
     if (is.null(globalReactiveValues$credentials$token)) {
       CT_observer11b_logged_out()
     } else {
@@ -595,7 +588,7 @@ pre_error)
         print("Old stored version: restored")
         rv$selection$org <- rv$stored_org
         rv$state$org_chosen  <- TRUE
-        rv$selection$state["org_visible"] <- TRUE
+        rv$state$org_visible <- TRUE
         grv$credentials$organization <- rv$stored_org
         # rv$stored_org     <- grv$credentials$organization
         # this makes the next event launch
@@ -605,13 +598,13 @@ pre_error)
         rv$selection$org <- grv$credentials$organization
         rv$stored_org    <- rv$selection$org
         rv$state$org_chosen  <- TRUE
-        rv$selection$state["org_visible"] <- TRUE
+        rv$state$org_visible <- TRUE
       } else {
         print("NULL grv")
         rv$selection$org <- character(0)
         rv$stored_org    <- NULL
         rv$state$org_chosen  <- FALSE
-        rv$selection$state["org_visible"] <- FALSE
+        rv$state$org_visible <- FALSE
       }
       # this will erase the previous value, so let's guard it ...
       print("NOW HERE!!!!")
@@ -630,19 +623,21 @@ pre_error)
     .dprint("CT_observer11b done")
   }
   print_rv <- function() {
-    cat("Printing rv....\n")
-    cat("rv$logged_in:", rv$logged_in)
-    cat("\n")
-    cat("rv$stored_org:", rv$stored_org)
-    cat("\n")
-    cat("rv$organization_toggle:", rv$organization_toggle)
-    cat("\nrv$selection:\n")
-    print(rv$selection)
-    cat("\nrv$state:\n")
-    tmp <- as.logical(rv$state)
-    names(tmp) <- names(rv$state)
-    print(tmp)
-    cat(".... printed\n")
+    if (exists(".__tmc_debug")) {
+      cat("Printing rv....\n")
+      cat("rv$logged_in:", rv$logged_in)
+      cat("\n")
+      cat("rv$stored_org:", rv$stored_org)
+      cat("\n")
+      cat("rv$organization_toggle:", rv$organization_toggle)
+      cat("\nrv$selection:\n")
+      print(rv$selection)
+      cat("\nrv$state:\n")
+      tmp <- as.logical(rv$state)
+      names(tmp) <- names(rv$state)
+      print(tmp)
+      cat(".... printed\n")
+    }
   }
   CT_observer11a <- function() {
     .dprint("CT_observer11a launched...")
