@@ -449,7 +449,7 @@ simplify_error_message <- function(msg) {
                msg, msg)))
   names(translation_df) <- c("key", "translation")
   val <- translation_df$translation[translation_df$key == msg]
-  if (length(val)) {
+  if (length(val) > 1) {
     paste0(val[1], " (", val[2], ")")
   } else {
     val
