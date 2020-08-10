@@ -81,7 +81,7 @@ disable_tab_UI_list <- function(tab) {
 #' @seealso \code{\link{enable_UI_elements}}
 
 disable_UI_elements <- function(UI_list = NULL) {
-  print("Disabling...")
+  .dprint("Disabling...")
   .ddprint(str(UI_list))
 
   lapply(UI_list$UI_normal, disable_tab_UI_list)

@@ -203,7 +203,7 @@
       return()
     }
 
-    tranlation_df <- 
+    translation_df <-
       as.data.frame(
         stringsAsFactors = FALSE,
         matrix(byrow = TRUE, ncol = 2,
@@ -243,7 +243,7 @@
                  "exercises 2a", "exercises 2a and 2b are solved correctly",
                  "exercises 2c", "exercises 2c and 2d are solved correctly",
                  "exercises 3a", "exercises 3a and 3b is solved correctly")))
-    names(tranlation_df) <- c("key", "translation")
+    names(translation_df) <- c("key", "translation")
 
     disable_tab_UI()
     submitRes <- NULL
@@ -279,11 +279,11 @@
             ind1 <- ind1 + 1
             test_names_server[ind2] <- lname
           } else {
-            temp_bool <- tranlation_df$key == sname
+            temp_bool <- translation_df$key == sname
             if (sum(temp_bool)) {
               .ddprint(which(temp_bool))
-              .ddprint(tranlation_df$translation[which(temp_bool)])
-              test_names_server[ind2] <- tranlation_df$translation[which(temp_bool)]
+              .ddprint(translation_df$translation[which(temp_bool)])
+              test_names_server[ind2] <- translation_df$translation[which(temp_bool)]
             }
             # pppp
           }
@@ -299,7 +299,7 @@
                  test_names_server,
                  SIMPLIFY = FALSE)
         .ddprint(str(resolved_tests))
-        .ddprint(str(tranlation_df))
+        .ddprint(str(translation_df))
         submitRes$data$tests <- resolved_tests
       }
       reactive$submitResults <- submitRes$data

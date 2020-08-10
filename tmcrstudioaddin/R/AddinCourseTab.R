@@ -278,7 +278,7 @@
       # enable_tab_UI()
       fetch_exercises()
     } else {
-      print("NOT FETCHING")
+      .dprint("NOT FETCHING")
       hideCourseExercises()
       enable_tab_UI()
     }
@@ -309,7 +309,7 @@
   }
 
   fetch_exercises <- function() {
-    print("fetch_exercises()")
+    .dprint("fetch_exercises()")
     disable_tab_UI()
     hideCourseExercises()
     shiny::withProgress(message = "Fetching exercises", {
@@ -515,11 +515,11 @@ pre_error)
   
   CT_observer11b_logged_out <- function() {
     print_rv()
-    print(input$organizationSelect)
-    print(grv$credentials$organization)
-    print(input$courseSelect)
+    .dprint(input$organizationSelect)
+    .dprint(grv$credentials$organization)
+    .dprint(input$courseSelect)
     if (input$organizationSelect != "" & input$courseSelect != "") {
-      print("RELOADING THE STATE, SO BOTH BECOME VISIBLE DURING LOGOUT")
+      .dprint("RELOADING THE STATE, SO BOTH BECOME VISIBLE DURING LOGOUT")
       rv$selection$org <- input$organizationSelect
       rv$state$org_chosen  <- TRUE
       rv$state$org_visible <- TRUE
@@ -585,7 +585,7 @@ pre_error)
       choices        <- organizations$slug
       # ... this is the guard
       if (!is.null(rv$stored_org) & is.null(grv$credentials$organization)) {
-        print("Old stored version: restored")
+        .dprint("Old stored version: restored")
         rv$selection$org <- rv$stored_org
         rv$state$org_chosen  <- TRUE
         rv$state$org_visible <- TRUE
@@ -594,23 +594,19 @@ pre_error)
         # this makes the next event launch
         rv$organization_toggle <- !rv$organization_toggle
       } else if (!is.null(grv$credentials$organization)) {
-        print("Using grv version: restored")
+        .dprint("Using grv version: restored")
         rv$selection$org <- grv$credentials$organization
         rv$stored_org    <- rv$selection$org
         rv$state$org_chosen  <- TRUE
         rv$state$org_visible <- TRUE
       } else {
-        print("NULL grv")
+        .dprint("NULL grv")
         rv$selection$org <- character(0)
         rv$stored_org    <- NULL
         rv$state$org_chosen  <- FALSE
         rv$state$org_visible <- FALSE
       }
-      # this will erase the previous value, so let's guard it ...
-      print("NOW HERE!!!!")
-      # rv$stored_org     <- grv$credentials$organization
       print_rv()
-      # print(grv$credentials$organization)
       names(choices) <- organizations$name
       selected_org   <- rv$selection$org
       shiny::updateSelectInput(session,
@@ -618,7 +614,7 @@ pre_error)
                                label = "Select organization",
                                choices = choices,
                                selected = selected_org)
-      print(input$courseSelect)
+      .dprint(input$courseSelect)
     }
     .dprint("CT_observer11b done")
   }
