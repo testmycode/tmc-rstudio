@@ -132,18 +132,40 @@ createRunSourcingFailHtml <- function(runResults) {
 .createDetailedTestResultElement <- function(index = NULL,
                                              message = NULL,
                                              backtrace) {
+##   create_message_html <- function() {
+##     T this is not needed, the pre tag is better
+##     # this creates a list with tags$br() replacing the <eol> characters
+##     # this must be tested still on Windows
+##     x <- unlist(strsplit(message, "\n"))
+##     x <- as.character(x)
+##     n <- length(x)
+##     if (n <= 1) {
+##       return(list(message))
+##     }
+##     N <- 2 * n - 1
+##     y <- as.list(character(N))
+##     y[seq(1, N, by = 2)] <- x
+##     y[seq(2, N, by = 2)] <- rep(list(tags$br()), n - 1)
+##   }
+  .dprint(".createDetailedTestResultElement launched...")
   btn <- tags$button(id = paste("button_", index, sep = ""),
                      "Toggle details")
   id <- paste0("message_", index)
   style <- "display:none"
-  message <- tags$p(paste("message:", message),
-                    style = "font-weight: bold;")
+  fn <- tags$p
+  fn2 <- tags$pre
+  message <- do.call("fn", list("message:",
+                                tags$br(),
+                                fn2(message),
+                                style = "font-weight: bold;"))
+  .dprint(message)
   backtraceTags <- .backtraceHtmlTags(backtrace)
   script <- tags$script(paste0("$(\"#button_",
                                index,
                               "\").click(function(){$(\"#message_",
                               index,
                               "\").toggle()});"))
+  .dprint(".createDetailedTestResultElement done")
   return(list(tags$div(message,
                        backtraceTags,
                        style = style,

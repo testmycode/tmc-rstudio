@@ -194,6 +194,22 @@
 
   ST_observer2 <-function() {
     .dprint("ST_observer2 launching...")
+    parse_single_test <- function(test_result) {
+      .dprint("Parsing...")
+      tmp <- test_result$message
+      test_result$message <- gsub("\\\\\"",
+                                  "\"",
+                                  gsub("\\\\n",
+                                       "\n",
+                                       substr(tmp, 2, nchar(tmp) - 1)))
+      .dprint("After...")
+      .dprint(str(test_result))
+      test_result
+    }
+
+    parse_test_strings <- function(test_results) {
+      lapply(test_results, parse_single_test)
+    }
     if (is.null(globalReactiveValues$credentials$token)) {
       disable_tab_UI()
       rstudioapi::showDialog("Not logged in",
@@ -303,7 +319,7 @@
         submitRes$data$tests <- resolved_tests
       }
       reactive$submitResults <- submitRes$data
-      reactive$testResults <- submitRes$data$tests
+      reactive$testResults <- parse_test_strings(submitRes$data$tests)
       reactive$runStatus <- "success"
       reactive$sourcing <- FALSE
     }
