@@ -253,7 +253,11 @@ getDialogMessage <- function(submitResults) {
         submitResults$error
       } else {
         message$title <- "Submission failed: error"
-        print(submitResults$error)
+        cat("Submission failed with error: ")
+        cat(submitResults$error$message)
+        cat("\n")
+        #print(str(submitResults$error))
+        #print(submitResults$error)
         submitResults$error$message
       }
     messages_tmp <-
@@ -303,6 +307,15 @@ getDialogMessage <- function(submitResults) {
 		       "This can also mean that server is is temporarily not accepting",
 		       "requests. You should try resubmitting again later, but if you",
 		       "are in a hurry, contact the course teacher")),
+               c("LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60",
+		 paste("Your submission failed with 'LibreSSL ... errno 60'",
+		       "This usually means that your connection failed just before",
+                       "submission. You should try resubmitting again for more informative",
+                       "error message."),
+		 paste("Your submission failed with 'LibreSSL ... errno 60'",
+		       "This usually means that your connection failed just before",
+                       "submission. You should try resubmitting again for more informative",
+                       "error message.")),
 	       c("Could not resolve host: tmc.mooc.fi",
 		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
 		       "network connection? If you do, then tmc.mooc.fi might be",
@@ -311,8 +324,8 @@ getDialogMessage <- function(submitResults) {
 		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
 		       "network connection? If you do, then tmc.mooc.fi might be",
 		       "currently unreachable. You should try resubmitting again later,",
-		       "but if you are in a hurry, contact the course teacher"),
-		 pre_error,
+		       "but if you are in a hurry, contact the course teacher")),
+               c(pre_error,
 		 paste(pre_error, "<p>Please contact the course instructors in this case."),
 		 paste(pre_error, "<p>Please contact the course instructors in this case."))))
     errormsgs <- list(keys      = messages_tmp[ , 1],
