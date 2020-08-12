@@ -336,8 +336,174 @@
     shiny::withProgress(message = "Fetching exercises",
                         value   = 1/2,
                         { exercises <- get_exercises() })
+    # print(str(exercises))
+    # print(exercises$awarded_points)
+    print_points(exercises)
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
     enable_tab_UI()
+  }
+
+  num_of_exercises <- function(exercises) {
+    nrow(exercises)
+  }
+  names_of_exercises <- function(exercises) {
+    exercises$name
+  }
+  max_point_width <- function(num) {
+    if (num == 0) return(1)
+    ceiling(log10(num + 1))
+  }
+  max_points <- function(exercises) {
+    fn <- function(ex) {
+      # print(str(ex$available_points$name))
+      length(ex$available_points$name)
+    }
+    points <- apply(exercises, MARGIN = 1, fn)
+    # print(str(exercises$available_points))
+    #print(points)
+    #print(str(sum(points)))
+    sum(points)
+  }
+  max_name_length <- function(exercises) {
+    max(nchar(exercises$name))
+  }
+  print_distribution <- function(awarded_points, available_points) {
+    xx <- available_points %in% awarded_points
+    # print(xx)
+    zz <- sapply(xx + 1, function(x) c(" ", "x")[x])
+    n  <- length(zz)
+    N  <- 2 * n - 1
+    if ( n > 1 ) {
+      yy <- character(N)
+      yy[seq(1, N, by = 2)] <- zz
+      yy[seq(2, N, by = 2)] <- rep("|", n - 1)
+    } else {
+      yy <- zz
+    }
+    cat("(")
+    cat(paste(yy, collapse = ""))
+    cat(")")
+  }
+  random_selection <- function(awarded_points) {
+    .dprint("THIS IS JUST FOR TESTING, THIS WILL 'DELETE POINTS'")
+    xx <- awarded_points
+    n  <- length(xx)
+    if (FALSE & length(xx)) {
+      k  <- sample.int(n + 1, 1) - 1
+      yy <- sample(seq_along(xx), k, replace = FALSE)
+      yy <- sort(yy)
+      xx[yy]
+    } else {
+      xx
+    }
+  }
+
+  print_num <- function(num, point_width) {
+    num_char <- as.character(num)
+  #  print(num_char)
+    paste(c(rep(" ", point_width - nchar(num_char)),
+            num_char),
+          collapse = "")
+  }
+  print_exercise_for <- function(exercise, max_len, point_width, cumulative) {
+    padding <- function(len) {
+      paste(rep(" ", max_len + 1- len), collapse = "")
+    }
+    exercise_name    <- exercise$name
+    awarded_points   <- exercise$awarded_points[[1]]        # list(), char(0) or char vector
+    available_points <- exercise$available_points[[1]]$name # char
+    published        <- exercise$unlocked
+    points_total     <- length(available_points)
+    points           <- length(awarded_points)
+##     print(exercise_name)
+##     print(str(awarded_points))
+##     print(str(available_points))
+##     print(published)
+    if (points_total > 0 & published) {
+      awarded_points   <- random_selection(awarded_points)
+      points           <- length(awarded_points)
+      cat(exercise_name)
+      cat(":",
+          padding(nchar(exercise_name)),
+          print_num(points, point_width),
+          "/",
+          print_num(points_total, point_width),
+          " ")
+      print_distribution(awarded_points, available_points)
+      cat("\n")
+    } 
+    if (points_total > 0 & !published) {
+      cat(exercise_name)
+      cat(":",
+          padding(nchar(exercise_name)),
+          print_num("x", point_width),
+          "/",
+          print_num(points_total, point_width),
+          "\n")
+    }
+    # note, using [..] preserves name and this would not work
+    c(points = (cumulative[["points"]] + points),
+      total  = (cumulative[["total"]]  + points_total))
+    # print(str(exercise))
+  }
+  print_exercise_apply <- function(exercise) {
+    exercise_name    <- exercise$name
+    awarded_points   <- exercise$awarded_points        # list(), char(0) or char vector
+    available_points <- exercise$available_points$name # char
+    published        <- exercise$unlocked
+##     print(exercise_name)
+##     print(str(available_points))
+##     print(str(awarded_points))
+##     print(published)
+    if (length(available_points) > 0 & published) {
+      awarded_points   <- random_selection(awarded_points)
+      cat(exercise_name)
+      cat(":", length(awarded_points), "/", length(available_points), " ")
+      print_distribution(awarded_points, available_points)
+      cat("\n")
+      # cat("Available points: ", available_points, "\n")
+      # cat("Awarded points:   ", awarded_points, "\n")
+      # cat("Awarded points:   ", length(awarded_points), "/", length(available_points), "\n")
+    } 
+    if (length(available_points) > 0 & !published) {
+      cat(exercise_name, ": x /", length(available_points), "\n")
+    }
+    # print(str(exercise))
+  }
+  course_title <- function() {
+    all_courses <- grv$coursesInfo$all_courses
+    all_courses$title[all_courses$id == rv$selection$course]
+  }
+  print_points <- function(exercises) {
+    cat(course_title(), "\n")
+    cat("\n")
+    cat("Your current score on the server\n")
+    cat("--------------------------------\n")
+##     cat("Number of exercises: ", num_of_exercises(exercises), "\n")
+##     cat("Names of exercises: ",  names_of_exercises(exercises), "\n")
+##     cat("Maximum points: ",  max_points(exercises), "\n")
+    max_len <- max_name_length(exercises)
+##     cat("max length: ", max_len, "\n")
+    cumulative <- c(points = 0, total = 0)
+    point_width <- max_point_width(max_points(exercises))
+##     cat("point_width: ", point_width, "\n")
+    for (i in seq_len(nrow(exercises))) {
+      # print("---------------")
+      # print(i)
+      ex <- exercises[i, ]
+      cumulative <- print_exercise_for(ex, max_len, point_width, cumulative)
+      # print(cumulative)
+    }
+    cat("\n")
+    cat("Total points:  ")
+    cat(paste(rep(" ", max_len + 1 - nchar("Total points")), collapse = ""))
+    cat(print_num(cumulative[["points"]], point_width),
+        "/", 
+        print_num(cumulative[["total"]], point_width),
+        "\n\n")
+
+    # using for to add folding
+    # apply(X = exercises, MARGIN = 1, FUN = print_exercise_apply)
   }
 
 
