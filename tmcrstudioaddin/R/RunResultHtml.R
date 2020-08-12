@@ -62,9 +62,10 @@ createTestResultsHtml <- function(testResults, showAll) {
 #'
 #' @description Create \code{HTML} for displaying a run or sourcing fail.
 #'
-#' @usage createRunSourcingFailHtml(runResults)
+#' @usage createRunSourcingFailHtml(runResults, exercise_path)
 #'
 #' @param runResults Results from the failed attempt of running tests.
+#' @param exercise_path Current path to the RTMC files.
 #'
 #' @details Creates an \code{HTML} view for displaying information
 #' related to a run- or sourcing fail
@@ -75,15 +76,33 @@ createTestResultsHtml <- function(testResults, showAll) {
 #' @seealso \code{\link[shiny]{tags}}
 #'
 # Creates html for runResult with run or sourcing fail
-createRunSourcingFailHtml <- function(runResults) {
+createRunSourcingFailHtml <- function(runResults, exercise_path) {
   if (runResults$run_status == "sourcing_failed") {
-    fail_name <- "Sourcing fail"
+    fail_name <- "Sourcing failed during testing. The tester could not run tests."
+  } else if (runResults$run_status == "local_sourcing_failed") {
+    fail_name <- "Sourcing of exercises failed. There is an error in you code."
+  } else if (runResults$run_status == "server_failed") {
+    fail_name <- "Sourcing failed at the server. The server could not run tests."
+  } else if (runResults$run_status == "submission_failed") {
+    fail_name <- "Submission did not reach the server due to a submission error."
   } else {
     fail_name <- "Run fail"
   }
+  .dprint("the backtrace")
+  # print(str(runResults))
+  backtrace <- .backtraceHtmlTags2(runResults$backtrace, exercise_path)
+  help_text <- if (!is.null(runResults$help_text)) {
+    HTML(paste("<p>", runResults$help_text), "</p>")
+  } else {
+    ""
+  }
   html <- tags$html(tags$p(fail_name,
                            style = "color: red;font-weight:bold"),
-                    .backtraceHtmlTags(runResults$backtrace))
+                    backtrace,
+                    help_text,
+                    tags$br())
+  # print(str(html))
+  # print(html)
   return(html)
 }
 
@@ -195,6 +214,35 @@ createRunSourcingFailHtml <- function(runResults) {
 }
 
 # Returns backtrace as html p tags.
+.backtraceHtmlTags2 <- function(backtrace, exercise_path) {
+  .dprint("the backtrace handling")
+  # print(str(backtrace))
+  val2 <- unlist(backtrace)
+  val2[1] <- sub("Error in source\\(.*\\) : ", "Error in source(...) :\n", val2[1])
+  val2[1] <- sub("Error in eval\\(.*\\) : ",   "Error in eval(...) :\n", val2[1])
+  val2[1] <- sub(paste0(exercise_path, "/R"), ".../R", val2[1])
+  val2[1] <- sub("/app/R",  ".../R", val2[1])
+  val2[1] <- sub(".../R//", ".../", val2[1])
+  val2[1] <- sub(".../R/",  ".../", val2[1])
+  #val2[1] <- sub(paste0(exercise_path, "/R/"), "...", val2[1])
+  val2[1] <- sub(" : ", " :\n", val2[1])
+  # val <- lapply(backtrace, tags$pre)
+  # print(str(val))
+  # print(str(val2))
+  val2 <- paste(val2, collapse = "\n")
+  # print(str(val2))
+  # print(val2)
+  # print(val)
+  val2 <- tags$pre(val2)
+  # print(val2)
+  return(val2)
+}
+# Returns backtrace as html p tags.
 .backtraceHtmlTags <- function(backtrace) {
-  return(lapply(backtrace, tags$p))
+  # print("the backtrace handling")
+  # print(backtrace)
+  val <- lapply(backtrace, tags$p)
+  # print(str(val))
+  # print(val)
+  return(val)
 }

@@ -204,19 +204,16 @@ showMessage <- function(submitResults) {
 #' failed or all tests passed.
 
 
+.print_compilation_error <- function(pre_error) {
+  pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
+  error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
+                                                            pre_lines[2]))),
+                            error = function(e) pre_lines[2])
+  error_msg     <- paste(error_msg_vec, collapse = "\n")
+  error_msg
+}
+
 getDialogMessage <- function(submitResults) {
-  print_compilation_error <- function(pre_error) {
-    pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
-    error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
-							      pre_lines[2]))),
-			      error = function(e) pre_lines[2])
-    error_msg     <- paste(error_msg_vec, collapse = "\n")
-##  cat(pre_error)
-    cat("Server couldn't run tests with your code,",
-	"since your code produced the following error:", sep = "\n")
-    cat(error_msg, "\n")
-    error_msg
-  }
   message <- list()
   .ddprint("NOW parsing submit Results")
   .ddprint(str(submitResults))
@@ -227,7 +224,10 @@ getDialogMessage <- function(submitResults) {
     .dprint("getDialogMessageError")
     pre_error <-
       if (is.character(submitResults$error)) {
-        console_error <- print_compilation_error(submitResults$error)
+        console_error <- .print_compilation_error(submitResults$error)
+        cat("Server couldn't run tests with your code,",
+            "since your code produced the following error:", sep = "\n")
+        cat(console_error, "\n")
 	if (console_error == "unable to start data viewer") {
 	  next_line <- paste("Server does not have View(...) functionality, so please",
 			     "comment out or remove all the View(...) commands.",

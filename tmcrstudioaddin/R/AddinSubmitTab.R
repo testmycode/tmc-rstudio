@@ -65,7 +65,9 @@
   grv      <- globalReactiveValues
   reactive <- reactiveValues(submitResults = NULL,
                              testResults   = NULL,
+                             runResults    = NULL,
                              runStatus     = NULL,
+                             error_state   = FALSE,
                              showAll       = TRUE,
                              sourcing      = FALSE,
                              sourceEcho    = TRUE)
@@ -182,17 +184,140 @@
     } else {
       run_results <- silent_run_tests()
     }
-    reactive$runResults <- run_results
-    reactive$testResults <- run_results$test_results
-    reactive$runStatus <- run_results$run_status
+    reactive$runResults    <- run_results
+    reactive$testResults   <- run_results$test_results
+    reactive$runStatus     <- run_results$run_status
     reactive$submitResults <- NULL
-    reactive$sourcing <- FALSE
+    reactive$sourcing      <- FALSE
+    reactive$error_state   <- FALSE
     enable_tab_UI()
     # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
     rstudioapi::executeCommand("refreshEnvironment")
   }
 
-  ST_observer2 <-function() {
+  .help_text_for_serious_error <- function(message) {
+    pre_error <- message
+    messages_tmp <-
+      matrix(byrow = TRUE, ncol = 3,
+	     c(c("Unauthorized (HTTP 401).",
+		 paste("Your submission was refused by server (HTTP 401).",
+		       "This most likely means that the submission deadline",
+		       "has closed.</p><p>Please check that you have chosen the",
+                       "right exercise set."),
+		 paste("Your submission was refused by server (HTTP 401).",
+		       "This most likely means that the submission deadline",
+		       "has closed.</p><p>Please check that you have chosen the",
+                       "right exercise set.")),
+	       c("Forbidden (HTTP 403).",
+		 paste("Your submission failed as forbidden request (HTTP 403).",
+		       "<p>The most common cause of this are firewalls, VPN's,",
+		       "antivirus programs that block the connection as well as",
+		       "stale credentials. It can also happen if the server is",
+		       "down. <p> Try logging out and back in from addin in a",
+		       "different network and check if tmc.mooc.fi is working.",
+		       "<p> If the problem persists, please contact the course",
+		       "instructors."),
+		 paste("Your submission failed as forbidden request (HTTP 403).",
+		       "</p><p>The most common cause of this are firewalls, VPN's,",
+		       "antivirus programs that block the connection as well as",
+		       "stale credentials. It can also happen if the server is",
+		       "down. </p><p> Try logging out and back in from addin in a",
+		       "different network and check if tmc.mooc.fi is working.",
+		       "</p><p> If the problem persists, please contact the course",
+		       "instructors.")),
+	       c("file.exists(path) is not TRUE",
+		 paste("Submission uploading failed with 'file.exists(path)",
+		       "is not TRUE'. </p><p> The reason for this is most likely",
+		       "with your installation of Rtools. Please take a look at",
+		       "Rtools installationmanual. </p><p> If you are unable to fix this",
+		       "contact the course instructors in this case."),
+		 paste("Submission uploading failed with 'file.exists(path)",
+		       "is not TRUE'.  </p><p> This is most likely an issue with",
+		       "file permissions. </p><p> Please contact the course instructors",
+		       "in this case.")),
+	       c("Bad Gateway (HTTP 502).",
+		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+		       "You can try restarting RStudio and RTMC and then resubmitting.",
+		       "</p><p>This can also mean that server is is temporarily not accepting",
+		       "requests. You should try resubmitting again later, but if you",
+		       "are in a hurry, contact the course teacher"),
+		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+		       "You can try restarting RStudio and RTMC and then resubmitting.",
+		       "</p><p>This can also mean that server is is temporarily not accepting",
+		       "requests. You should try resubmitting again later, but if you",
+		       "are in a hurry, contact the course teacher")),
+               c("LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60",
+		 paste("Your submission failed with 'LibreSSL ... errno 60'",
+		       "This usually means that your connection failed just before",
+                       "the submission. You should try resubmitting immediately",
+                       "again for more informative",
+                       "error message."),
+		 paste("Your submission failed with 'LibreSSL ... errno 60'",
+		       "This usually means that your connection failed just before",
+                       "the submission. You should try resubmitting immediately",
+                       "again for more informative",
+                       "error message.")),
+	       c("Couldn't connect to server",
+		 paste("The server could not be reached. This almost surely means",
+                       "that your network connection is not working currently.",
+                       "Please check that first.",
+                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                       "currently unreachable. You should try resubmitting again later.",
+		       "If the server is down, please contact the course teacher, if the",
+                       "submission deadline is close"),
+		 paste("The server could not be reached. This almost surely means",
+                       "that your network connection is not working currently.",
+                       "Please check that first.",
+                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                       "currently unreachable. You should try resubmitting again later.",
+		       "If the server is down, please contact the course teacher, if the",
+                       "submission deadline is close")),
+	       c("Could not resolve host: tmc.mooc.fi",
+		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
+		       "network connection? Please check that first.",
+                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                       "currently unreachable. You should try resubmitting again later.",
+		       "</p><p>If the server is down, please contact the course teacher, if the",
+                       "submission deadline is close"),
+		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
+		       "network connection? Please check that first.",
+                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                       "currently unreachable. You should try resubmitting again later.",
+		       "</p><p>If the server is down, please contact the course teacher, if the",
+                       "submission deadline is close")),
+               c(pre_error,
+		 paste(pre_error, "</p><p>Please contact the course instructors in this case."),
+		 paste(pre_error, "</p><p>Please contact the course instructors in this case."))))
+    errormsgs <- list(keys      = messages_tmp[ , 1],
+		      msgs_win  = messages_tmp[ , 2],
+		      msgs_unix = messages_tmp[ , 3])
+    if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
+      errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
+    } else {
+      errormsg <- errormsgs$msgs_unix[errormsgs$keys == pre_error][1]
+    }
+  }
+
+  .help_text_for_error <- function(message) {
+    console_error <- message
+    if (console_error == "unable to start data viewer") {
+      next_line <- paste("Server does not have View(...) functionality, so please",
+                         "comment out or remove all the View(...) commands.",
+                         sep = " ")
+    } else if (grepl("invalid multibyte character", console_error)) {
+      next_line <- paste("You might have used",
+                         "nordic letters in text with encoding that is not UTF-8.",
+                         "Try using UTF-8 encoding or use only ASCII characters.",
+                         sep = " ")
+    } else {
+      next_line <- paste("You can find the error message on the console and on addin.",
+                         "This should help you identifying and locating the error.",
+                         sep = " ")
+    }
+    next_line
+  }
+
+  ST_observer2 <- function() {
     .dprint("ST_observer2 launching...")
     parse_single_test <- function(test_result) {
       .dprint("Parsing...")
@@ -277,6 +402,7 @@
                                                                    grv$credentials)
                    })
     }
+    # print(str(submitRes))
     if (is.null(submitRes$error)) {
       if (!is.null(reactive$testResults)) {
         test_names_local  <- c(sapply(X = reactive$testResults, function(x) x$name),
@@ -319,8 +445,36 @@
         submitRes$data$tests <- resolved_tests
       }
       reactive$submitResults <- submitRes$data
-      reactive$testResults <- parse_test_strings(submitRes$data$tests)
-      reactive$runStatus <- "success"
+      reactive$testResults   <- parse_test_strings(submitRes$data$tests)
+      reactive$runStatus     <- "success"
+      reactive$sourcing      <- FALSE
+      reactive$error_state   <- FALSE
+    } else {
+      .dprint("NOW AN ERROR OCCURED")
+      # print(str(submitRes))
+      reactive$error_state <- TRUE
+      if (is.character(submitRes$error)) {
+        .dprint("This came from the server.")
+        backtrace_message   <- .print_compilation_error(submitRes$error)
+        help_text           <- .help_text_for_error(backtrace_message)
+        reactive$runResults <- list(run_status     = "server_failed",
+                                    backtrace      = list(paste("Error in source(...) on server :",
+                                                                backtrace_message)),
+                                    help_text      = list(help_text),
+                                    test_results   = list())
+      } else {
+        .dprint("We did not get to the server at all")
+        help_text           <- .help_text_for_serious_error(submitRes$error$message)
+        reactive$runResults <- list(run_status   = "submission_failed",
+                                    backtrace    = list(paste("Submission did not reach the server :",
+                                                              submitRes$error$message)),
+                                    help_text    = list(help_text),
+                                    test_results = list())
+      }
+
+      reactive$submitResults <- list(call = "server", message = submitRes$error)
+      reactive$testResults <- list() # this prevents the crash, but needs to be fixed
+#      reactive$runStatus <- "success"
       reactive$sourcing <- FALSE
     }
     enable_tab_UI()
@@ -350,15 +504,27 @@
     } else {
       tryCatch({
         sourceExercise(globalReactiveValues$selectedExercisePath, reactive$sourceEcho)
-        reactive$sourcing <- TRUE},
+        reactive$sourcing    <- TRUE
+        reactive$error_state <- FALSE
+      },
         error = function(e) {
           cat("Error in ")
           cat(deparse(e$call))
           cat(" : ")
           cat(e$message)
           cat("\n")
-          rstudioapi::showDialog("Sourcing failed",
-                                 "Error while sourcing exercise.")
+          # rstudioapi::showDialog("Sourcing failed",
+          #                        "Error while sourcing exercise.")
+          reactive$sourcing      <- TRUE
+          reactive$submitResults <- list(call = deparse(e$call), message = e$message)
+          reactive$runResults    <- list(run_status     = "local_sourcing_failed",
+                                         backtrace      = list(paste("Error in",
+                                                                     deparse(e$call),
+                                                                     ":",
+                                                                     e$message)),
+                                         test_results   = list())
+          reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
+          reactive$error_state   <- TRUE
         })
     }
     enable_tab_UI()
@@ -462,21 +628,34 @@
 #
   # Renders a list showing the test results
   output$testResultsDisplay <- renderUI({
+    .dprint("WHEN THIS IS LAUNCHED")
     if (is.null(reactive$testResults) & !reactive$sourcing) {
+      .dprint("AND THIS?")
       return()
     }
 
-    if (reactive$sourcing) {
+    if (reactive$sourcing & !reactive$error_state) {
       html <- tags$p("Sourced exercise to console.")
+    } else if (reactive$sourcing) {
+      runResults  <- reactive$runResults
+      # print(str(runResults))
+      html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
+      # html <- tags$p("OK... We failed badly during source")
+    } else if (reactive$error_state) {
+      runResults  <- reactive$runResults
+      # print(str(runResults))
+      html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
+      # html <- tags$p("OK... We failed badly with submit")
     } else {
       testResults <- reactive$testResults
       runResults  <- reactive$runResults
       showAll     <- reactive$showAll
       html        <- ""
+      # print(str(runResults))
       if (reactive$runStatus == "success") {
         html <- createTestResultsHtml(testResults, showAll)
       } else {
-        html <- createRunSourcingFailHtml(runResults)
+        html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
       }
     }
     shiny::tagList(html)
