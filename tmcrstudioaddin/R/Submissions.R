@@ -190,6 +190,15 @@ showMessage <- function(submitResults) {
                          url = "")
 }
 
+.print_compilation_error <- function(pre_error) {
+  pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
+  error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
+                                                            pre_lines[2]))),
+                            error = function(e) pre_lines[2])
+  error_msg     <- paste(error_msg_vec, collapse = "\n")
+  error_msg
+}
+
 #' @title Get message to display in submission result pop-up dialog.
 #'
 #' @description Creates a message to be shown on the submit result
@@ -203,15 +212,6 @@ showMessage <- function(submitResults) {
 #' @return Message showing if submitting the exercise failed, some tests
 #' failed or all tests passed.
 
-
-.print_compilation_error <- function(pre_error) {
-  pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
-  error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
-                                                            pre_lines[2]))),
-                            error = function(e) pre_lines[2])
-  error_msg     <- paste(error_msg_vec, collapse = "\n")
-  error_msg
-}
 
 getDialogMessage <- function(submitResults) {
   message <- list()
