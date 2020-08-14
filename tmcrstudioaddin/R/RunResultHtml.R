@@ -26,7 +26,7 @@
 createTestResultsHtml <- function(testResults, showAll) {
   if (length(testResults) == 0) {
     return(tags$html(tags$p("No tests for exercise.",
-                            style = "color: red;font-weight:bold")))
+                            style = "color: Crimson;font-weight:bold")))
   }
 
   # Contains html elements for test results
@@ -38,21 +38,46 @@ createTestResultsHtml <- function(testResults, showAll) {
   # testPassedProcentage gets inserted to the html.
   html_str <-
     paste(sep = "",
-                ".progressBar { position: relative; width: 100%; ",
-                "background-color: red; border-radius: 0px; }\n",
-                ".progress { width:",
-                testsPassedPercentage,
-                "; height: 30px; background-color: green; ",
-                "border-radius: 0px; }\n",
-                ".progressText { position: absolute; text-align: ",
-                "center; width: 100%; top: 6px;}")
+                ".progressBar { ",
+                "position: relative; ",
+                "width: 100%; ",
+                "opacity: 0.95; ",
+                "box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35) inset;",
+                "background-color: Crimson; ",
+                "border-radius: 2px; }\n",
+##                 ".progress { width:",
+##                 testsPassedPercentage,
+##                 "; height: 30px; background-color: green; ",
+##                 "border-radius: 5px; }\n",
+                ".testBar { ",
+                "width: ", testsPassedPercentage, "; ",
+                "height: 30px; ",
+##                "background-color: ForestGreen; ",
+                "background-color: DarkGreen; ",
+                "opacity: 1; ",
+                "box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;",
+                "border-right: 1px solid rgba(0, 0, 0, 0.5); ",
+                "border-top-left-radius: 2px; ",
+                "border-bottom-left-radius: 2px; ",
+                "border-top-right-radius: 0px; ",
+                "border-bottom-right-radius: 0px; ",
+#                "border-radius: 2px; ",
+                "}\n",
+                ".progressText { ",
+                "position: absolute; ",
+                "opacity: 1; ",
+                "color: white; ",
+                "text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); ",
+                "text-align: center; ",
+                "width: 100%; ",
+                "top: 6px;}")
   .ddprint("HTML STRING")
   .ddprint(html_str)
   html <- tags$html(tags$head(tags$style(HTML(html_str))),
                     tags$body(
       tags$div(class = "progressBar",
                tags$div(class = "progressText", testsPassedPercentage),
-               tags$div(class = "progress")),
+               tags$div(class = "progress testBar")),
       testResultHtmlElements))
   return(html)
 }
@@ -97,7 +122,7 @@ createRunSourcingFailHtml <- function(runResults, exercise_path) {
     ""
   }
   html <- tags$html(tags$p(fail_name,
-                           style = "color: red;font-weight:bold"),
+                           style = "color: Crimson;font-weight:bold"),
                     backtrace,
                     help_text,
                     tags$br())
@@ -132,8 +157,8 @@ createRunSourcingFailHtml <- function(runResults, exercise_path) {
                                      backtrace) {
   # Assign a color depending on test status
   color <- ifelse(test = grepl(x = status, pattern = "pass"),
-                  yes = "green",
-                  no = "red")
+                  yes = "DarkGreen",
+                  no = "Crimson")
   elements <- tags$p(paste(name, ":", status),
                      style = paste("color:", color, ";font-weight:bold"))
 

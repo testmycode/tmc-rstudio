@@ -100,11 +100,18 @@ getExerciseFromServer <- function(response, token, sleepTime) {
   submitJson <- get_json_from_submission_url(response, token)
   if (is.null(submitJson$error)) {
     while (submitJson$results$status == "processing") {
-      if (!is.null(shiny::getDefaultReactiveDomain())) {
-        shiny::incProgress(1 / 3)
+      cat("Processing...\n")
+      for (i in seq_len(sleepTime)) {
+        if (!is.null(shiny::getDefaultReactiveDomain())) {
+          shiny::incProgress(1 / 60)
+        }
+        Sys.sleep(1)
       }
-      Sys.sleep(sleepTime)
+      #Sys.sleep(sleepTime)
       submitJson <- get_json_from_submission_url(response, token)
+    }
+    if (!is.null(shiny::getDefaultReactiveDomain())) {
+      shiny::setProgress(value = 1)
     }
     if (submitJson$results$status == "error") {
       submitJson$error <- submitJson$results$error
@@ -191,12 +198,16 @@ showMessage <- function(submitResults) {
 }
 
 .print_compilation_error <- function(pre_error) {
-  pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
-  error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
-                                                            pre_lines[2]))),
-                            error = function(e) pre_lines[2])
-  error_msg     <- paste(error_msg_vec, collapse = "\n")
-  error_msg
+  if (grepl("^Compilation", pre_error)) {
+    pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
+    error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
+							      pre_lines[2]))),
+			      error = function(e) pre_lines[2])
+    error_msg     <- paste(error_msg_vec, collapse = "\n")
+    error_msg
+  } else {
+    pre_error
+  }
 }
 
 #' @title Get message to display in submission result pop-up dialog.

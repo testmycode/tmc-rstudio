@@ -98,8 +98,10 @@
     guard_test_run <- function() {
       tryCatch({
         .ddprint("Run when tests are launched.")
-        return(tmcRtestrunner::run_tests(project_path = globalReactiveValues$selectedExercisePath,
-                                         print = TRUE))
+        test_results <- tmcRtestrunner::run_tests(project_path = grv$selectedExercisePath,
+                                                  print = TRUE)
+        shiny::setProgress(value = 1)
+        return(test_results)
       }, error = function(e) {
         rstudioapi::showDialog("Cannot run tests",
                                "tmcRtestrunner errored while running tests")
@@ -119,8 +121,8 @@
     .ddprint(test_globals_names)
     .ddprint(test_globals_store)
     run_results <- withProgress(message = "Running tests",
-                                value   = 1,
-                                guard_test_run())
+                                value   = 1/3,
+                                { guard_test_run() })
     rm(list = test_globals_missing, envir = .GlobalEnv)
     for (name in test_globals_names) {
       assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
@@ -308,6 +310,12 @@
       next_line <- paste("You might have used",
                          "nordic letters in text with encoding that is not UTF-8.",
                          "Try using UTF-8 encoding or use only ASCII characters.",
+                         sep = " ")
+    } else if (grepl("did you use an exit\\(\\) command?", console_error)) {
+      next_line <- paste("The execution of your tests took more that the time",
+                         "than the server allows the tests to run, which is roughly",
+                         "one minute. Try to locate the part of your code that",
+                         "takes long time to run and try to make it more performant",
                          sep = " ")
     } else {
       next_line <- paste("You can find the error message on the console and on addin.",
