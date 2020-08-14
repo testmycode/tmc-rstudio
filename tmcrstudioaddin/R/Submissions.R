@@ -97,21 +97,46 @@ submit_current <- function(path, credentials) {
 #' @seealso \code{\link{get_json_from_submission_url}},
 #' \code{\link[shiny]{withProgress}}
 getExerciseFromServer <- function(response, token, sleepTime) {
+  if (!is.null(shiny::getDefaultReactiveDomain())) {
+    shiny::setProgress(message = "Submission sent to server",
+                       value = 1/2)
+  }
   submitJson <- get_json_from_submission_url(response, token)
   if (is.null(submitJson$error)) {
-    while (submitJson$results$status == "processing") {
-      cat("Processing...\n")
+    timeout_happened <- FALSE
+    first_time       <- TRUE
+    while (submitJson$results$status == "processing" |
+           (submitJson$results$status == "timeout" & !timeout_happened)) {
+      if (submitJson$results$status == "timeout") {
+        cat("Connection problems...\nWaiting for 10 seconds and trying again...\n")
+        shiny::setProgress(message = "Lost connection. Waiting 10 secs")
+        timeout_happened <- TRUE
+      } else if (timeout_happened) {
+        cat("Reconnected to server.\nServer is still processing submission.\n")
+        shiny::setProgress(message = "Reconnected, waiting for results")
+        timeout_happened <- FALSE
+      } else if (!first_time) {
+        cat("Server is still processing...\n")
+        shiny::setProgress(message = "Still waiting for results")
+      }
+      first_time <- FALSE
       for (i in seq_len(sleepTime)) {
         if (!is.null(shiny::getDefaultReactiveDomain())) {
-          shiny::incProgress(1 / 60)
+          shiny::incProgress(1 / 120)
+        }
+        if ((i == round(sleepTime / 2)) &
+            !timeout_happened &
+            !is.null(shiny::getDefaultReactiveDomain())
+          ) {
+          shiny::setProgress(message = "Waiting for server results")
         }
         Sys.sleep(1)
       }
-      #Sys.sleep(sleepTime)
       submitJson <- get_json_from_submission_url(response, token)
     }
     if (!is.null(shiny::getDefaultReactiveDomain())) {
-      shiny::setProgress(value = 1)
+      shiny::setProgress(message = "Results from submission ready",
+                         value = 1)
     }
     if (submitJson$results$status == "error") {
       submitJson$error <- submitJson$results$error
@@ -253,7 +278,7 @@ getDialogMessage <- function(submitResults) {
 			     "This should help you identifying and locating the error.",
 			     sep = " ")
 	}
-	server_error <- paste("Server could not run tests.", 
+	server_error <- paste("Server could not run tests.",
 			      next_line,
 ## 			      "#gsub("\n", "<p>", console_error),
 			      sep = "<p>")

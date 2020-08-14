@@ -404,7 +404,7 @@
       submitRes <- list(run_results = list(), run_status = "run_failed")
     } else {
       .ddprint("Run when tests are submitted.")
-      withProgress(message = "Submitting exercise",
+      withProgress(message = "Submitting exercise to server",
                    value = 0, {
                      submitRes <- tmcrstudioaddin::submit_exercise(grv$selectedExercisePath,
                                                                    grv$credentials)

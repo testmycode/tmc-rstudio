@@ -205,7 +205,8 @@ upload_exercise <- function(token, exercise_id, project_path,
 get_submission_json <- function(token, url) {
   url_config <- httr::add_headers(Authorization = token)
 
-  exercises_response <- httr::GET(url, config = url_config, timeout(30))
+#  exercises_response <- httr::GET(url, config = url_config, timeout(30))
+  exercises_response <- httr::GET(url, config = url_config, timeout(2))
 
   return(exercises_response)
 }
@@ -490,14 +491,18 @@ get_json_from_submission_url <- function(response, token) {
     submitJson
   }, error = function(e) {
     if (!is.null(url$error)) {
-      # print("Case1")
-      # print(str(url$error))
+      .dprint("Case1")
+      .dprint(str(url$error))
       submitJson$error <- url$error
     }
-    # print("Case2")
-    # print(str(e))
+    .dprint("Case2")
+    .dprint(str(e))
     submitJson$results$error <- e
-    submitJson$results$status <- "error"
+    if (grepl("Timeout was reached", e$message)) {
+      submitJson$results$status <- "timeout"
+    } else {
+      submitJson$results$status <- "error"
+    }
     .dprint(str(submitJson))
     submitJson
   })
