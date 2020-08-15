@@ -9,7 +9,7 @@
   }
   tryCatch({
     files_to_zip <- dir(folder, recursive = TRUE, include.dirs = TRUE)
-    zip(zipfile = zip_path, files = files_to_zip)
+    zip(zipfile = zip_path, files = files_to_zip, flags = "-q")
   }, error = function(e) {
     print("Could not Zip")
     setwd(old_wd)

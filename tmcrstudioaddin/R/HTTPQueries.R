@@ -140,17 +140,21 @@ upload_exercise <- function(token, exercise_id, project_path,
   .dprint(zip_path)
   tryCatch({
     .tmc_zip(project_path, zip_path)
-    },
-  error = function(e) {
+  }, error = function(e) {
     cat("Creating submission failed.\n")
     stop(e)
   })
   tryCatch({
+    cat("Sending submission package to server...\n")
+    if (!is.null(shiny::getDefaultReactiveDomain())) {
+      shiny::setProgress(message = "Sending submission package",
+                         value = 1/4)
+    }
     .dprint(paste("Project path", project_path))
     .dprint(paste0("Sending zip to server ", zip_path))
     .dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
-    submission_file <- httr::upload_file(zip_path)},
-  error = function(e) {
+    submission_file <- httr::upload_file(zip_path)
+  }, error = function(e) {
     cat("Uploading failed.\n")
     stop(e)
   })
@@ -158,11 +162,10 @@ upload_exercise <- function(token, exercise_id, project_path,
   .dprint("exercises_response")
   exercises_response <- tryCatch({
     exercises_response$data <-
-      httr::stop_for_status(
-        httr::POST(exercises_url,
-                   config = url_config,
-                   encode = "multipart",
-                   body = list("submission[file]" = submission_file)))
+      httr::stop_for_status(httr::POST(exercises_url,
+                                       config = url_config,
+                                       encode = "multipart",
+                                       body = list("submission[file]" = submission_file)))
     .ddprint(str(exercises_response))
     if (!is.null(exercises_response$error)) {
       stop(exercises_response$error)
@@ -415,10 +418,12 @@ get_all_exercises <- function(course, credentials) {
     # shiny::withProgress is done at the call site
     #
     headers <- httr::add_headers(Authorization = token)
+    # Sys.sleep(3)
     req <- httr::stop_for_status(httr::GET(url = url,
                                            headers,
-                                           config = httr::timeout(30),
+                                           config = httr::timeout(10),
                                            encode = "json"))
+    # print(str(req))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e) {
       cat("An error occured while connecting to server.\n")
@@ -484,7 +489,6 @@ get_json_from_submission_url <- function(response, token) {
   url$error <- NULL
   submitJson <- tryCatch({
     url <- httr::content(response)
-    .dprint(str(url))
     submitJson$results <-
       httr::content(get_submission_json(token, url$submission_url))
     .dprint(str(submitJson))

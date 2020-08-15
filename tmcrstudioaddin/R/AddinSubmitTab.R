@@ -120,6 +120,7 @@
     .ddprint(test_globals_missing)
     .ddprint(test_globals_names)
     .ddprint(test_globals_store)
+    cat("Running local tests...\n")
     run_results <- withProgress(message = "Running tests",
                                 value   = 1/3,
                                 { guard_test_run() })
@@ -178,14 +179,14 @@
     disable_tab_UI()
     .dprint("runTestrunner()")
     .ddprint("Run when tests are launched.")
-    if (globalReactiveValues$selectedExercisePath == "") {
-      rstudioapi::showDialog("Cannot run tests",
-                             "You have not selected the exercises. Please
-                             choose the exercises you wish to test first.")
-      run_results <- list(run_results = list(), run_status = "run_failed")
-    } else {
-      run_results <- silent_run_tests()
-    }
+##     if (globalReactiveValues$selectedExercisePath == "") {
+##       rstudioapi::showDialog("Cannot run tests",
+##                              "You have not selected the exercises. Please
+##                              choose the exercises you wish to test first.")
+##       run_results <- list(run_results = list(), run_status = "run_failed")
+##     } else {
+    run_results <- silent_run_tests()
+##     }
     reactive$runResults    <- run_results
     reactive$testResults   <- run_results$test_results
     reactive$runStatus     <- run_results$run_status
@@ -404,7 +405,8 @@
       submitRes <- list(run_results = list(), run_status = "run_failed")
     } else {
       .ddprint("Run when tests are submitted.")
-      withProgress(message = "Submitting exercise to server",
+      cat("Creating submission package...\n")
+      withProgress(message = "Creating submission package",
                    value = 0, {
                      submitRes <- tmcrstudioaddin::submit_exercise(grv$selectedExercisePath,
                                                                    grv$credentials)
@@ -497,7 +499,7 @@
   }
   ST_observer5 <- function() {
     .dprint("ST_observer5 launching...")
-    globalReactiveValues$selectedExercisePath <- input$selectExercise
+    grv$selectedExercisePath <- input$selectExercise
   }
   ST_observer6 <- function() {
     .dprint("ST_observer6 launching...")
@@ -505,37 +507,36 @@
 
     .dprint("sourceExercise()")
     .ddprint("Launched when Source is clicked")
-    if (globalReactiveValues$selectedExercisePath == "") {
-      rstudioapi::showDialog("Cannot source exercises",
-                             "You have not selected the exercises. Please
-                             choose the exercises you wish to source first.")
-    } else {
-      tryCatch({
-        sourceExercise(globalReactiveValues$selectedExercisePath, reactive$sourceEcho)
-        reactive$sourcing    <- TRUE
-        reactive$error_state <- FALSE
-      },
-        error = function(e) {
-          cat("Error in ")
-          cat(deparse(e$call))
-          cat(" : ")
-          cat(e$message)
-          cat("\n")
-          # rstudioapi::showDialog("Sourcing failed",
-          #                        "Error while sourcing exercise.")
-          reactive$sourcing      <- TRUE
-          reactive$submitResults <- list(call = deparse(e$call), message = e$message)
-          reactive$runResults    <- list(run_status     = "local_sourcing_failed",
-                                         backtrace      = list(paste("Error in",
-                                                                     deparse(e$call),
-                                                                     ":",
-                                                                     e$message)),
-                                         test_results   = list())
-          reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
-          reactive$error_state   <- TRUE
-        })
-    }
+##     if (globalReactiveValues$selectedExercisePath == "") {
+##       rstudioapi::showDialog("Cannot source exercises",
+##                              "You have not selected the exercises. Please
+##                              choose the exercises you wish to source first.")
+##     } else 
+##     {
+    tryCatch({
+      sourceExercise(grv$selectedExercisePath, reactive$sourceEcho)
+      reactive$sourcing    <- TRUE
+      reactive$error_state <- FALSE
+    }, error = function(e) {
+      cat("Error in ")
+      cat(deparse(e$call))
+      cat(" : ")
+      cat(e$message)
+      cat("\n")
+      reactive$sourcing      <- TRUE
+      reactive$submitResults <- list(call = deparse(e$call), message = e$message)
+      reactive$runResults    <- list(run_status     = "local_sourcing_failed",
+                                     backtrace      = list(paste("Error in",
+                                                                 deparse(e$call),
+                                                                 ":",
+                                                                 e$message)),
+                                     test_results   = list())
+      reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
+      reactive$error_state   <- TRUE
+    })
+##     }
     enable_tab_UI()
+    rstudioapi::executeCommand("refreshEnvironment")
   }
   ST_observer7 <- function() {
     .dprint("ST_observer7 launching...")
@@ -546,18 +547,18 @@
     disable_tab_UI()
 
     .ddprint("Launched when clicking open files")
-    if (globalReactiveValues$selectedExercisePath == "") {
-      rstudioapi::showDialog("Cannot open files",
-                             "You have not selected the exercises. Please
-                             choose the exercises you wish to open first.")
-    } else {
-      for (file in list.files(full.names = TRUE,
-                              path = file.path(globalReactiveValues$selectedExercisePath, "R"),
-                              pattern = "[.]R$")) {
-	.ddprint(file)
-        rstudioapi::navigateToFile(file)
-      }
+##     if (globalReactiveValues$selectedExercisePath == "") {
+##       rstudioapi::showDialog("Cannot open files",
+##                              "You have not selected the exercises. Please
+##                              choose the exercises you wish to open first.")
+##     } else {
+    for (file in list.files(full.names = TRUE,
+                            path = file.path(grv$selectedExercisePath, "R"),
+                            pattern = "[.]R$")) {
+      .ddprint(file)
+      rstudioapi::navigateToFile(file)
     }
+##     }
     enable_tab_UI()
   }
   ST_observer9 <- function() {
@@ -574,7 +575,7 @@
                       inputId  = "selectExercise",
                       label    = "Exercise:",
                       choices  = grouped_downloaded_exercises,
-                      selected = globalReactiveValues$selectedExercisePath)
+                      selected = grv$selectedExercisePath)
   }
    ST_observer11 <- function() {
      .dprint("ST_observer11 launched...")
@@ -655,13 +656,20 @@
       html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
       # html <- tags$p("OK... We failed badly with submit")
     } else {
-      testResults <- reactive$testResults
-      runResults  <- reactive$runResults
-      showAll     <- reactive$showAll
-      html        <- ""
+      testResults    <- reactive$testResults
+      runResults     <- reactive$runResults
+      showAll        <- reactive$showAll
+      html           <- ""
+      submission_id  <-
+        if (is.null(reactive$submitResults)) {
+          NULL
+        } else {
+          reactive$submitResults$submitted_at
+        }
+      # print(str(reactive$submitResults))
       # print(str(runResults))
       if (reactive$runStatus == "success") {
-        html <- createTestResultsHtml(testResults, showAll)
+        html <- createTestResultsHtml(testResults, showAll, submission_id)
       } else {
         html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
       }

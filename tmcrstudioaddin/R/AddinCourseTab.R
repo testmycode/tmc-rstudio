@@ -183,7 +183,8 @@
     exercises <- c(exercises2, exercises3)
     .ddprint(str(exercises))
     .dprint("downloadFromList()")
-    for (name in names(exercises)) {
+    for (i in seq_along(names(exercises))) {
+      name     <- names(exercises)[[i]]
       zip_name <- paste0(exercises[[name]], ".zip")
       tmcrstudioaddin::download_exercise(exercises[[name]],
                                          zip_target    = tempdir(),
@@ -192,7 +193,9 @@
                                          exercise_name = name,
                                          credentials   = grv$credentials,
                                          unique_random = TRUE)
-      incProgress(1 / length(exercises))
+      incProgress(message = paste("Downloaded", i, "/", length(exercises)),
+                  amount  = 1 / length(exercises))
+      Sys.sleep(0.2)
     }
     length(exercises)
   }
@@ -320,13 +323,19 @@
   }
 
   fetch_exercises <- function() {
+    get_exercises <- function() {
+      exercises <- tmcrstudioaddin::get_all_exercises(rv$selection$course, grv$credentials)
+      shiny::setProgress(value = 1)
+      Sys.sleep(0.5)
+      exercises
+    }
+
     .dprint("fetch_exercises()")
     disable_tab_UI()
     hideCourseExercises()
-    shiny::withProgress(message = "Fetching exercises", {
-      exercises <- tmcrstudioaddin::get_all_exercises(rv$selection$course, grv$credentials)
-      exercises
-    })
+    shiny::withProgress(message = "Fetching exercises",
+                        value   = 1/2,
+                        { exercises <- get_exercises() })
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
     enable_tab_UI()
   }
@@ -380,31 +389,34 @@
     shinyjs::enable("updateAllExercises")
   }
   CT_observer7 <- function() {
+    download_exercises <- function() {
+      organization <- input$organizationSelect
+      # .dprint("getAllCourses site 3")
+      courses <- grv$coursesInfo$all_courses
+      # courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
+      courseName <- courses$name[courses$id == input$courseSelect]
+
+      course_directory_path <- file.path(get_projects_folder(), courseName,
+                                         fsep = .Platform$file.sep)
+
+      if (!dir.exists(course_directory_path)) {
+        dir.create(course_directory_path, recursive = TRUE)
+      }
+      .dprint(course_directory_path)
+      num_of_downloaded <- downloadFromList(course_directory_path,
+                                            globalReactiveValues)
+      shiny::setProgress(value = 1)
+      num_of_downloaded
+    }
     .dprint("CT_observer7 launched...")
     disable_tab_UI()
 
     tryCatch({
-      withProgress(message = "Downloading exercises", {
-        organization <- input$organizationSelect
-        # .dprint("getAllCourses site 3")
-        courses <- grv$coursesInfo$all_courses
-        # courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
-        courseName <- courses$name[courses$id == input$courseSelect]
-
-        course_directory_path <- file.path(get_projects_folder(), courseName,
-                                           fsep = .Platform$file.sep)
-
-        if (!dir.exists(course_directory_path)) {
-          dir.create(course_directory_path, recursive = TRUE)
-        }
-        .dprint(course_directory_path)
-        num_of_downloaded <- downloadFromList(course_directory_path,
-                                              globalReactiveValues)
-      })
+      withProgress(message = "Downloading exercises",
+                   value   = 0,
+                   { num_of_downloaded <- download_exercises() })
       download_success_message <-
-        if (num_of_downloaded == 0) {
-          "You didn't choose any exercises i.e. download was successful"
-        } else if (num_of_downloaded == 1) {
+        if (num_of_downloaded == 1) {
           paste("You downloaded one exercise successfully", sep = " ")
         } else {
           paste("You downloaded",

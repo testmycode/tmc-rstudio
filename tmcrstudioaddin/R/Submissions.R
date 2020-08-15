@@ -98,6 +98,7 @@ submit_current <- function(path, credentials) {
 #' \code{\link[shiny]{withProgress}}
 getExerciseFromServer <- function(response, token, sleepTime) {
   if (!is.null(shiny::getDefaultReactiveDomain())) {
+    cat("Submission succesfully sent to server for processing...\n")
     shiny::setProgress(message = "Submission sent to server",
                        value = 1/2)
   }
@@ -126,8 +127,8 @@ getExerciseFromServer <- function(response, token, sleepTime) {
         }
         if ((i == round(sleepTime / 2)) &
             !timeout_happened &
-            !is.null(shiny::getDefaultReactiveDomain())
-          ) {
+            !is.null(shiny::getDefaultReactiveDomain())) {
+          cat("Waiting for results from the server...\n")
           shiny::setProgress(message = "Waiting for server results")
         }
         Sys.sleep(1)
@@ -135,6 +136,7 @@ getExerciseFromServer <- function(response, token, sleepTime) {
       submitJson <- get_json_from_submission_url(response, token)
     }
     if (!is.null(shiny::getDefaultReactiveDomain())) {
+      cat("Server results from the submission are ready.\n")
       shiny::setProgress(message = "Results from submission ready",
                          value = 1)
     }
@@ -164,11 +166,21 @@ getExerciseFromServer <- function(response, token, sleepTime) {
 #'
 #' @seealso \code{\link{processSubmission}}
 processSubmissionJson <- function(submitJson) {
+  submission_id <- function(xx) {
+    yy <- strsplit(xx, "/")[[1]]
+    yy[length(yy)]
+  }
+  submitted_at <- function(xx) {
+    zz <- as.POSIXct(xx,format="%Y-%m-%dT%H:%M:%OS")
+    format(zz, "%d.%m.%Y %H:%M")
+  }
   submitRes <- list()
-  submitRes[["tests"]] <- processSubmission(submitJson)
-  submitRes[["exercise_name"]] <- submitJson$exercise_name
+  submitRes$submitted_at          <- submitted_at(submitJson$submitted_at)
+  submitRes$submission_id         <- submission_id(submitJson$submission_url)
+  submitRes[["tests"]]            <- processSubmission(submitJson)
+  submitRes[["exercise_name"]]    <- submitJson$exercise_name
   submitRes[["all_tests_passed"]] <- submitJson$all_tests_passed
-  submitRes[["points"]] <- submitJson$points
+  submitRes[["points"]]           <- submitJson$points
   return(submitRes)
 }
 

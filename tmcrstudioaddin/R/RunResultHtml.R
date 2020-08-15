@@ -23,7 +23,7 @@
 #' @seealso \code{\link[shiny]{tags}}
 
 # Creates html for testResults
-createTestResultsHtml <- function(testResults, showAll) {
+createTestResultsHtml <- function(testResults, showAll, submitted_at) {
   if (length(testResults) == 0) {
     return(tags$html(tags$p("No tests for exercise.",
                             style = "color: Crimson;font-weight:bold")))
@@ -73,12 +73,21 @@ createTestResultsHtml <- function(testResults, showAll) {
                 "top: 6px;}")
   .ddprint("HTML STRING")
   .ddprint(html_str)
+  heading <-
+    if (is.null(submitted_at)) {
+      tags$h3("Local tests result")
+    } else {
+      tags$h3(paste("Submission",
+                    submitted_at,
+                    "result"))
+    }
+
   html <- tags$html(tags$head(tags$style(HTML(html_str))),
-                    tags$body(
-      tags$div(class = "progressBar",
-               tags$div(class = "progressText", testsPassedPercentage),
-               tags$div(class = "progress testBar")),
-      testResultHtmlElements))
+                    tags$body(heading,
+                              tags$div(class = "progressBar",
+                                       tags$div(class = "progressText", testsPassedPercentage),
+                                       tags$div(class = "progress testBar")),
+                              testResultHtmlElements))
   return(html)
 }
 
