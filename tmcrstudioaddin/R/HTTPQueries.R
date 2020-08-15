@@ -70,7 +70,7 @@ download_exercise <- function(exercise_id,
                         exercise_id, "/", "download")
   exercises_response <- httr::GET(exercises_url,
                                   httr::add_headers(Authorization = token),
-                                  config = timeout(30),
+                                  config = timeout(10),
                                   write_disk(zip_path, overwrite = FALSE))
 
   .dprint("exercises_response")
@@ -209,7 +209,7 @@ get_submission_json <- function(token, url) {
   url_config <- httr::add_headers(Authorization = token)
 
 #  exercises_response <- httr::GET(url, config = url_config, timeout(30))
-  exercises_response <- httr::GET(url, config = url_config, timeout(2))
+  exercises_response <- httr::GET(url, config = url_config, timeout(5))
 
   return(exercises_response)
 }
@@ -313,14 +313,22 @@ get_all_organizations <- function(credentials) {
     url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
     token <- credentials$token
     shiny::withProgress(message = "Connecting to server",
+                        value   = 1/2,
                         {
                           headers <- httr::add_headers(Authorization = token)
                           req <-
                             httr::stop_for_status(httr::GET(url = url,
                                                             headers,
-                                                            config = httr::timeout(30),
+                                                            config = httr::timeout(10),
                                                             encode = "json"))
-                          jsonlite::fromJSON(httr::content(req, "text"))
+                          Sys.sleep(0.1)
+                          shiny::setProgress(message = "Connected to server",
+                                             value = 0.9)
+                          Sys.sleep(0.2)
+                          return_value <- jsonlite::fromJSON(httr::content(req, "text"))
+                          shiny::setProgress(value = 1)
+                          Sys.sleep(0.2)
+                          return_value
                         })
   }, error = function(e) {
     cat("An error occured while connecting to server:\n")
@@ -357,22 +365,30 @@ get_all_organizations <- function(credentials) {
 get_all_courses <- function(organization, credentials) {
   .dprint("get_all_courses launched...")
   # no access to globalReactiveValues
+  serverAddress <- credentials$serverAddress
+  token <- credentials$token
+  url <- paste(serverAddress, "/api/v8/core/org/",
+               organization,
+               "/courses",
+               sep = "")
   courses <- tryCatch({
-    serverAddress <- credentials$serverAddress
-    token <- credentials$token
-    url <- paste(serverAddress, "/api/v8/core/org/",
-                 organization,
-                 "/courses",
-                 sep = "")
     shiny::withProgress(message = "Connecting to server",
+                        value   = 1/2,
                         {
                           headers <- httr::add_headers(Authorization = token)
                           req <-
                             httr::stop_for_status(httr::GET(url = url,
                                                             config = headers,
                                                             encode = "json",
-                                                            timeout(30)))
-                          jsonlite::fromJSON(httr::content(req, "text"))
+                                                            timeout(10)))
+                          Sys.sleep(0.1)
+                          shiny::setProgress(message = "Getting courses",
+                                             value = 0.9)
+                          Sys.sleep(0.2)
+                          return_value <- jsonlite::fromJSON(httr::content(req, "text"))
+                          shiny::setProgress(value = 1)
+                          Sys.sleep(0.2)
+                          return_value
                         })
   }, error = function(e) {
     cat("An error occured while connecting to server.\n")

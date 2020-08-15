@@ -201,96 +201,96 @@
   .help_text_for_serious_error <- function(message) {
     pre_error <- message
     messages_tmp <-
-      matrix(byrow = TRUE, ncol = 3,
-	     c(c("Unauthorized (HTTP 401).",
-		 paste("Your submission was refused by server (HTTP 401).",
-		       "This most likely means that the submission deadline",
-		       "has closed.</p><p>Please check that you have chosen the",
-                       "right exercise set."),
-		 paste("Your submission was refused by server (HTTP 401).",
-		       "This most likely means that the submission deadline",
-		       "has closed.</p><p>Please check that you have chosen the",
-                       "right exercise set.")),
-	       c("Forbidden (HTTP 403).",
-		 paste("Your submission failed as forbidden request (HTTP 403).",
-		       "<p>The most common cause of this are firewalls, VPN's,",
-		       "antivirus programs that block the connection as well as",
-		       "stale credentials. It can also happen if the server is",
-		       "down. <p> Try logging out and back in from addin in a",
-		       "different network and check if tmc.mooc.fi is working.",
-		       "<p> If the problem persists, please contact the course",
-		       "instructors."),
-		 paste("Your submission failed as forbidden request (HTTP 403).",
-		       "</p><p>The most common cause of this are firewalls, VPN's,",
-		       "antivirus programs that block the connection as well as",
-		       "stale credentials. It can also happen if the server is",
-		       "down. </p><p> Try logging out and back in from addin in a",
-		       "different network and check if tmc.mooc.fi is working.",
-		       "</p><p> If the problem persists, please contact the course",
-		       "instructors.")),
-	       c("file.exists(path) is not TRUE",
-		 paste("Submission uploading failed with 'file.exists(path)",
-		       "is not TRUE'. </p><p> The reason for this is most likely",
-		       "with your installation of Rtools. Please take a look at",
-		       "Rtools installationmanual. </p><p> If you are unable to fix this",
-		       "contact the course instructors in this case."),
-		 paste("Submission uploading failed with 'file.exists(path)",
-		       "is not TRUE'.  </p><p> This is most likely an issue with",
-		       "file permissions. </p><p> Please contact the course instructors",
-		       "in this case.")),
-	       c("Bad Gateway (HTTP 502).",
-		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
-		       "You can try restarting RStudio and RTMC and then resubmitting.",
-		       "</p><p>This can also mean that server is is temporarily not accepting",
-		       "requests. You should try resubmitting again later, but if you",
-		       "are in a hurry, contact the course teacher"),
-		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
-		       "You can try restarting RStudio and RTMC and then resubmitting.",
-		       "</p><p>This can also mean that server is is temporarily not accepting",
-		       "requests. You should try resubmitting again later, but if you",
-		       "are in a hurry, contact the course teacher")),
-               c("LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60",
-		 paste("Your submission failed with 'LibreSSL ... errno 60'",
-		       "This usually means that your connection failed just before",
-                       "the submission. You should try resubmitting immediately",
-                       "again for more informative",
-                       "error message."),
-		 paste("Your submission failed with 'LibreSSL ... errno 60'",
-		       "This usually means that your connection failed just before",
-                       "the submission. You should try resubmitting immediately",
-                       "again for more informative",
-                       "error message.")),
-	       c("Couldn't connect to server",
-		 paste("The server could not be reached. This almost surely means",
-                       "that your network connection is not working currently.",
-                       "Please check that first.",
-                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
-                       "currently unreachable. You should try resubmitting again later.",
-		       "If the server is down, please contact the course teacher, if the",
-                       "submission deadline is close"),
-		 paste("The server could not be reached. This almost surely means",
-                       "that your network connection is not working currently.",
-                       "Please check that first.",
-                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
-                       "currently unreachable. You should try resubmitting again later.",
-		       "If the server is down, please contact the course teacher, if the",
-                       "submission deadline is close")),
-	       c("Could not resolve host: tmc.mooc.fi",
-		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
-		       "network connection? Please check that first.",
-                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
-                       "currently unreachable. You should try resubmitting again later.",
-		       "</p><p>If the server is down, please contact the course teacher, if the",
-                       "submission deadline is close"),
-		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
-		       "network connection? Please check that first.",
-                       "</p><p>If the network connection is working, then tmc.mooc.fi might be",
-                       "currently unreachable. You should try resubmitting again later.",
-		       "</p><p>If the server is down, please contact the course teacher, if the",
-                       "submission deadline is close")),
-               c(pre_error,
-		 paste(pre_error, "</p><p>Please contact the course instructors in this case."),
-		 paste(pre_error, "</p><p>Please contact the course instructors in this case."))))
+      c(c("Unauthorized (HTTP 401).",
+          paste("Your submission was refused by server (HTTP 401).",
+                "This most likely means that the submission deadline",
+                "has closed.</p><p>Please check that you have chosen the",
+                "right exercise set."),
+          paste("Your submission was refused by server (HTTP 401).",
+                "This most likely means that the submission deadline",
+                "has closed.</p><p>Please check that you have chosen the",
+                "right exercise set.")),
+        c("Forbidden (HTTP 403).",
+          paste("Your submission failed as forbidden request (HTTP 403).",
+                "<p>The most common cause of this are firewalls, VPN's,",
+                "antivirus programs that block the connection as well as",
+                "stale credentials. It can also happen if the server is",
+                "down. <p> Try logging out and back in from addin in a",
+                "different network and check if tmc.mooc.fi is working.",
+                "<p> If the problem persists, please contact the course",
+                "instructors."),
+          paste("Your submission failed as forbidden request (HTTP 403).",
+                "</p><p>The most common cause of this are firewalls, VPN's,",
+                "antivirus programs that block the connection as well as",
+                "stale credentials. It can also happen if the server is",
+                "down. </p><p> Try logging out and back in from addin in a",
+                "different network and check if tmc.mooc.fi is working.",
+                "</p><p> If the problem persists, please contact the course",
+                "instructors.")),
+        c("file.exists(path) is not TRUE",
+          paste("Submission uploading failed with 'file.exists(path)",
+                "is not TRUE'. </p><p> The reason for this is most likely",
+                "with your installation of Rtools. Please take a look at",
+                "Rtools installationmanual. </p><p> If you are unable to fix this",
+                "contact the course instructors in this case."),
+          paste("Submission uploading failed with 'file.exists(path)",
+                "is not TRUE'.  </p><p> This is most likely an issue with",
+                "file permissions. </p><p> Please contact the course instructors",
+                "in this case.")),
+        c("Bad Gateway (HTTP 502).",
+          paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+                "You can try restarting RStudio and RTMC and then resubmitting.",
+                "</p><p>This can also mean that server is is temporarily not accepting",
+                "requests. You should try resubmitting again later, but if you",
+                "are in a hurry, contact the course teacher"),
+          paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+                "You can try restarting RStudio and RTMC and then resubmitting.",
+                "</p><p>This can also mean that server is is temporarily not accepting",
+                "requests. You should try resubmitting again later, but if you",
+                "are in a hurry, contact the course teacher")),
+        c("LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60",
+          paste("Your submission failed with 'LibreSSL ... errno 60'",
+                "This usually means that your connection failed just before",
+                "the submission. You should try resubmitting immediately",
+                "again for more informative",
+                "error message."),
+          paste("Your submission failed with 'LibreSSL ... errno 60'",
+                "This usually means that your connection failed just before",
+                "the submission. You should try resubmitting immediately",
+                "again for more informative",
+                "error message.")),
+        c("Couldn't connect to server",
+          paste("The server could not be reached. This almost surely means",
+                "that your network connection is not working currently.",
+                "Please check that first.",
+                "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                "currently unreachable. You should try resubmitting again later.",
+                "If the server is down, please contact the course teacher, if the",
+                "submission deadline is close"),
+          paste("The server could not be reached. This almost surely means",
+                "that your network connection is not working currently.",
+                "Please check that first.",
+                "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                "currently unreachable. You should try resubmitting again later.",
+                "If the server is down, please contact the course teacher, if the",
+                "submission deadline is close")),
+        c("Could not resolve host: tmc.mooc.fi",
+          paste("Host tmc.mooc.fi could not be reached. Do you have a working",
+                "network connection? Please check that first.",
+                "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                "currently unreachable. You should try resubmitting again later.",
+                "</p><p>If the server is down, please contact the course teacher, if the",
+                "submission deadline is close"),
+          paste("Host tmc.mooc.fi could not be reached. Do you have a working",
+                "network connection? Please check that first.",
+                "</p><p>If the network connection is working, then tmc.mooc.fi might be",
+                "currently unreachable. You should try resubmitting again later.",
+                "</p><p>If the server is down, please contact the course teacher, if the",
+                "submission deadline is close")),
+        c(pre_error,
+          paste(pre_error, "</p><p>Please contact the course instructors in this case."),
+          paste(pre_error, "</p><p>Please contact the course instructors in this case.")))
+    messages_tmp <- matrix(byrow = TRUE, ncol = 3, messages_tmp)
     errormsgs <- list(keys      = messages_tmp[ , 1],
 		      msgs_win  = messages_tmp[ , 2],
 		      msgs_unix = messages_tmp[ , 3])
@@ -313,7 +313,7 @@
                          "Try using UTF-8 encoding or use only ASCII characters.",
                          sep = " ")
     } else if (grepl("did you use an exit\\(\\) command?", console_error)) {
-      next_line <- paste("The execution of your tests took more that the time",
+      next_line <- paste("The execution of your tests took more time",
                          "than the server allows the tests to run, which is roughly",
                          "one minute. Try to locate the part of your code that",
                          "takes long time to run and try to make it more performant",
@@ -464,22 +464,33 @@
       # print(str(submitRes))
       reactive$error_state <- TRUE
       if (is.character(submitRes$error)) {
-        .dprint("This came from the server.")
+##         print("This came from the server.")
+##         print(str(submitRes))
         backtrace_message   <- .print_compilation_error(submitRes$error)
         help_text           <- .help_text_for_error(backtrace_message)
         reactive$runResults <- list(run_status     = "server_failed",
                                     backtrace      = list(paste("Error in source(...) on server :",
                                                                 backtrace_message)),
+                                    submission_id  = submitRes$data$submitted_at,
+                                    submitted_at   = submitRes$data$submitted_at,
                                     help_text      = list(help_text),
                                     test_results   = list())
       } else {
         .dprint("We did not get to the server at all")
+        if (submitRes$error$server_access) {
+          run_state_message <- "submission_failed_partially"
+          disclaimer        <- "Submission state on the server uncertain :"
+        } else {
+          run_state_message <- "submission_failed"
+          disclaimer <- "Submission did not reach the server :"
+        }
         help_text           <- .help_text_for_serious_error(submitRes$error$message)
-        reactive$runResults <- list(run_status   = "submission_failed",
-                                    backtrace    = list(paste("Submission did not reach the server :",
-                                                              submitRes$error$message)),
-                                    help_text    = list(help_text),
-                                    test_results = list())
+        reactive$runResults <- list(run_status    = run_state_message,
+                                    backtrace     = list(paste(disclaimer,
+                                                               submitRes$error$message)),
+                                    submission_id = NULL,
+                                    help_text     = list(help_text),
+                                    test_results  = list())
       }
 
       reactive$submitResults <- list(call = "server", message = submitRes$error)
@@ -530,6 +541,7 @@
                                                                  deparse(e$call),
                                                                  ":",
                                                                  e$message)),
+                                     submission_id  = NULL,
                                      test_results   = list())
       reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
       reactive$error_state   <- TRUE
@@ -647,31 +659,28 @@
       html <- tags$p("Sourced exercise to console.")
     } else if (reactive$sourcing) {
       runResults  <- reactive$runResults
-      # print(str(runResults))
-      html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
-      # html <- tags$p("OK... We failed badly during source")
+      submission_info  <- list(submission_id = FALSE, submitted_at  = NULL)
+      html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath, submission_info)
     } else if (reactive$error_state) {
       runResults  <- reactive$runResults
-      # print(str(runResults))
-      html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
-      # html <- tags$p("OK... We failed badly with submit")
+      submission_info  <- list(submission_id = runResults$run_status == "server_failed",
+                               submitted_at  = reactive$runResults$submitted_at)
+      html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath, submission_info)
     } else {
       testResults    <- reactive$testResults
       runResults     <- reactive$runResults
       showAll        <- reactive$showAll
-      html           <- ""
-      submission_id  <-
-        if (is.null(reactive$submitResults)) {
-          NULL
-        } else {
-          reactive$submitResults$submitted_at
-        }
-      # print(str(reactive$submitResults))
-      # print(str(runResults))
-      if (reactive$runStatus == "success") {
-        html <- createTestResultsHtml(testResults, showAll, submission_id)
+      if (is.null(reactive$submitResults)) {
+        submission_info  <- list(submission_id = TRUE,
+                                 submitted_at  = NULL)
       } else {
-        html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath)
+        submission_info  <- list(submission_id = TRUE,
+                                 submitted_at  = reactive$submitResults$submitted_at)
+      }
+      if (reactive$runStatus == "success") {
+        html <- createTestResultsHtml(testResults, showAll, submission_info$submitted_at)
+      } else {
+        html <- createRunSourcingFailHtml(runResults, grv$selectedExercisePath, submission_info)
       }
     }
     shiny::tagList(html)

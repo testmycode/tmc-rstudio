@@ -31,6 +31,9 @@ submit_exercise <- function(path, credentials) {
     .ddprint(str(submitJson))
     submitRes$data <- processSubmissionJson(submitJson$results)
   } else {
+    if (is.character(submitJson$error)) {
+      submitRes$data <- processSubmissionJson(submitJson$results)
+    }
     submitRes$error <- submitJson$error
   }
   showMessage(submitRes)
@@ -71,7 +74,9 @@ submit_current <- function(path, credentials) {
     .ddprint(str(response))
     submitJson <- getExerciseFromServer(response$data, token, 10)
   } else {
+    .dprint("HERE NOW. NO CONNECTION TO SERVER")
     submitJson$error <- response$error
+    submitJson$error$server_access <- FALSE
   }
   return(submitJson)
 }
@@ -102,6 +107,7 @@ getExerciseFromServer <- function(response, token, sleepTime) {
     shiny::setProgress(message = "Submission sent to server",
                        value = 1/2)
   }
+  .dprint("HERE NOW. THE SUBMISSION IS ON THE SERVER")
   submitJson <- get_json_from_submission_url(response, token)
   if (is.null(submitJson$error)) {
     timeout_happened <- FALSE
@@ -142,6 +148,9 @@ getExerciseFromServer <- function(response, token, sleepTime) {
     }
     if (submitJson$results$status == "error") {
       submitJson$error <- submitJson$results$error
+      if (!is.character(submitJson$error))
+        submitJson$error$server_access <- TRUE
+      .dprint("HERE WE GOT AN ERROR")
     }
   }
   return(submitJson)
@@ -229,9 +238,11 @@ processSubmission <- function(submitJson) {
 #' \code{\link[rstudioapi]{showDialog}}
 showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
-  rstudioapi::showDialog(title = message$title,
-                         message = message$text,
-                         url = "")
+  if (message$show) {
+    rstudioapi::showDialog(title = message$title,
+                           message = message$text,
+                           url = "")
+  }
 }
 
 .print_compilation_error <- function(pre_error) {
@@ -243,7 +254,7 @@ showMessage <- function(submitResults) {
     error_msg     <- paste(error_msg_vec, collapse = "\n")
     error_msg
   } else {
-    pre_error
+    paste(pre_error, "\n", sep = "")
   }
 }
 
@@ -267,6 +278,10 @@ getDialogMessage <- function(submitResults) {
   .ddprint(str(submitResults))
   message$title <- "Results"
   if (!is.null(submitResults$error)) {
+    message$show <- FALSE
+    message$text <- ""
+    return(message)
+
     # move the texts below to proper place
     message$title <- "Error"
     .dprint("getDialogMessageError")
@@ -365,11 +380,11 @@ getDialogMessage <- function(submitResults) {
                        "submission. You should try resubmitting again for more informative",
                        "error message.")),
 	       c("Could not resolve host: tmc.mooc.fi",
-		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
+		 paste("Host tmc.mooc.fi could not be reached. Do you have a working",
 		       "network connection? If you do, then tmc.mooc.fi might be",
 		       "currently unreachable. You should try resubmitting again later,",
 		       "but if you are in a hurry, contact the course teacher"),
-		 paste("Host tmc.mooc.fi could not be reached. Do you have you working",
+		 paste("Host tmc.mooc.fi could not be reached. Do you have a working",
 		       "network connection? If you do, then tmc.mooc.fi might be",
 		       "currently unreachable. You should try resubmitting again later,",
 		       "but if you are in a hurry, contact the course teacher")),
@@ -396,6 +411,7 @@ code. Please try to fix your code or ask help from course instructors.")
     }
     message$text <- paste0("<p>", errormsg)
   } else if (submitResults$data$all_tests_passed) {
+    message$show <- TRUE
     points <- paste(submitResults$data$points,
                     collapse = ", ")
     message$text <-
@@ -404,6 +420,7 @@ code. Please try to fix your code or ask help from course instructors.")
              points,
              "</b><p>You can now view the model solution on the server.")
   } else {
+    message$show <- TRUE
     message_data <-
       list("Just keep trying! ",
            "That's a fine start! ",

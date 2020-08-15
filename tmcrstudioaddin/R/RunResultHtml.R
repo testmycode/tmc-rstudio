@@ -87,7 +87,8 @@ createTestResultsHtml <- function(testResults, showAll, submitted_at) {
                               tags$div(class = "progressBar",
                                        tags$div(class = "progressText", testsPassedPercentage),
                                        tags$div(class = "progress testBar")),
-                              testResultHtmlElements))
+                              testResultHtmlElements,
+                              tags$p()))
   return(html)
 }
 
@@ -110,7 +111,7 @@ createTestResultsHtml <- function(testResults, showAll, submitted_at) {
 #' @seealso \code{\link[shiny]{tags}}
 #'
 # Creates html for runResult with run or sourcing fail
-createRunSourcingFailHtml <- function(runResults, exercise_path) {
+createRunSourcingFailHtml <- function(runResults, exercise_path, submission_info) {
   if (runResults$run_status == "sourcing_failed") {
     fail_name <- "Sourcing failed during testing. The tester could not run tests."
   } else if (runResults$run_status == "local_sourcing_failed") {
@@ -119,22 +120,36 @@ createRunSourcingFailHtml <- function(runResults, exercise_path) {
     fail_name <- "Sourcing failed at the server. The server could not run tests."
   } else if (runResults$run_status == "submission_failed") {
     fail_name <- "Submission did not reach the server due to a submission error."
+  } else if (runResults$run_status == "submission_failed_partially") {
+    fail_name <- "Submission reached the server, but the status is unclear due to a submission error."
   } else {
     fail_name <- "Run fail"
   }
   .dprint("the backtrace")
-  # print(str(runResults))
+  heading <-
+    if (!(submission_info$submission_id)) {
+      HTML("")
+    } else {
+      if (is.null(submission_info$submitted_at)) {
+        tags$h3("Local tests result")
+      } else {
+        tags$h3(paste("Submission",
+                      submission_info$submitted_at,
+                      "result"))
+      }
+    }
   backtrace <- .backtraceHtmlTags2(runResults$backtrace, exercise_path)
   help_text <- if (!is.null(runResults$help_text)) {
     HTML(paste("<p>", runResults$help_text), "</p>")
   } else {
     ""
   }
-  html <- tags$html(tags$p(fail_name,
-                           style = "color: Crimson;font-weight:bold"),
-                    backtrace,
-                    help_text,
-                    tags$br())
+  html <- tags$html(tags$body(heading,
+                              tags$p(fail_name,
+                                     style = "color: Crimson;font-weight:bold"),
+                              backtrace,
+                              help_text,
+                              tags$br()))
   # print(str(html))
   # print(html)
   return(html)

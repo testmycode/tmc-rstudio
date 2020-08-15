@@ -406,6 +406,7 @@
       num_of_downloaded <- downloadFromList(course_directory_path,
                                             globalReactiveValues)
       shiny::setProgress(value = 1)
+      Sys.sleep(0.2)
       num_of_downloaded
     }
     .dprint("CT_observer7 launched...")
