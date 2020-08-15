@@ -336,9 +336,7 @@
     shiny::withProgress(message = "Fetching exercises",
                         value   = 1/2,
                         { exercises <- get_exercises() })
-    # print(str(exercises))
-    # print(exercises$awarded_points)
-    print_points(exercises)
+    if (length(exercises)) print_points(exercises)
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
     enable_tab_UI()
   }
