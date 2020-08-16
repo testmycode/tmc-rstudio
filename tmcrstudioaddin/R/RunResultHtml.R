@@ -2,10 +2,11 @@
 #'
 #' @description Create \code{HTML} for displaying test results.
 #'
-#' @usage createTestResultsHtml(testResults, showAll)
+#' @usage createTestResultsHtml(testResults, showAll, submitted_at)
 #'
 #' @param testResults List of test results.
 #' @param showAll Boolean for showing all test results.
+#' @param submitted_at A time string or NULL for the submission banner
 #'
 #' @details The created \code{HTML} includes a percentage bar for
 #' showing how many of the tests passed, and a list of paragraph
@@ -97,10 +98,12 @@ createTestResultsHtml <- function(testResults, showAll, submitted_at) {
 #'
 #' @description Create \code{HTML} for displaying a run or sourcing fail.
 #'
-#' @usage createRunSourcingFailHtml(runResults, exercise_path)
+#' @usage createRunSourcingFailHtml(runResults, exercise_path, 
+#'                                  submission_info)
 #'
 #' @param runResults Results from the failed attempt of running tests.
 #' @param exercise_path Current path to the RTMC files.
+#' @param submission_info Named list of submission information.
 #'
 #' @details Creates an \code{HTML} view for displaying information
 #' related to a run- or sourcing fail

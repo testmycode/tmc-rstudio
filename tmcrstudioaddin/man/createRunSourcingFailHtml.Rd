@@ -4,12 +4,15 @@
 \alias{createRunSourcingFailHtml}
 \title{Create HTML for displaying a run or sourcing fail}
 \usage{
-createRunSourcingFailHtml(runResults, exercise_path)
+createRunSourcingFailHtml(runResults, exercise_path, 
+                                 submission_info)
 }
 \arguments{
 \item{runResults}{Results from the failed attempt of running tests.}
 
 \item{exercise_path}{Current path to the RTMC files.}
+
+\item{submission_info}{Named list of submission information.}
 }
 \value{
 A single \code{Shiny} \code{HTML} tag object containing all

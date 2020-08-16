@@ -4,12 +4,14 @@
 \alias{createTestResultsHtml}
 \title{Create HTML for displaying test results}
 \usage{
-createTestResultsHtml(testResults, showAll)
+createTestResultsHtml(testResults, showAll, submitted_at)
 }
 \arguments{
 \item{testResults}{List of test results.}
 
 \item{showAll}{Boolean for showing all test results.}
+
+\item{submitted_at}{A time string or NULL for the submission banner}
 }
 \value{
 A single \code{Shiny} \code{HTML} tag object containing all
