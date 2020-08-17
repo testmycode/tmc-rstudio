@@ -67,6 +67,7 @@
                              testResults   = NULL,
                              runResults    = NULL,
                              runStatus     = NULL,
+                             test_names    = NULL,
                              error_state   = FALSE,
                              showAll       = TRUE,
                              sourcing      = FALSE,
@@ -94,12 +95,51 @@
     globalReactiveValues$UI_disabled <- TRUE
   }
 
+  silent_run_tests2 <- function() {
+    guard_test_run <- function() {
+      tryCatch({
+        .ddprint("Run when tests are launched.")
+        test_results <- tmcRtestrunner::run_tests(project_path = grv$selectedExercisePath,
+                                                  print        = FALSE,
+                                                  addin_data   = list(only_test_names = TRUE))
+        shiny::setProgress(value = 1)
+        return(test_results)
+      }, error = function(e) {
+        rstudioapi::showDialog("Cannot run tests",
+                               "tmcRtestrunner errored while running tests")
+        return(list(run_results = list(),
+                    run_status = "run_failed"))
+      })
+    }
+    test_globals_boolean <- c("points", "points_for_all_tests") %in% ls(.GlobalEnv)
+    .ddprint(test_globals_boolean)
+    test_globals_missing <-
+      c("points", "points_for_all_tests")[!test_globals_boolean]
+    test_globals_names <-
+      c("points", "points_for_all_tests")[test_globals_boolean]
+    test_globals_store <- mget(c("points", "points_for_all_tests")[test_globals_boolean],
+                               envir = .GlobalEnv)
+    .ddprint(test_globals_missing)
+    .ddprint(test_globals_names)
+    .ddprint(test_globals_store)
+    cat("Getting local tests...\n")
+    run_results <- withProgress(message = "Getting tests",
+                                value   = 1/3,
+                                { guard_test_run() })
+    rm(list = test_globals_missing, envir = .GlobalEnv)
+    for (name in test_globals_names) {
+      assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
+    }
+    run_results
+  }
+
   silent_run_tests <- function() {
     guard_test_run <- function() {
       tryCatch({
         .ddprint("Run when tests are launched.")
         test_results <- tmcRtestrunner::run_tests(project_path = grv$selectedExercisePath,
-                                                  print = TRUE)
+                                                  print        = TRUE,
+                                                  addin_data   = list(only_test_names = FALSE))
         shiny::setProgress(value = 1)
         return(test_results)
       }, error = function(e) {
@@ -169,6 +209,13 @@
     grouped_exercise_paths
   }
 
+ do_the_computation <- function(xx) {
+   .dprint("do_the_computation launching ...")
+   test_names_local  <- c(sapply(X = xx, function(x) x$name), "")
+   # print(test_names_local)
+   .dprint("do_the_computation done")
+   test_names_local
+ }
 #
 # observer functions
 #
@@ -189,6 +236,7 @@
 ##     }
     reactive$runResults    <- run_results
     reactive$testResults   <- run_results$test_results
+    reactive$test_names    <- do_the_computation(run_results$test_results)
     reactive$runStatus     <- run_results$run_status
     reactive$submitResults <- NULL
     reactive$sourcing      <- FALSE
@@ -340,17 +388,16 @@
       .dprint(str(test_result))
       test_result
     }
+   do_the_computation2 <- function(xx) {
+    .dprint("do_the_computation2 launching ...")
+    test_names_all  <- c(sapply(X = xx, function(x) x$name), "")
+    # print(test_names_all)
+    .dprint("do_the_computation2 done")
+    test_names_all
+   }
 
     parse_test_strings <- function(test_results) {
       lapply(test_results, parse_single_test)
-    }
-    if (is.null(globalReactiveValues$credentials$token)) {
-      disable_tab_UI()
-      rstudioapi::showDialog("Not logged in",
-                             "Please log in to submit your solutions to server.",
-                             "")
-      enable_tab_UI()
-      return()
     }
 
     translation_df <-
@@ -398,25 +445,19 @@
     disable_tab_UI()
     submitRes <- NULL
     .dprint("submitExercise()")
-    if (globalReactiveValues$selectedExercisePath == "") {
-      rstudioapi::showDialog("Cannot submit solutions to server",
-                             "You have not selected the exercises. Please
-                             choose the assignments you wish to submit first.")
-      submitRes <- list(run_results = list(), run_status = "run_failed")
-    } else {
-      .ddprint("Run when tests are submitted.")
-      cat("Creating submission package...\n")
-      withProgress(message = "Creating submission package",
-                   value = 0, {
-                     submitRes <- tmcrstudioaddin::submit_exercise(grv$selectedExercisePath,
-                                                                   grv$credentials)
-                   })
-    }
+    .ddprint("Run when tests are submitted.")
+    cat("Creating submission package...\n")
+    withProgress(message = "Creating submission package",
+                 value = 0, {
+                   submitRes <- tmcrstudioaddin::submit_exercise(grv$selectedExercisePath,
+                                                                 grv$credentials)
+                 })
     # print(str(submitRes))
     if (is.null(submitRes$error)) {
-      if (!is.null(reactive$testResults)) {
-        test_names_local  <- c(sapply(X = reactive$testResults, function(x) x$name),
-                               "")
+      if (!is.null(reactive$test_names)) {
+        .dprint("Adding names")
+        test_names_local  <- reactive$test_names
+        .dprint(test_names_local)
         test_names_server <- sapply(X = submitRes$data$tests, function(x) x$name)
         ind1 <- 1
         for (ind2 in seq_along(test_names_server)) {
@@ -456,6 +497,7 @@
       }
       reactive$submitResults <- submitRes$data
       reactive$testResults   <- parse_test_strings(submitRes$data$tests)
+      reactive$test_names    <- do_the_computation2(submitRes$data$tests)
       reactive$runStatus     <- "success"
       reactive$sourcing      <- FALSE
       reactive$error_state   <- FALSE
@@ -494,9 +536,10 @@
       }
 
       reactive$submitResults <- list(call = "server", message = submitRes$error)
-      reactive$testResults <- list() # this prevents the crash, but needs to be fixed
+      # reactive$test_names    <- reactive$test_names # this stays as is
+      reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
 #      reactive$runStatus <- "success"
-      reactive$sourcing <- FALSE
+      reactive$sourcing      <- FALSE
     }
     enable_tab_UI()
   }
@@ -510,7 +553,16 @@
   }
   ST_observer5 <- function() {
     .dprint("ST_observer5 launching...")
+    # reactive$test_names      <- NULL # this would be optimal place for quick computation
+    # testing just running the tests...
+    .dprint("Running the tests for names...")
     grv$selectedExercisePath <- input$selectExercise
+    # print(str(grv$selectedExercisePath))
+    run_results <- silent_run_tests2()
+    reactive$test_names    <- do_the_computation(run_results$test_results)
+    # reactive$test_names      <- list() # now we always do the conditional computation
+    .dprint("Running the tests for names done")
+    .dprint("ST_observer5 done")
   }
   ST_observer6 <- function() {
     .dprint("ST_observer6 launching...")
@@ -544,6 +596,7 @@
                                      submission_id  = NULL,
                                      test_results   = list())
       reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
+      # reactive$test_names  <- reactive$test_names # this stays as is
       reactive$error_state   <- TRUE
     })
 ##     }
@@ -559,11 +612,6 @@
     disable_tab_UI()
 
     .ddprint("Launched when clicking open files")
-##     if (globalReactiveValues$selectedExercisePath == "") {
-##       rstudioapi::showDialog("Cannot open files",
-##                              "You have not selected the exercises. Please
-##                              choose the exercises you wish to open first.")
-##     } else {
     for (file in list.files(full.names = TRUE,
                             path = file.path(grv$selectedExercisePath, "R"),
                             pattern = "[.]R$")) {
@@ -617,7 +665,7 @@
   .dprint("..initialised")
 
   .dprint("ST_observer5 ...")
-  selectedExercises <- observeEvent(input$selectExercise, ST_observer5())
+  selectedExercises <- observeEvent(input$selectExercise, ST_observer5(), ignoreInit = TRUE)
   .dprint("..initialised")
 
   .dprint("ST_observer6 ...")

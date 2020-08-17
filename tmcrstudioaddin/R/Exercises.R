@@ -12,14 +12,14 @@
 #'
 #' @return Exercise as a named vector: \code{c(name = path)}. If the
 #' current working directory isn't a valid exercise project folder,
-#' returns \code{c(" ", " ")}.
+#' returns \code{c(" " = "")}.
 #'
 #' @seealso \code{\link[base]{basename}}, \code{\link[base]{getwd}},
 #' \code{\link{get_projects_folder}} \code{\link{pathIsExercise}},
 #' \code{\link{getExerciseName}}, \code{\link[stats]{setNames}}
 
 # Returns the exercise that is selected in wd.
-# If wd doesn't contain a valid exercise returns c(" ", " ").
+# If wd doesn't contain a valid exercise returns c(" " = "").
 # Returns exercise as a named vector: c(name = path)
 exercisePathFromWd <- function() {
   dirname <- dirname(getwd())
@@ -31,7 +31,7 @@ exercisePathFromWd <- function() {
   # Current wd is not an exercise (a folder in exercises_path)
   if (!pathIsExercise(getwd()) || !wd_is_in_projects_dir) {
     .dprint("This is most likely to happen. This is unnecessary.")
-    return(c(" " = " "))
+    return(c(" " = ""))
   } else {
     exercise_name <- getExerciseName(getwd())
     .ddprint("What is the exercise_name")
