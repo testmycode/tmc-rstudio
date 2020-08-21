@@ -203,7 +203,9 @@
           sub("hy-tiltu-ja-r-ii-", "Tilastotiede ja R tutuksi II, ",
               sub("kevat-", "Spring 20",
                   sub("kesa-", "Summer 20",
-                      sub("syksy-", "Autumn 20", unique_course_names)))))
+                      sub("syksy-", "Autumn 20",
+                          sub("hy-hy-", "hy-",
+                              unique_course_names))))))
     names(grouped_exercise_paths) <- course_titles
     .ddprint(grouped_exercise_paths)
     grouped_exercise_paths
