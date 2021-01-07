@@ -225,11 +225,16 @@ createRunSourcingFailHtml <- function(runResults, exercise_path, submission_info
   style <- "display:none"
   fn <- tags$p
   fn2 <- tags$pre
+  message <- gsub("<", "&lt;", message)
+  message <- gsub(">", "&gt;", message)
+  message <- gsub("\033\\[32m", "<strong style=\"color:DarkGreen;\">", message)
+  message <- gsub("\033\\[39m", "</strong>", message)
+  .ddprint(message)
   message <- do.call("fn", list("message:",
                                 tags$br(),
-                                fn2(message),
+                                fn2(HTML(message)),
                                 style = "font-weight: bold;"))
-  .dprint(message)
+  .ddprint(message)
   backtraceTags <- .backtraceHtmlTags(backtrace)
   script <- tags$script(paste0("$(\"#button_",
                                index,
