@@ -13,18 +13,18 @@
 How to install the package: 
 
 1. Install the tmcRtestrunner package
-	i. On the terminal, navigate to the folder where tmcRtestrunner_0.1.0.tar.gz is located, and run the command "R CMD INSTALL tmcRtestrunner_0.1.0.tar.gz"
-	ii. Alternatively, one can enter the R command "devtools::install_github("RTMC/tmc-r-tester/tmcRtestrunner")" in the R console to directly download from GitHub
+	i. On the terminal, navigate to the folder where tmcRtestrunner_0.1.6.tar.gz is located, and run the command "R CMD INSTALL tmcRtestrunner_0.1.6.tar.gz"
+	ii. Alternatively, one can enter the R command 'devtools::install_github("testmycode/tmc-r-tester/tmcRtestrunner", build = FALSE)' in the R console to directly download from GitHub
 
 2. Next, either:
-	i. Go to tmcrstudioaddin's parent directory, open R and type "install.packages("tmcrstudioaddin",repos=NULL, type="source")".
-		If this fails, install RStudio version that is at least 1.1.67 (from https://www.rstudio.com/products/rstudio/download/preview/). You may need to install it from the terminal with e.g. dkpg (not with Software Center).
+	i. Go to tmcrstudioaddin's parent directory, open R and type 'install.packages("tmcrstudioaddin", repos = NULL, type = "source")'.
+		If this fails, install RStudio version that is at least 1.3.10731 (from https://www.rstudio.com/products/rstudio/download/preview/). You may need to install it from the terminal with e.g. dkpg (not with Software Center).
 			Also install the required packages manually (with install.packages("package_name").
 			
 or
-	ii. On the terminal, navigate to the folder where tmcrstudioaddin_0.3.4.tar.gz is located, and run the command "R CMD INSTALL tmcrstudioaddin_0.3.4.tar.gz"
+	ii. On the terminal, navigate to the folder where tmcrstudioaddin_0.5.9.tar.gz is located, and run the command "R CMD INSTALL tmcrstudioaddin_0.5.9.tar.gz"
 
-3. Once the package tmcrstudioaddin is installed, open RStudio and select "Addins" from upper bar and there "TMC R 0.3.3".
+3. Once the package tmcrstudioaddin is installed, open RStudio and select "Addins" from upper bar and there "TMC R 0.5.5".
 
 ### Credits
 
@@ -36,3 +36,6 @@ The project was created as a Software Engineering Lab project at the Department 
 * Eero Ojala ([eerojala](https://github.com/eerojala))
 * Samu Vaittinen ([samuvait](https://github.com/samuvait))
 * Aleksis Vuoksenmaa ([aleksisv](https://github.com/aleksisv))
+
+Current maintainer
+* Petteri Piiroinen ([petteripiiroinen](https://github.com/petteripiiroinen))
