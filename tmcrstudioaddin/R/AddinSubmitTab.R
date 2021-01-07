@@ -470,7 +470,7 @@
           .ddprint(lname)
           .ddprint(sname)
           .ddprint(substr(lname, 1, nchar(sname)) == sname)
-          if (substr(lname, 1, nchar(sname)) == sname) {
+          if (!is.na(lname) && substr(lname, 1, nchar(sname)) == sname) {
             ind1 <- ind1 + 1
             test_names_server[ind2] <- lname
           } else {
