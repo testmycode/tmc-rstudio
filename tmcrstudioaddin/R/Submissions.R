@@ -75,6 +75,7 @@ submit_current <- function(path, credentials) {
     submitJson <- getExerciseFromServer(response$data, token, 10)
   } else {
     .dprint("HERE NOW. NO CONNECTION TO SERVER")
+    cat("No access to server.\n")
     submitJson$error <- response$error
     submitJson$error$server_access <- FALSE
   }

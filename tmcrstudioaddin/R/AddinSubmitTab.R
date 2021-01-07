@@ -38,17 +38,22 @@
                                  actionButton(inputId  = ns("runTests"),
                                               label    = "Run tests"),
                                  actionButton(inputId  = ns("submit"),
-                                              label    = "Submit to server"),
-                                 checkboxInput(inputId = ns("showAllResults"),
-                                               label   = "Show all results",
-                                               value   = TRUE),
-                                 checkboxInput(inputId = ns("toggleEcho"),
-                                               label   = "Echo source",
-                                               value   = TRUE)))
+                                              label    = "Submit to server")))
+  bottom2_row  <- fluidRow(column(width = 6,
+				  class = "col-xs-6",
+				  checkboxInput(inputId = ns("showAllResults"),
+						label   = "Show all results",
+                                                value   = TRUE)),
+			   column(width = 6,
+				  class = "col-xs-6",
+				  checkboxInput(inputId = ns("toggleEcho"),
+						label   = "Echo source",
+						value   = TRUE)))
   fluid_page  <- fluidPage(style = "padding:0px;margin:0px;",
                            top_row,
                            second_row,
                            bottom_row,
+                           bottom2_row,
                            column(12, uiOutput(outputId = ns("testResultsDisplay"))))
   tab_panel   <- miniTabPanel(title = "Test & Submit",
                               icon  = icon("check"),
@@ -122,7 +127,7 @@
     .ddprint(test_globals_missing)
     .ddprint(test_globals_names)
     .ddprint(test_globals_store)
-    cat("Getting local tests...\n")
+    cat("Getting local tests... ")
     run_results <- withProgress(message = "Getting tests",
                                 value   = 1/3,
                                 { guard_test_run() })
@@ -130,6 +135,7 @@
     for (name in test_globals_names) {
       assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
     }
+    cat("done\n")
     run_results
   }
 
@@ -262,15 +268,21 @@
                 "right exercise set.")),
         c("Forbidden (HTTP 403).",
           paste("Your submission failed as forbidden request (HTTP 403).",
-                "<p>The most common cause of this are firewalls, VPN's,",
+                "</p><p>This happens after submission deadline has closed.",
+                "Please check that you have chosen the",
+                "right exercise set.",
+		"</p>Other common cause of this are firewalls, VPN's,",
                 "antivirus programs that block the connection as well as",
                 "stale credentials. It can also happen if the server is",
-                "down. <p> Try logging out and back in from addin in a",
+                "down. </p><p> Try logging out and back in from addin in a",
                 "different network and check if tmc.mooc.fi is working.",
-                "<p> If the problem persists, please contact the course",
+                "</p><p> If the problem persists, please contact the course",
                 "instructors."),
           paste("Your submission failed as forbidden request (HTTP 403).",
-                "</p><p>The most common cause of this are firewalls, VPN's,",
+                "</p><p>This happens after submission deadline has closed.",
+                "Please check that you have chosen the",
+                "right exercise set.",
+		"</p>Other common cause of this are firewalls, VPN's,",
                 "antivirus programs that block the connection as well as",
                 "stale credentials. It can also happen if the server is",
                 "down. </p><p> Try logging out and back in from addin in a",
