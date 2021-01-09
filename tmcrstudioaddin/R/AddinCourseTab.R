@@ -336,7 +336,12 @@
     shiny::withProgress(message = "Fetching exercises",
                         value   = 1/2,
                         { exercises <- get_exercises() })
-    if (length(exercises)) print_points(exercises)
+    score_setup <- sub(pattern = " ",
+                       replacement = "",
+                       unlist(strsplit(Sys.getenv("TMCR_UNTESTED"),
+                                       split = ",")))
+    score_set   <- any(grepl(pattern = "score", score_setup))
+    if (length(exercises) & score_set ) print_points(exercises)
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
     enable_tab_UI()
   }
@@ -382,19 +387,6 @@
     cat(paste(yy, collapse = ""))
     cat(")")
   }
-  random_selection <- function(awarded_points) {
-    .dprint("THIS IS JUST FOR TESTING, THIS WILL 'DELETE POINTS'")
-    xx <- awarded_points
-    n  <- length(xx)
-    if (FALSE & length(xx)) {
-      k  <- sample.int(n + 1, 1) - 1
-      yy <- sample(seq_along(xx), k, replace = FALSE)
-      yy <- sort(yy)
-      xx[yy]
-    } else {
-      xx
-    }
-  }
 
   print_num <- function(num, point_width) {
     num_char <- as.character(num)
@@ -413,12 +405,7 @@
     published        <- exercise$unlocked
     points_total     <- length(available_points)
     points           <- length(awarded_points)
-##     print(exercise_name)
-##     print(str(awarded_points))
-##     print(str(available_points))
-##     print(published)
     if (points_total > 0 & published) {
-      awarded_points   <- random_selection(awarded_points)
       points           <- length(awarded_points)
       cat(exercise_name)
       cat(":",
@@ -449,12 +436,7 @@
     awarded_points   <- exercise$awarded_points        # list(), char(0) or char vector
     available_points <- exercise$available_points$name # char
     published        <- exercise$unlocked
-##     print(exercise_name)
-##     print(str(available_points))
-##     print(str(awarded_points))
-##     print(published)
     if (length(available_points) > 0 & published) {
-      awarded_points   <- random_selection(awarded_points)
       cat(exercise_name)
       cat(":", length(awarded_points), "/", length(available_points), " ")
       print_distribution(awarded_points, available_points)
@@ -473,6 +455,12 @@
     all_courses$title[all_courses$id == rv$selection$course]
   }
   print_points <- function(exercises) {
+    cat(paste0('\033', "[", "3", "2", "m"))
+    cat("NOTE: ")
+    cat(paste0('\033', "[", "3", "9", "m"))
+    cat("This is untested and preliminary version of RTMC score table.\n")
+    cat("This might crash, so unset this and report the problem to instructors.\n")
+    cat("\n\n")
     cat(course_title(), "\n")
     cat("\n")
     cat("Your current score on the server\n")
