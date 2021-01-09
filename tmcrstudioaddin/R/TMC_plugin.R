@@ -46,6 +46,8 @@ tmcGadget <- function() {
                  theme = paste0(css_prefix, "/", "darktheme.css"),
                  gadgetTitleBar(title = "TMC RStudio",
                                 right = NULL,
+                                # right = miniTitleBarCancelButton(inputId = "cancel",
+                                #                                  label = "Cancel"),
                                 left = miniTitleBarCancelButton(inputId = "exit",
                                                                 label = "Exit")),
                  miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
@@ -106,6 +108,8 @@ tmcGadget <- function() {
                   })
     # Function for the exit button
     observeEvent(input$exit, { shiny::stopApp() })
+    # Function for the cancel button (which we don't have)
+    # observeEvent(input$cancel, { shiny::stopApp(stop("User cancel", call. = FALSE)) })
 
     shiny::callModule(.loginTab, "login",
                       globalReactiveValues = globalReactiveValues)
@@ -116,5 +120,6 @@ tmcGadget <- function() {
   }
 
   .dprint("Before...")
-  shiny::runGadget(app = ui, server = tmc_shiny_server)
+  app <- shiny::shinyApp(ui, tmc_shiny_server)
+  shiny::runApp(app, launch.browser = paneViewer(), quiet = TRUE)
 }
