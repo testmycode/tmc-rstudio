@@ -121,5 +121,5 @@ tmcGadget <- function() {
 
   .dprint("Before...")
   app <- shiny::shinyApp(ui, tmc_shiny_server)
-  shiny::runApp(app, launch.browser = paneViewer(), quiet = TRUE)
+  shiny::runApp(app, launch.browser = shiny::paneViewer(), quiet = TRUE)
 }
