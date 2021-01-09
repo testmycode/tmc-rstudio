@@ -340,7 +340,7 @@
                        replacement = "",
                        unlist(strsplit(Sys.getenv("TMCR_UNTESTED"),
                                        split = ",")))
-    score_set   <- any(grepl(pattern = "score", score_setup))
+    score_set   <- any(score_setup == "score")
     if (length(exercises) & score_set ) print_points(exercises)
     separateDownloadedExercises(exercises, NA, globalReactiveValues, input$courseSelect)
     enable_tab_UI()

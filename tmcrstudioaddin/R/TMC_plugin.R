@@ -39,11 +39,19 @@ tmcGadget <- function() {
   course_tab_data <- .courseTabUI(id = "courses")
   submit_tab_data <- .submitTabUI(id = "testAndSubmit")
 #
-  css_prefix <- "tmcrstudioaddin-0.5.0"
+  style_setup <- sub(pattern = " ",
+                     replacement = "",
+                     unlist(strsplit(Sys.getenv("TMCR_UNTESTED"),
+                                     split = ",")))
+  style_set   <- any(style_setup == "dark")
+  css_prefix  <- "tmcrstudioaddin-0.6.0"
+  used_theme  <- if (style_set) paste0(css_prefix, "/", "darktheme.css") else NULL
+
   shiny::addResourcePath(css_prefix, system.file('www', package='tmcrstudioaddin'))
 #
+
   ui <- miniPage(shinyjs::useShinyjs(),
-                 theme = paste0(css_prefix, "/", "darktheme.css"),
+                 theme = used_theme,
                  gadgetTitleBar(title = "TMC RStudio",
                                 right = NULL,
                                 # right = miniTitleBarCancelButton(inputId = "cancel",
