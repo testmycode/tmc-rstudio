@@ -44,7 +44,7 @@ tmcGadget <- function() {
                      unlist(strsplit(Sys.getenv("TMCR_UNTESTED"),
                                      split = ",")))
   style_set   <- any(style_setup == "dark")
-  css_prefix  <- "tmcrstudioaddin-0.6.0"
+  css_prefix  <- "tmcrstudioaddin-0.6.1"
   used_theme  <- if (style_set) paste0(css_prefix, "/", "darktheme.css") else NULL
 
   shiny::addResourcePath(css_prefix, system.file('www', package='tmcrstudioaddin'))
