@@ -395,9 +395,8 @@
       tmp <- test_result$message
       test_result$message <- gsub("\\\\\"",
                                   "\"",
-                                  gsub("\\\\n",
-                                       "\n",
-                                       substr(tmp, 2, nchar(tmp) - 1)))
+                                  gsub("\\\\n", "\n", tmp))
+      # this is fixed on the server side now
       .dprint("After...")
       .dprint(str(test_result))
       test_result

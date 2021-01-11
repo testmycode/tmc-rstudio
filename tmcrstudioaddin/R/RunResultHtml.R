@@ -228,6 +228,7 @@ createRunSourcingFailHtml <- function(runResults, exercise_path, submission_info
   message <- gsub("<", "&lt;", message)
   message <- gsub(">", "&gt;", message)
   message <- gsub("\033\\[32m", "<strong style=\"color:DarkGreen;\">", message)
+  message <- gsub("\033\\[34m", "<strong style=\"color:Blue;\">", message)
   message <- gsub("\033\\[39m", "</strong>", message)
   .ddprint(message)
   message <- do.call("fn", list("message:",

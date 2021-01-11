@@ -61,10 +61,18 @@ get_tmcr_directory <- function() {
   tmcr_root <- Sys.getenv("TMCR_ROOT")
   .ddprint(tmcr_root)
   user_home <- ifelse(tmcr_root != "", tmcr_root, "~")
-  user_home <- normalizePath(user_home, winslash = "/")
+  user_home <- normalizePath(user_home, winslash = "/", mustWork = FALSE)
   .ddprint(user_home)
 
   tmcr_directory <- file.path(user_home, "tmcr")
+  if (!dir.exists(user_home)) {
+    cat(paste0('\033', "[", "3", "2", "m"))
+    cat("\nNOTE: ")
+    cat(paste0('\033', "[", "3", "9", "m"))
+    cat("TMCR_ROOT does not exist, so first we try to create that.\n")
+    cat("This might fail so please use an existing directory as TMCR_ROOT.\n")
+    dir.create(user_home, recursive = TRUE)
+  }
 
   if (!dir.exists(tmcr_directory)) {
     dir.create(tmcr_directory)
