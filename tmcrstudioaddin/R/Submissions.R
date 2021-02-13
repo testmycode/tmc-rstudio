@@ -249,9 +249,8 @@ showMessage <- function(submitResults) {
 .print_compilation_error <- function(pre_error) {
   if (grepl("^Compilation", pre_error)) {
     pre_lines     <- strsplit(pre_error, split = "\n")[[1]]
-    error_msg_vec <- tryCatch(unlist(jsonlite::parse_json(sub("compiler_output: ", "",
-							      pre_lines[2]))),
-			      error = function(e) pre_lines[2])
+    error_msg_vec <- pre_lines[-1]
+    error_msg_vec[1] <- sub("compiler_output: ", "", error_msg_vec[1])
     error_msg     <- paste(error_msg_vec, collapse = "\n")
     error_msg
   } else {
