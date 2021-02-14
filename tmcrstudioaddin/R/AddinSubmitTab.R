@@ -615,23 +615,43 @@
     globalReactiveValues$downloadedExercises <- tmcrstudioaddin::downloadedExercisesPaths()
   }
   ST_observer8 <- function() {
-    .dprint("ST_observer8 launching...")
+    # print("ST_observer8 launching...")
     disable_tab_UI()
 
-    .ddprint("Launched when clicking open files")
+    # print("Launched when clicking open files")
+    if (!rstudioapi::isAvailable()) {
+      cat("Opening files not implemented yet.",
+          "Your exercise files are in directory:",
+          file.path(grv$selectedExercisePath, "R"),
+          "",
+          sep = "\n")
+    }
     for (file in list.files(full.names = TRUE,
                             path = file.path(grv$selectedExercisePath, "R"),
                             pattern = "[.]R$")) {
-      .ddprint(file)
-      rstudioapi::navigateToFile(file)
+    if (!rstudioapi::isAvailable()) {
+      # print(file)
+        cat("At this moment, open file",
+            paste0("'", basename(file), "'"),
+            "manually.\n")
+      } else {
+        rstudioapi::navigateToFile(file)
+      }
     }
 ##     }
     enable_tab_UI()
   }
   ST_observer9 <- function() {
-    .dprint("ST_observer9 launching...")
+    # print("ST_observer9 launching...")
     disable_tab_UI()
-    rstudioapi::documentSaveAll()
+    if (!rstudioapi::isAvailable()) {
+      cat("Saving files will not be implemented in the nonblocking versions.",
+          "Manually save your modifications.",
+          "",
+          sep = "\n")
+    } else {
+      rstudioapi::documentSaveAll()
+    }
     enable_tab_UI()
   }
   update_exercises <- function() {
