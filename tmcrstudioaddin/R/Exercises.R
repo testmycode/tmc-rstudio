@@ -115,7 +115,7 @@ sourceExercise <- function(exercisePath, sourceEcho) {
       source(file, env, print.eval = TRUE, echo = sourceEcho)
     }
   }
-  rstudioapi::executeCommand("refreshEnvironment")
+  rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
 }
 
 #' @title Get paths to exercises

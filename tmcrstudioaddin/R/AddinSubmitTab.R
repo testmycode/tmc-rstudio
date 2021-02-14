@@ -389,23 +389,23 @@
   }
 
   ST_observer2 <- function() {
-    .dprint("ST_observer2 launching...")
+    # print("ST_observer2 launching...")
     parse_single_test <- function(test_result) {
-      .dprint("Parsing...")
+      # print("Parsing...")
       tmp <- test_result$message
       test_result$message <- gsub("\\\\\"",
                                   "\"",
                                   gsub("\\\\n", "\n", tmp))
       # this is fixed on the server side now
-      .dprint("After...")
-      .dprint(str(test_result))
+      # print("After...")
+      # print(str(test_result))
       test_result
     }
    do_the_computation2 <- function(xx) {
-    .dprint("do_the_computation2 launching ...")
+    # print("do_the_computation2 launching ...")
     test_names_all  <- c(sapply(X = xx, function(x) x$name), "")
     # print(test_names_all)
-    .dprint("do_the_computation2 done")
+    # print("do_the_computation2 done")
     test_names_all
    }
 
@@ -469,37 +469,35 @@
                    submitRes <- tmcrstudioaddin::submit_exercise(grv$selectedExercisePath,
                                                                  grv$credentials)
                  })
-    # print(str(submitRes))
     if (is.null(submitRes$error)) {
       if (!is.null(reactive$test_names)) {
-        .dprint("Adding names")
+        # print("Adding names")
         test_names_local  <- reactive$test_names
-        .dprint(test_names_local)
+        # print(test_names_local)
         test_names_server <- sapply(X = submitRes$data$tests, function(x) x$name)
         ind1 <- 1
         for (ind2 in seq_along(test_names_server)) {
           lname <- test_names_local[ind1]
           sname <- test_names_server[ind2]
-          .ddprint(ind1)
-          .ddprint(ind2)
-          .ddprint(lname)
-          .ddprint(sname)
-          .ddprint(substr(lname, 1, nchar(sname)) == sname)
+#           print(ind1)
+#           print(ind2)
+#           print(lname)
+#           print(sname)
+#           print(substr(lname, 1, nchar(sname)) == sname)
           if (!is.na(lname) && substr(lname, 1, nchar(sname)) == sname) {
             ind1 <- ind1 + 1
             test_names_server[ind2] <- lname
           } else {
             temp_bool <- translation_df$key == sname
             if (sum(temp_bool)) {
-              .ddprint(which(temp_bool))
-              .ddprint(translation_df$translation[which(temp_bool)])
+#               print(which(temp_bool))
+#               print(translation_df$translation[which(temp_bool)])
               test_names_server[ind2] <- translation_df$translation[which(temp_bool)]
             }
-            # pppp
           }
         }
-        .ddprint(test_names_local)
-        .ddprint(test_names_server)
+#         print(test_names_local)
+#         print(test_names_server)
         resolved_tests <-
           mapply(function(x, name) {
                    x$name <- name
@@ -508,8 +506,8 @@
                  submitRes$data$tests,
                  test_names_server,
                  SIMPLIFY = FALSE)
-        .ddprint(str(resolved_tests))
-        .ddprint(str(translation_df))
+#         print(str(resolved_tests))
+#         print(str(translation_df))
         submitRes$data$tests <- resolved_tests
       }
       reactive$submitResults <- submitRes$data
@@ -519,12 +517,12 @@
       reactive$sourcing      <- FALSE
       reactive$error_state   <- FALSE
     } else {
-      .dprint("NOW AN ERROR OCCURED")
-      # print(str(submitRes))
+#       print("NOW AN ERROR OCCURED")
+#       print(str(submitRes))
       reactive$error_state <- TRUE
       if (is.character(submitRes$error)) {
-##         print("This came from the server.")
-##         print(str(submitRes))
+#         print("This came from the server.")
+#         print(str(submitRes))
         backtrace_message   <- .print_compilation_error(submitRes$error)
         help_text           <- .help_text_for_error(backtrace_message)
         reactive$runResults <- list(run_status     = "server_failed",
@@ -535,7 +533,7 @@
                                     help_text      = list(help_text),
                                     test_results   = list())
       } else {
-        .dprint("We did not get to the server at all")
+#         print("We did not get to the server at all")
         if (submitRes$error$server_access) {
           run_state_message <- "submission_failed_partially"
           disclaimer        <- "Submission state on the server uncertain :"
@@ -582,17 +580,10 @@
     .dprint("ST_observer5 done")
   }
   ST_observer6 <- function() {
-    .dprint("ST_observer6 launching...")
+    # print("ST_observer6 launching...")
     disable_tab_UI()
 
-    .dprint("sourceExercise()")
-    .ddprint("Launched when Source is clicked")
-##     if (globalReactiveValues$selectedExercisePath == "") {
-##       rstudioapi::showDialog("Cannot source exercises",
-##                              "You have not selected the exercises. Please
-##                              choose the exercises you wish to source first.")
-##     } else 
-##     {
+    # print("Launched when Source is clicked")
     tryCatch({
       sourceExercise(grv$selectedExercisePath, reactive$sourceEcho)
       reactive$sourcing    <- TRUE
@@ -616,9 +607,8 @@
       # reactive$test_names  <- reactive$test_names # this stays as is
       reactive$error_state   <- TRUE
     })
-##     }
     enable_tab_UI()
-    rstudioapi::executeCommand("refreshEnvironment")
+    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   }
   ST_observer7 <- function() {
     .dprint("ST_observer7 launching...")

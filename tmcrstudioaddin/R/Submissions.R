@@ -23,12 +23,12 @@
 #' \code{\link{processSubmissionJson}}, \code{\link{showMessage}}
 
 submit_exercise <- function(path, credentials) {
-  .dprint("submit_exercise()")
+  # print("submit_exercise()")
   submitJson <- list()
   submitJson <- submit_current(path, credentials)
   submitRes <- list()
   if (is.null(submitJson$error)) {
-    .ddprint(str(submitJson))
+    # print(str(submitJson))
     submitRes$data <- processSubmissionJson(submitJson$results)
   } else {
     if (is.character(submitJson$error)) {
@@ -240,9 +240,17 @@ processSubmission <- function(submitJson) {
 showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
   if (message$show) {
-    rstudioapi::showDialog(title = message$title,
-                           message = message$text,
-                           url = "")
+    if (!rstudioapi::isAvailable()) {
+      cat("Showing message not yet implemented\n")
+      cat("Title:\n")
+      cat(message$title, "\n")
+      cat("Message:\n")
+      cat(message$text, "\n")
+    } else {
+      rstudioapi::showDialog(title   = message$title,
+                             message = message$text,
+                             url     = "")
+    }
   }
 }
 
