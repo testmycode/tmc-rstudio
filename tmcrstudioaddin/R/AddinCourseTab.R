@@ -543,27 +543,30 @@
   CT_observer7 <- function() {
     download_exercises <- function() {
       organization <- input$organizationSelect
-      # .dprint("getAllCourses site 3")
+      # print("getAllCourses site 3")
       courses <- grv$coursesInfo$all_courses
-      # courses <- tmcrstudioaddin::get_all_courses(organization, grv$credentials)
       courseName <- courses$name[courses$id == input$courseSelect]
 
-      course_directory_path <- file.path(get_projects_folder(), courseName,
+      course_directory_path <- file.path(get_projects_folder(),
+                                         courseName,
                                          fsep = .Platform$file.sep)
 
       if (!dir.exists(course_directory_path)) {
         dir.create(course_directory_path, recursive = TRUE)
       }
-      .dprint(course_directory_path)
+      # print(course_directory_path)
       num_of_downloaded <- downloadFromList(course_directory_path,
                                             globalReactiveValues)
       shiny::setProgress(value = 1)
       Sys.sleep(0.2)
       num_of_downloaded
     }
-    .dprint("CT_observer7 launched...")
+    # print("CT_observer7 launched...")
     disable_tab_UI()
-
+    cat("",
+        "Downloading exercises",
+        "---------------------",
+        sep = "\n")
     tryCatch({
       withProgress(message = "Downloading exercises",
                    value   = 0,
@@ -576,7 +579,10 @@
                 as.character(num_of_downloaded),
                 "exercises successfully", sep = " ")
         }
-      rstudioapi::showDialog("Success", download_success_message, "")
+      cat(download_success_message, "\n")
+      rstudioapi::isAvailable(rstudioapi::showDialog("Success",
+                                                     download_success_message,
+                                                     ""))
     },
     error = function(e) {
       pre_error <- e$message
@@ -615,7 +621,9 @@ pre_error)
       cat(" : ")
       cat(pre_error)
       cat("\n")
-      rstudioapi::showDialog("Error", download_error_message, "")
+      rstudioapi::isAvailable(rstudioapi::showDialog("Error",
+                                                     download_error_message,
+                                                     ""))
     })
 
     #Call submitTab module, which updates exercises
