@@ -16,78 +16,94 @@ tmcGadget <- function() {
       "need to use the addin buttons. The environment will be restored as is",
       "after the session.",
       sep = "\n")
-
-  .global_env_copy  <- .copy_global_environment()
-  assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
+#  print(ls(.GlobalEnv, all.names = TRUE))
+  .global_env_copy <- .copy_global_environment()
+#  print(.global_env_copy)
+#  print(ls(.global_env_copy, all.names = TRUE))
+  #
+  # character(0)
+  # character(0)
+  # these are always going to be empty
+  assign(x = ".global_env_copy", value = .global_env_copy,
+         envir = .GlobalEnv)
+  # print(ls(.GlobalEnv, all.names = TRUE))
   # clean this ASAP
   if (exists(".__tmc_debug", envir = .GlobalEnv)) {
     .tmc_debug <- get(".__tmc_debug", envir = .GlobalEnv)
   } else {
     .tmc_debug <- NULL
   }
-  .global_env_copy  <- .clear_global_environment(".global_env_copy")
+  .global_env_copy <- .clear_global_environment(".global_env_copy")
+  # print(.global_env_copy)
+  # print(ls(.global_env_copy, all.names = TRUE))
+  # print(ls(.GlobalEnv, all.names = TRUE))
+  # character(0)
+  # character(0)
+  # these are always going to be empty
 
   # Fix this later
   if (!is.null(.tmc_debug)) {
     assign(x = ".__tmc_debug", value = .tmc_debug, envir = .GlobalEnv)
   }
-  assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
-  rstudioapi::executeCommand("refreshEnvironment")
-
-
+  assign(x = ".global_env_copy", value = .global_env_copy,
+         envir = .GlobalEnv)
+  rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   login_tab_data  <- .loginTabUI(id = "login")
   course_tab_data <- .courseTabUI(id = "courses")
   submit_tab_data <- .submitTabUI(id = "testAndSubmit")
 #
-  style_setup <- sub(pattern = " ",
+  style_setup <- sub(pattern     = " ",
                      replacement = "",
                      unlist(strsplit(Sys.getenv("TMCR_UNTESTED"),
                                      split = ",")))
-  style_set   <- any(style_setup == "dark")
-  css_prefix  <- "tmcrstudioaddin-0.6.1"
-  used_theme  <- if (style_set) paste0(css_prefix, "/", "darktheme.css") else NULL
+  style_set  <- any(style_setup == "dark")
+  css_prefix <- "tmcrstudioaddin-0.6.3"
+  used_theme <- if (style_set) {
+    paste0(css_prefix, "/", "darktheme.css")
+  } else {
+    NULL
+  }
 
-  shiny::addResourcePath(css_prefix, system.file('www', package='tmcrstudioaddin'))
+  shiny::addResourcePath(css_prefix, system.file("www",
+                                                 package = "tmcrstudioaddin"))
 #
 
-  ui <- miniPage(shinyjs::useShinyjs(),
-                 theme = used_theme,
-                 gadgetTitleBar(title = "TMC RStudio",
-                                right = NULL,
-                                # right = miniTitleBarCancelButton(inputId = "cancel",
-                                #                                  label = "Cancel"),
-                                left = miniTitleBarCancelButton(inputId = "exit",
-                                                                label = "Exit")),
-                 miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
-                                   course_tab_data[["mini_tab_panel"]],
-                                   submit_tab_data[["mini_tab_panel"]]))
-  .ddprint("After...")
-
+  ui <- miniUI::miniPage(shinyjs::useShinyjs(), theme = used_theme,
+                         miniUI::gadgetTitleBar(title = "TMC RStudio",
+                                                # right = miniUI::miniTitleBarCancelButton(inputId = "cancel",
+                                                #                                  label = "Cancel"),
+                                                right = NULL,
+                                                left  = miniUI::miniTitleBarCancelButton(inputId = "exit",
+                                                                                         label = "Exit")),
+                         miniUI::miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
+                                                   course_tab_data[["mini_tab_panel"]],
+                                                   submit_tab_data[["mini_tab_panel"]]))
+  # print("After...")
   tmc_shiny_server <- function(input, output, session) {
-    .dprint("After...")
-    .ddprint("Later...")
+    # print("After...")
+    # print("Later...")
     login_tab_ui  <- login_tab_data[["ns_inputIDs"]]
     course_tab_ui <- course_tab_data[["ns_inputIDs"]]
     submit_tab_ui <- submit_tab_data[["ns_inputIDs"]]
     UI_limited    <- list(login_tab  = login_tab_ui["login"],
                           course_tab = course_tab_ui,
                           submit_tab = submit_tab_ui[c("refreshExercises", "submit")])
-    UI_limited2   <- list(submit_tab = submit_tab_ui[c("openFiles", "saveFiles",
-                                                       "source", "runTests", "submit")])
+    UI_limited2   <- list(submit_tab = submit_tab_ui[c("openFiles",
+                                                       "saveFiles",
+                                                       "source",
+                                                       "runTests",
+                                                       "submit")])
     UI_limited3   <- list(course_tab = course_tab_ui[c("download")])
     UI_normal     <- list(all_tabs   = c("exit"),
                           login_tab  = login_tab_ui,
                           course_tab = course_tab_ui,
                           submit_tab = submit_tab_ui)
-
-
-    .ddprint(str(course_tab_data[["ns_inputIDs"]]))
-    .ddprint(str(submit_tab_ui))
-    .ddprint(str(submit_tab_ui[c("refreshExercises", "submit")]))
-
-    .dprint("Initial launch of observer1 with getCredentials...")
+    # print(str(course_tab_data[["ns_inputIDs"]]))
+    # print(str(submit_tab_ui))
+    # print(str(submit_tab_ui[c("refreshExercises", "submit")]))
+    # print("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
-      reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
+      reactiveValues(credentials = getCredentials(),
                      downloadedExercises = downloadedExercisesPaths(),
                      exerciseMap = list(),
                      selectedExercisePath = exercisePathFromWd(),
@@ -95,39 +111,80 @@ tmcGadget <- function() {
                      UI_state    = c("not_logged_in"   = FALSE,
                                      "not_selected"    = FALSE,
                                      "not_downloading" = FALSE),
-                     UI_elements = list(UI_limited               = UI_limited,
-                                        UI_no_selected_exercise  = UI_limited2,
-                                        UI_nothing_to_download   = UI_limited3,
-                                        UI_normal                = UI_normal),
+                     UI_elements = list(UI_limited              = UI_limited,
+                                        UI_no_selected_exercise = UI_limited2,
+                                        UI_nothing_to_download  = UI_limited3,
+                                        UI_normal               = UI_normal),
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      coursesInfo = list())
     shiny::onStop(function() {
+                    if (!rstudioapi::isAvailable()) {
+                      cat("RTMC session crashed... Ending RTMC session.\n")
+                      shiny::stopApp(stop("RTMC session crashed..."))
+                    }
                     cat("RTMC session ended.\n")
                     cat("Restoring environment...\n")
                     # fix this later
-                    .ddprint(exists(".global_env_copy"))
-                    .ddprint(exists(".global_env_copy", envir = .GlobalEnv))
-                    assign(x = ".global_env_copy", value = .global_env_copy, envir = .GlobalEnv)
-                    .ddprint(exists(".global_env_copy", envir = .GlobalEnv))
+                    # print(exists(".global_env_copy"))
+                    # print(exists(".global_env_copy", envir = .GlobalEnv))
+                    assign(x = ".global_env_copy", value = .global_env_copy,
+                           envir = .GlobalEnv)
+                    # print(exists(".global_env_copy", envir = .GlobalEnv))
                     .global_env_copy <- .clear_global_environment(".global_env_copy")
                     .restore_global_environment(.global_env_copy)
                     rstudioapi::executeCommand("refreshEnvironment")
                   })
     # Function for the exit button
-    observeEvent(input$exit, { shiny::stopApp() })
+    shiny::observeEvent(input$exit, { shiny::stopApp() })
     # Function for the cancel button (which we don't have)
     # observeEvent(input$cancel, { shiny::stopApp(stop("User cancel", call. = FALSE)) })
 
-    shiny::callModule(.loginTab, "login",
+    shiny::callModule(.loginTab,
+                      "login",
                       globalReactiveValues = globalReactiveValues)
-    shiny::callModule(.courseTab, "courses",
+    shiny::callModule(.courseTab,
+                      "courses",
                       globalReactiveValues = globalReactiveValues)
-    shiny::callModule(.submitTab, "testAndSubmit",
+    shiny::callModule(.submitTab,
+                      "testAndSubmit",
                       globalReactiveValues = globalReactiveValues)
   }
-
-  .dprint("Before...")
+  # print("Before...")
+  shiny::onStop(function() {
+                  if (!rstudioapi::isAvailable()) {
+                      cat("RTMC session ended.\n")
+                      cat("Not really restoring environment...\n")
+                      assign(x = ".global_env_copy", value = .global_env_copy,
+                             envir = .GlobalEnv)
+                      # print(exists(".global_env_copy", envir = .GlobalEnv))
+                      # print(ls(.global_env_copy, all.names = TRUE))
+                      # print(ls(.GlobalEnv, all.names = TRUE))
+                      # [1] TRUE
+                      # character(0)
+                      # [1] ".global_env_copy" ".Random.seed"
+                      .global_env_copy <- .clear_global_environment(".global_env_copy")
+                      # print(ls(.global_env_copy, all.names = TRUE))
+                      # print(ls(.GlobalEnv, all.names = TRUE))
+                      # character(0)
+                      # character(0)
+                      .restore_global_environment(.global_env_copy)
+                      # print(ls(.global_env_copy, all.names = TRUE))
+                      # print(ls(.GlobalEnv, all.names = TRUE))
+                      # character(0)
+                      # character(0)
+                      # rstudioapi::executeCommand("refreshEnvironment")
+                  }
+  })
+  # print("Before...")
   app <- shiny::shinyApp(ui, tmc_shiny_server)
-  shiny::runApp(app, launch.browser = shiny::paneViewer(), quiet = TRUE)
+  if (!rstudioapi::isAvailable()) {
+    shiny::runApp(app,
+                  launch.browser = shiny::paneViewer())
+  } else {
+    shiny::runApp(app,
+                  launch.browser = shiny::paneViewer(),
+                  quiet = TRUE)
+  }
+
 }

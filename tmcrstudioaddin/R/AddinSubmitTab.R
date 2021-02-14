@@ -251,7 +251,7 @@
     reactive$error_state   <- FALSE
     enable_tab_UI()
     # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
-    rstudioapi::executeCommand("refreshEnvironment")
+    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   }
 
   .help_text_for_serious_error <- function(message) {
