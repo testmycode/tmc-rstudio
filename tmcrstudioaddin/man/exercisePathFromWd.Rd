@@ -9,7 +9,7 @@ exercisePathFromWd()
 \value{
 Exercise as a named vector: \code{c(name = path)}. If the
 current working directory isn't a valid exercise project folder,
-returns \code{c(" ", " ")}.
+returns \code{c(" " = "")}.
 }
 \description{
 If the currently open exercise (the exercise which is

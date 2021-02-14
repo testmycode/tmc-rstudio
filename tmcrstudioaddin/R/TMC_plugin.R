@@ -1,6 +1,62 @@
 # Need RStudio version > 1.1.67 for rstudioapi::showDialog()
 # https://www.rstudio.com/products/rstudio/download/preview/ <- working version
 
+#' @importFrom shiny HTML
+#' @importFrom shiny actionButton
+#' @importFrom shiny checkboxGroupInput
+#' @importFrom shiny checkboxInput
+#' @importFrom shiny column
+#' @importFrom shiny div
+#' @importFrom shiny fluidPage
+#' @importFrom shiny fluidRow
+#' @importFrom shiny h1
+#' @importFrom shiny icon
+#' @importFrom shiny incProgress
+#' @importFrom shiny observe
+#' @importFrom shiny observeEvent
+#' @importFrom shiny passwordInput
+#' @importFrom shiny reactiveValues
+#' @importFrom shiny renderUI
+#' @importFrom shiny selectInput
+#' @importFrom shiny tagList
+#' @importFrom shiny tags
+#' @importFrom shiny textInput
+#' @importFrom shiny uiOutput
+#' @importFrom shiny updateCheckboxInput
+#' @importFrom shiny updateSelectInput
+#' @importFrom shiny updateTextInput
+#' @importFrom shiny withProgress
+
+#' @importFrom miniUI miniTabPanel
+#' @importFrom miniUI miniContentPanel
+#' @importFrom miniUI miniPage
+#' @importFrom miniUI gadgetTitleBar
+#' @importFrom miniUI miniTitleBarCancelButton
+#' @importFrom miniUI miniTabstripPanel
+
+#' @importFrom httr status_code
+#' @importFrom httr timeout
+#' @importFrom httr write_disk
+
+#' @importFrom jsonlite unbox
+
+#' @importFrom shinyjs disable
+#' @importFrom shinyjs enable
+#' @importFrom shinyjs hide
+#' @importFrom shinyjs hidden
+#' @importFrom shinyjs show
+
+#' @importFrom callr r_bg
+#' @importFrom later later
+
+#' @importFrom utils str
+#' @importFrom utils tar
+#' @importFrom utils untar
+#' @importFrom utils unzip
+#' @importFrom utils zip
+
+#' @exportPattern "^[[:alpha:]]+"
+
 #' @title Run the TMC addin
 #'
 #' @description Run the TMC addin on the \code{RStudio} viewer pane.
@@ -31,7 +87,7 @@ tmcGadget <- function() {
         sep = "\n")
   }
 #  print(ls(.GlobalEnv, all.names = TRUE))
-  .global_env_copy <- .copy_global_environment()
+  .global_env_copy <- tmcrstudioaddin:::.copy_global_environment()
 #  print(.global_env_copy)
 #  print(ls(.global_env_copy, all.names = TRUE))
   #
@@ -47,7 +103,7 @@ tmcGadget <- function() {
   } else {
     .tmc_debug <- NULL
   }
-  .global_env_copy <- .clear_global_environment(".global_env_copy")
+  .global_env_copy <- tmcrstudioaddin:::.clear_global_environment(".global_env_copy")
   # print(.global_env_copy)
   # print(ls(.global_env_copy, all.names = TRUE))
   # print(ls(.GlobalEnv, all.names = TRUE))
@@ -62,9 +118,9 @@ tmcGadget <- function() {
   assign(x = ".global_env_copy", value = .global_env_copy,
          envir = .GlobalEnv)
   rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
-  login_tab_data  <- .loginTabUI(id = "login")
-  course_tab_data <- .courseTabUI(id = "courses")
-  submit_tab_data <- .submitTabUI(id = "testAndSubmit")
+  login_tab_data  <- tmcrstudioaddin:::.loginTabUI(id = "login")
+  course_tab_data <- tmcrstudioaddin:::.courseTabUI(id = "courses")
+  submit_tab_data <- tmcrstudioaddin:::.submitTabUI(id = "testAndSubmit")
 #
   style_setup <- sub(pattern     = " ",
                      replacement = "",
@@ -117,10 +173,10 @@ tmcGadget <- function() {
     # print(str(submit_tab_ui[c("refreshExercises", "submit")]))
     # print("Initial launch of observer1 with getCredentials...")
     globalReactiveValues <-
-      reactiveValues(credentials = getCredentials(),
-                     downloadedExercises = downloadedExercisesPaths(),
+      reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
+                     downloadedExercises = tmcrstudioaddin::downloadedExercisesPaths(),
                      exerciseMap = list(),
-                     selectedExercisePath = exercisePathFromWd(),
+                     selectedExercisePath = tmcrstudioaddin::exercisePathFromWd(),
                      UI_disabled = FALSE,
                      UI_state    = c("not_logged_in"   = FALSE,
                                      "not_selected"    = FALSE,
@@ -145,8 +201,8 @@ tmcGadget <- function() {
                     assign(x = ".global_env_copy", value = .global_env_copy,
                            envir = .GlobalEnv)
                     # print(exists(".global_env_copy", envir = .GlobalEnv))
-                    .global_env_copy <- .clear_global_environment(".global_env_copy")
-                    .restore_global_environment(.global_env_copy)
+                    .global_env_copy <- tmcrstudioaddin:::.clear_global_environment(".global_env_copy")
+                    tmcrstudioaddin:::.restore_global_environment(.global_env_copy)
                     rstudioapi::executeCommand("refreshEnvironment")
                   })
     # Function for the exit button
@@ -154,13 +210,13 @@ tmcGadget <- function() {
     # Function for the cancel button (which we don't have)
     # observeEvent(input$cancel, { shiny::stopApp(stop("User cancel", call. = FALSE)) })
 
-    shiny::callModule(.loginTab,
+    shiny::callModule(tmcrstudioaddin:::.loginTab,
                       "login",
                       globalReactiveValues = globalReactiveValues)
-    shiny::callModule(.courseTab,
+    shiny::callModule(tmcrstudioaddin:::.courseTab,
                       "courses",
                       globalReactiveValues = globalReactiveValues)
-    shiny::callModule(.submitTab,
+    shiny::callModule(tmcrstudioaddin:::.submitTab,
                       "testAndSubmit",
                       globalReactiveValues = globalReactiveValues)
   }
@@ -177,12 +233,12 @@ tmcGadget <- function() {
                       # [1] TRUE
                       # character(0)
                       # [1] ".global_env_copy" ".Random.seed"
-                      .global_env_copy <- .clear_global_environment(".global_env_copy")
+                      .global_env_copy <- tmcrstudioaddin:::.clear_global_environment(".global_env_copy")
                       # print(ls(.global_env_copy, all.names = TRUE))
                       # print(ls(.GlobalEnv, all.names = TRUE))
                       # character(0)
                       # character(0)
-                      .restore_global_environment(.global_env_copy)
+                      tmcrstudioaddin:::.restore_global_environment(.global_env_copy)
                       # print(ls(.global_env_copy, all.names = TRUE))
                       # print(ls(.GlobalEnv, all.names = TRUE))
                       # character(0)
@@ -201,4 +257,108 @@ tmcGadget <- function() {
                   quiet = TRUE)
   }
 
+}
+
+#' @title Run the nonblocking TMC addin
+#'
+#' @description Run the nonblocking TMC addin on the \code{RStudio} viewer pane.
+#' The console is working normally during the RTMC session.
+#'
+#' @usage tmcGadget_nonblock()
+#'
+#' @return A processx object corresponding the R session running the
+#' the shiny application
+#'
+#' @details The TMC \code{RStudio} addin was made using
+#' \code{\link[shiny]{shiny-package}}, which allows making web
+#' applications and \code{RStudio} addins using \code{R}.
+#' The nonblocking version uses \code{\link[callr]{callr-package}}
+#' to run the shiny server in another R session. The listener
+#' is implemented using \code{later}.
+
+tmcGadget_nonblock <- function() {
+  value_name <- "inspection"
+  env1 <- parent.frame()
+  rx <- callr::r_bg(tmcGadget,
+                    stdout = "|", stderr = "2>&1", poll_connection = TRUE)
+  .listener(rx, res_name = value_name, env = NULL)
+
+  launch <-
+    function (port) {
+      server_port <- paste0("http://127.0.0.1:", port)
+      cat("Server for 'shiny' has started.\n")
+      cat("Server port = ", server_port, "\n")
+      # cat("count = ", count1, "\n")
+      cat("Opening viewer.\n")
+      rstudioapi::viewer(server_port)
+    }
+  # cat(rx$is_alive(), "\n")
+  polls <- rx$poll_io(timeout = 10)
+  count1 <- 0
+  count  <- 0
+  server_port <- ""
+  cat("Waiting for 'shiny' to start.\n")
+  while (server_port == "") {
+    while (polls["output"] != "ready") {
+      cat(".")
+      Sys.sleep(0.01)
+      # cat("Woke up.\n")
+      polls <- rx$poll_io(timeout = 10)
+      count <- count + 1
+    }
+    err_text <- rx$read_output()
+    if (count > 0) cat("\n")
+    start_idx   <- regexpr("http://", err_text)
+    if (start_idx >= 0) {
+      server_port <-  sub(pattern = "\n", replacement = "",
+                          substr(err_text, start = start_idx, stop = nchar(err_text)))
+    } else {
+      cat(err_text)
+    }
+    count1 <- count1 + count
+    count <- 0
+    polls <- rx$poll_io(timeout = 10)
+  }
+  cat("Server for 'shiny' has started.\n")
+  cat("Server port = ", server_port, "\n")
+  cat("count = ", count1, "\n")
+  cat("Opening viewer.\n")
+  rstudioapi::viewer(server_port)
+#  cat("Waiting 4 seconds to show that before releasing console printing works\n")
+#  Sys.sleep(4)
+  cat("Releasing console. Have fun!\n")
+  rx
+}
+
+.listener <- function(rx, res_name = "val", count = 0, env = NULL) {
+  if (is.null(env)) {
+    env1 <- parent.frame()
+  } else {
+    env1 <- env
+  }
+  assign(res_name, list(value = NULL, status = "processing"), envir = env1)
+  cat("Listener started.",
+      paste0("Saving value to '", res_name, "'"),
+      sep = "\n")
+  listener_loop <- function(count) {
+    if (rx$is_alive()) {
+      output <- rx$read_output()
+      cat(output)
+      # if (output == "") {
+      #  cat(".")
+      # }
+      later::later(function() {
+        listener_loop(count + 1)
+        42L
+      },
+      delay = 0.2)
+    } else {
+      cat(rx$read_output())
+      cat("-------------\n")
+      cat("Listener process ended.\n")
+      cat("Elapsed time (approximately):", count / 5, "sec \n")
+      assign(res_name, list(value = rx$get_result(), status = "ready"), envir = env1)
+    }
+  }
+  listener_loop(count)
 }
