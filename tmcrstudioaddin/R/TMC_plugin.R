@@ -11,11 +11,25 @@
 #' \code{\link[shiny]{shiny-package}}, which allows making web
 #' applications and \code{RStudio} addins using \code{R}.
 tmcGadget <- function() {
-  cat("Starting RTMC session...\n")
-  cat("Note. The console will not be available during RTMC session and you",
-      "need to use the addin buttons. The environment will be restored as is",
-      "after the session.",
-      sep = "\n")
+  is_blocking     <- rstudioapi::isAvailable()
+  blocking_string <- if (is_blocking) "original" else "experimental nonblocking"
+  cat("Starting", blocking_string, "RTMC session...\n")
+  cat(paste0('\033', "[", "3", "2", "m"))
+  cat("NOTE: ")
+  cat(paste0('\033', "[", "3", "9", "m"))
+  if (is_blocking) {
+    cat("The console WILL NOT BE available during RTMC session and you",
+        "need to use the addin buttons. The environment will be restored as is",
+        "after the session.",
+        sep = "\n")
+  } else {
+    cat("The console is relased after the addin has started and IS AVAILABLE normally",
+        "during RTMC session. For sourcing you should use the normal source, since",
+        "the addin source button is obsolete and will be removed shortly.",
+        "",
+        "In order to end the RTMC session, use the 'Exit' button in addin.",
+        sep = "\n")
+  }
 #  print(ls(.GlobalEnv, all.names = TRUE))
   .global_env_copy <- .copy_global_environment()
 #  print(.global_env_copy)

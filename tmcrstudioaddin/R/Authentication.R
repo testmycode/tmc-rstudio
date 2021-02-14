@@ -96,17 +96,23 @@ login <- function(clientID, secret, username, password, serverAddress) {
                     config = httr::timeout(30),
                     encode = "form")
   # if http status is ok return token
+#   cat("req\n")
+#   print(req)
   if (status_code(req) == 200) {
     token <- paste("Bearer", httr::content(req)$access_token)
     credentials <- list(username      = username,
                         token         = token,
                         serverAddress = serverAddress,
                         organization  = NULL)
-    .dprint("saveCredentials site A")
+    # print("saveCredentials site A")
     tmcrstudioaddin::saveCredentials(credentials)
     response <- list(token             = token,
                      error             = NULL,
                      error_description = NULL)
+  } else if (status_code(req) == 400) {
+    response <- list(token             = NULL,
+                     error             = "Bad request",
+                     error_description = "Check your username and/or password")
   } else if (status_code(req) == 401) {
     response <- list(token             = NULL,
                      error             = "Invalid credentials",

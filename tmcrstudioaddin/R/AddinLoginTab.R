@@ -89,7 +89,7 @@
   }
 
   LT_observer2 <- function() {
-    .dprint("input$login launched...")
+    # print("input$login launched...")
     disable_tab_UI()
 
     # Authenticate with the values from the username and password input fields
@@ -98,9 +98,11 @@
                                               input$serverAddress)
     # showDialog() needs RStudio version > 1.1.67
     if (!is.null(response$error)) {
-      rstudioapi::showDialog(title   = response$error,
-                             message = response$error_description,
-                             url = "")
+      rstudioapi::isAvailable(rstudioapi::showDialog(title   = response$error,
+                                                     message = response$error_description,
+                                                     url = ""))
+      cat(response$error, "\n")
+      cat(response$error_description, "\n")
     }
     # If user has saved credentials update view
     .dprint("getCredentials site 2")

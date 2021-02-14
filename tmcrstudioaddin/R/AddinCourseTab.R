@@ -664,9 +664,9 @@ pre_error)
   }
 
   CT_observer9 <- function() {
-    .dprint("CT_observer9 launched...")
+    # print("CT_observer9 launched...")
     if (length(globalReactiveValues$downloadedExercisesMap) > 0) {
-      .ddprint("update all exercises")
+      # print("update all exercises")
       show("updateAllExercises")
       shiny::updateCheckboxInput(session,
                                  "updateAllExercises",
@@ -677,7 +677,7 @@ pre_error)
                                       label = "Redownload already downloaded exercises",
                                       choices = globalReactiveValues$downloadedExercisesMap)
     }
-    .dprint("CT_observer9 done ...")
+    # print("CT_observer9 done ...")
   }
 
   CT_observer10 <- function() {
@@ -699,11 +699,11 @@ pre_error)
   
   CT_observer11b_logged_out <- function() {
     print_rv()
-    .dprint(input$organizationSelect)
-    .dprint(grv$credentials$organization)
-    .dprint(input$courseSelect)
+#     print(input$organizationSelect)
+#     print(grv$credentials$organization)
+#     print(input$courseSelect)
     if (input$organizationSelect != "" & input$courseSelect != "") {
-      .dprint("RELOADING THE STATE, SO BOTH BECOME VISIBLE DURING LOGOUT")
+      # print("RELOADING THE STATE, SO BOTH BECOME VISIBLE DURING LOGOUT")
       rv$selection$org <- input$organizationSelect
       rv$state$org_chosen  <- TRUE
       rv$state$org_visible <- TRUE
