@@ -87,7 +87,7 @@ tmcGadget <- function() {
         sep = "\n")
   }
 #  print(ls(.GlobalEnv, all.names = TRUE))
-  .global_env_copy <- tmcrstudioaddin:::.copy_global_environment()
+  .global_env_copy <- .copy_global_environment()
 #  print(.global_env_copy)
 #  print(ls(.global_env_copy, all.names = TRUE))
   #
@@ -103,7 +103,7 @@ tmcGadget <- function() {
   } else {
     .tmc_debug <- NULL
   }
-  .global_env_copy <- tmcrstudioaddin:::.clear_global_environment(".global_env_copy")
+  .global_env_copy <- .clear_global_environment(".global_env_copy")
   # print(.global_env_copy)
   # print(ls(.global_env_copy, all.names = TRUE))
   # print(ls(.GlobalEnv, all.names = TRUE))
@@ -118,9 +118,9 @@ tmcGadget <- function() {
   assign(x = ".global_env_copy", value = .global_env_copy,
          envir = .GlobalEnv)
   rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
-  login_tab_data  <- tmcrstudioaddin:::.loginTabUI(id = "login")
-  course_tab_data <- tmcrstudioaddin:::.courseTabUI(id = "courses")
-  submit_tab_data <- tmcrstudioaddin:::.submitTabUI(id = "testAndSubmit")
+  login_tab_data  <- .loginTabUI(id = "login")
+  course_tab_data <- .courseTabUI(id = "courses")
+  submit_tab_data <- .submitTabUI(id = "testAndSubmit")
 #
   style_setup <- sub(pattern     = " ",
                      replacement = "",
@@ -201,8 +201,8 @@ tmcGadget <- function() {
                     assign(x = ".global_env_copy", value = .global_env_copy,
                            envir = .GlobalEnv)
                     # print(exists(".global_env_copy", envir = .GlobalEnv))
-                    .global_env_copy <- tmcrstudioaddin:::.clear_global_environment(".global_env_copy")
-                    tmcrstudioaddin:::.restore_global_environment(.global_env_copy)
+                    .global_env_copy <- .clear_global_environment(".global_env_copy")
+                    .restore_global_environment(.global_env_copy)
                     rstudioapi::executeCommand("refreshEnvironment")
                   })
     # Function for the exit button
@@ -210,13 +210,13 @@ tmcGadget <- function() {
     # Function for the cancel button (which we don't have)
     # observeEvent(input$cancel, { shiny::stopApp(stop("User cancel", call. = FALSE)) })
 
-    shiny::callModule(tmcrstudioaddin:::.loginTab,
+    shiny::callModule(.loginTab,
                       "login",
                       globalReactiveValues = globalReactiveValues)
-    shiny::callModule(tmcrstudioaddin:::.courseTab,
+    shiny::callModule(.courseTab,
                       "courses",
                       globalReactiveValues = globalReactiveValues)
-    shiny::callModule(tmcrstudioaddin:::.submitTab,
+    shiny::callModule(.submitTab,
                       "testAndSubmit",
                       globalReactiveValues = globalReactiveValues)
   }
@@ -233,12 +233,12 @@ tmcGadget <- function() {
                       # [1] TRUE
                       # character(0)
                       # [1] ".global_env_copy" ".Random.seed"
-                      .global_env_copy <- tmcrstudioaddin:::.clear_global_environment(".global_env_copy")
+                      .global_env_copy <- .clear_global_environment(".global_env_copy")
                       # print(ls(.global_env_copy, all.names = TRUE))
                       # print(ls(.GlobalEnv, all.names = TRUE))
                       # character(0)
                       # character(0)
-                      tmcrstudioaddin:::.restore_global_environment(.global_env_copy)
+                      .restore_global_environment(.global_env_copy)
                       # print(ls(.global_env_copy, all.names = TRUE))
                       # print(ls(.GlobalEnv, all.names = TRUE))
                       # character(0)
@@ -279,7 +279,7 @@ tmcGadget <- function() {
 tmcGadget_nonblock <- function() {
   value_name <- "inspection"
   env1 <- parent.frame()
-  rx <- callr::r_bg(tmcGadget,
+  rx <- callr::r_bg(function() { tmcrstudioaddin::tmcGadget() },
                     stdout = "|", stderr = "2>&1", poll_connection = TRUE)
   .listener(rx, res_name = value_name, env = NULL)
 
@@ -330,35 +330,3 @@ tmcGadget_nonblock <- function() {
   rx
 }
 
-.listener <- function(rx, res_name = "val", count = 0, env = NULL) {
-  if (is.null(env)) {
-    env1 <- parent.frame()
-  } else {
-    env1 <- env
-  }
-  assign(res_name, list(value = NULL, status = "processing"), envir = env1)
-  cat("Listener started.",
-      paste0("Saving value to '", res_name, "'"),
-      sep = "\n")
-  listener_loop <- function(count) {
-    if (rx$is_alive()) {
-      output <- rx$read_output()
-      cat(output)
-      # if (output == "") {
-      #  cat(".")
-      # }
-      later::later(function() {
-        listener_loop(count + 1)
-        42L
-      },
-      delay = 0.2)
-    } else {
-      cat(rx$read_output())
-      cat("-------------\n")
-      cat("Listener process ended.\n")
-      cat("Elapsed time (approximately):", count / 5, "sec \n")
-      assign(res_name, list(value = rx$get_result(), status = "ready"), envir = env1)
-    }
-  }
-  listener_loop(count)
-}
