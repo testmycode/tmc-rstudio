@@ -634,6 +634,9 @@
         cat("At this moment, open file",
             paste0("'", basename(file), "'"),
             "manually.\n")
+        cat("\n@@@@ >LISTENER ::: REQ,2,\n")
+        cat("OPEN", paste0("'", file, "'"))
+        cat("\n")
       } else {
         rstudioapi::navigateToFile(file)
       }
