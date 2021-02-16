@@ -266,8 +266,8 @@ tmcGadget <- function() {
 #'
 #' @usage tmcGadget_nonblock()
 #'
-#' @return A processx object corresponding the R session running the
-#' the shiny application
+#' @return An listener environment with access to the R session running the
+#' the shiny application and to the listener status
 #'
 #' @details The TMC \code{RStudio} addin was made using
 #' \code{\link[shiny]{shiny-package}}, which allows making web
@@ -281,8 +281,7 @@ tmcGadget_nonblock <- function() {
   env1 <- parent.frame()
   rx <- callr::r_bg(function() { tmcrstudioaddin::tmcGadget() },
                     stdout = "|", stderr = "2>&1", poll_connection = TRUE)
-  .listener(rx, res_name = value_name, env = NULL)
-
+  listener_env <- .listener(rx, res_name = value_name, env = NULL)
   launch <-
     function (port) {
       server_port <- paste0("http://127.0.0.1:", port)
@@ -327,6 +326,6 @@ tmcGadget_nonblock <- function() {
 #  cat("Waiting 4 seconds to show that before releasing console printing works\n")
 #  Sys.sleep(4)
   cat("Releasing console. Have fun!\n")
-  rx
+  listener_env
 }
 

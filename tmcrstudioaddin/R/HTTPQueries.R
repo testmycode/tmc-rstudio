@@ -137,7 +137,6 @@ upload_exercise <- function(token, exercise_id, project_path,
 
   .dprint("upload_exercise()")
   zip_path <- paste0(tempfile(), ".zip")
-  .dprint(zip_path)
   tryCatch({
     .tmc_zip(project_path, zip_path)
   }, error = function(e) {
