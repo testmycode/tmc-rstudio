@@ -67,56 +67,9 @@
 #' \code{\link[shiny]{shiny-package}}, which allows making web
 #' applications and \code{RStudio} addins using \code{R}.
 tmcGadget <- function() {
-  is_blocking     <- rstudioapi::isAvailable()
-  blocking_string <- if (is_blocking) "original" else "experimental nonblocking"
-  cat("Starting", blocking_string, "RTMC session...\n")
-  cat(paste0('\033', "[", "3", "2", "m"))
-  cat("NOTE: ")
-  cat(paste0('\033', "[", "3", "9", "m"))
-  if (is_blocking) {
-    cat("The console WILL NOT BE available during RTMC session and you",
-        "need to use the addin buttons. The environment will be restored as is",
-        "after the session.",
-        sep = "\n")
-  } else {
-    cat("The console is relased after the addin has started and IS AVAILABLE normally",
-        "during RTMC session. For sourcing you should use the normal source, since",
-        "the addin source button is obsolete and will be removed shortly.",
-        "",
-        "In order to end the RTMC session, use the 'Exit' button in addin.",
-        sep = "\n")
-  }
-#  print(ls(.GlobalEnv, all.names = TRUE))
-  .global_env_copy <- .copy_global_environment()
-#  print(.global_env_copy)
-#  print(ls(.global_env_copy, all.names = TRUE))
-  #
-  # character(0)
-  # character(0)
-  # these are always going to be empty
-  assign(x = ".global_env_copy", value = .global_env_copy,
-         envir = .GlobalEnv)
-  # print(ls(.GlobalEnv, all.names = TRUE))
-  # clean this ASAP
-  if (exists(".__tmc_debug", envir = .GlobalEnv)) {
-    .tmc_debug <- get(".__tmc_debug", envir = .GlobalEnv)
-  } else {
-    .tmc_debug <- NULL
-  }
-  .global_env_copy <- .clear_global_environment(".global_env_copy")
-  # print(.global_env_copy)
-  # print(ls(.global_env_copy, all.names = TRUE))
-  # print(ls(.GlobalEnv, all.names = TRUE))
-  # character(0)
-  # character(0)
-  # these are always going to be empty
+  .starting_messages()
+  .global_env_copy <- .initialising_global_env()
 
-  # Fix this later
-  if (!is.null(.tmc_debug)) {
-    assign(x = ".__tmc_debug", value = .tmc_debug, envir = .GlobalEnv)
-  }
-  assign(x = ".global_env_copy", value = .global_env_copy,
-         envir = .GlobalEnv)
   rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   login_tab_data  <- .loginTabUI(id = "login")
   course_tab_data <- .courseTabUI(id = "courses")
@@ -259,6 +212,58 @@ tmcGadget <- function() {
 
 }
 
+.starting_messages <- function() {
+  is_blocking     <- rstudioapi::isAvailable()
+  blocking_string <- if (is_blocking) "original" else "experimental nonblocking"
+  cat("Starting", blocking_string, "RTMC session...\n")
+  cat(paste0('\033', "[", "3", "2", "m"))
+  cat("NOTE: ")
+  cat(paste0('\033', "[", "3", "9", "m"))
+  if (is_blocking) {
+    cat("The console WILL NOT BE available during RTMC session and you",
+        "need to use the addin buttons. The environment will be restored as is",
+        "after the session.",
+        sep = "\n")
+  } else {
+    cat("The console is relased after the addin has started and IS AVAILABLE normally",
+        "during RTMC session. For sourcing you should use the normal source, since",
+        "the addin source button is obsolete and will be removed shortly.",
+        "",
+        "In order to end the RTMC session, use the 'Exit' button in addin.",
+        sep = "\n")
+  }
+}
+
+.initialising_global_env <- function() {
+  .global_env_copy <- .copy_global_environment()
+  # FIX .copy_global_environment
+  # FIX do not copy at all for non-blocking
+  # these are always going to be empty
+  assign(x = ".global_env_copy", value = .global_env_copy,
+         envir = .GlobalEnv)
+  # print(ls(.GlobalEnv, all.names = TRUE))
+  # clean this ASAP
+  if (exists(".__tmc_debug", envir = .GlobalEnv)) {
+    .tmc_debug <- get(".__tmc_debug", envir = .GlobalEnv)
+  } else {
+    .tmc_debug <- NULL
+  }
+  .global_env_copy <- .clear_global_environment(".global_env_copy")
+  # print(.global_env_copy)
+  # print(ls(.global_env_copy, all.names = TRUE))
+  # print(ls(.GlobalEnv, all.names = TRUE))
+  # character(0)
+  # character(0)
+  # these are always going to be empty
+
+  # Fix this later
+  if (!is.null(.tmc_debug)) {
+    assign(x = ".__tmc_debug", value = .tmc_debug, envir = .GlobalEnv)
+  }
+  assign(x = ".global_env_copy", value = .global_env_copy,
+         envir = .GlobalEnv)
+}
+
 #' @title Run the nonblocking TMC addin
 #'
 #' @description Run the nonblocking TMC addin on the \code{RStudio} viewer pane.
@@ -297,10 +302,11 @@ tmcGadget_nonblock <- function() {
   count  <- 0
   server_port <- ""
   cat("Waiting for 'shiny' to start.\n")
-  while (server_port == "") {
+  while (server_port == "" & rx$is_alive()) {
     while (polls["output"] != "ready") {
       cat(".")
-      Sys.sleep(0.01)
+      # cat(polls["output"])
+      Sys.sleep(0.1)
       # cat("Woke up.\n")
       polls <- rx$poll_io(timeout = 10)
       count <- count + 1
@@ -318,14 +324,23 @@ tmcGadget_nonblock <- function() {
     count <- 0
     polls <- rx$poll_io(timeout = 10)
   }
-  cat("Server for 'shiny' has started.\n")
-  cat("Server port = ", server_port, "\n")
-  cat("count = ", count1, "\n")
-  cat("Opening viewer.\n")
-  rstudioapi::viewer(server_port)
+  if (rx$is_alive()) {
+    cat("Server for 'shiny' has started.\n")
+    cat("Server port = ", server_port, "\n")
+    cat("count = ", count1, "\n")
+    cat("Opening viewer.\n")
+    rstudioapi::viewer(server_port)
 #  cat("Waiting 4 seconds to show that before releasing console printing works\n")
 #  Sys.sleep(4)
-  cat("Releasing console. Have fun!\n")
-  listener_env
+    cat("Releasing console. Have fun!\n")
+    listener_env
+  } else {
+    cat("Server 'shiny' failed to start.\n")
+    cat("Just retry, it is normal that it just sometimes fails.\n")
+    listener_env
+  }
+
+
+
 }
 

@@ -243,7 +243,7 @@ showMessage <- function(submitResults) {
     if (!rstudioapi::isAvailable()) {
       cat("\n@@@@ >LISTENER ::: REQ,4,\n")
       cat("SHOW",
-          paste(paste0("c(", deparse(message$title)),
+          paste(paste0("list(", deparse(message$title)),
                 deparse(message$text),
                 paste0(deparse(""), ")"),
                 sep = ", "))

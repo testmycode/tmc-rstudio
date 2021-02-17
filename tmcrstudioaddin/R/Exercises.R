@@ -235,32 +235,30 @@ getExerciseName <- function(exercisePath) {
 }
 
 .copy_global_environment <- function() {
-  copy_environment <- function(env) {
+  copy_environment <- function(env, seen_envs) {
     copy_env <- new.env()
-    for (var in (ls(env, all.names = TRUE))) {
-      .ddprint(var)
+    names <- ls(env, all.names = TRUE)
+    for (var in names) {
       val <- get(var, env)
       if (!is.environment(val)) {
-        .ddprint(str(val))
         assign(x = var, value = val, envir = copy_env)
       } else {
-        .ddprint("------------")
-        .ddprint(is.environment(val))
-        sub_env <- copy_environment(val)
-        assign(x = var, value = sub_env, envir = copy_env)
+        seen_before <- any(unlist(lapply(seen_envs,
+                                         FUN = function(seen) identical(val, seen))))
+        if (seen_before) {
+          assign(x = var, value = val, envir = copy_env)
+        } else {
+          sub_env_and_seens <- copy_environment(val, c(val, seen_envs))
+          sub_env   <- sub_env_and_seens[[1]]
+          seen_envs <- sub_env_and_seens[[2]]
+          assign(x = var, value = sub_env, envir = copy_env)
+        }
       }
     }
-    copy_env
+    list(copy_env, seen_envs)
   }
-  copy_environment(.GlobalEnv)
+  copy_environment(.GlobalEnv, list(.GlobalEnv))[[1]]
 }
-
-# envi <- copy_global_environment()
-# env <- 7
-# env <- copy_global_environment()
-# env <- clear_global_environment("env")
-# env$restore_global_environment(env)
-# ls(env)
 
 .file_encoding <- function(fname) {
   pre_file_type <- tryCatch(system2("file", fname, stdout = TRUE, stderr = FALSE),

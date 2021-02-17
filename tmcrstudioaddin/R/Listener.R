@@ -68,9 +68,9 @@
     cat("+")
     matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
     if (matches[1] > 0) {
-      cat("LISTENER> LISTENING REQ.\n")
+      # cat("LISTENER> LISTENING REQ.\n")
       output_str <- .process_matches(output_str, matches)
-      cat("\n")
+      # cat("\n")
     }
   }
   output_str
@@ -89,7 +89,7 @@
     skip_start <- matches[match_idx] + n1 - 1
     tmp_str <- substr(output_str, start = skip_start, stop = n2)
     num     <- as.integer(substr(tmp_str, start = 2, stop = 2))
-    cat("-----------------\n")
+    # cat("-----------------\n")
     # cat("Processing match:", matches[match_idx], "\n")
     # cat("Number:", as.integer(num), "\n")
     tmp_str <- substr(tmp_str, start = 5, stop = nchar(tmp_str))
@@ -117,7 +117,7 @@
     val <- .process_command(as.integer(num), cmd_str, cmd_args)
 #     cat("new_output_str: <", new_output_str, ">new_output_str", sep = "\n")
   }
-  cat("-----------------\n")
+  # cat("-----------------\n")
 #   cat("skip_start:", skip_start, "\n")
 #   cat("skip_start:", n2, "\n")
 #   cat("missing:", substr(output_str, start = skip_start, stop = n2), "\n")
@@ -132,25 +132,48 @@
 }
 
 .process_command <- function(num, cmd, cmd_args) {
-  if (num == 2 && cmd == "OPEN" && substr(cmd_args, 1, 1) == "'") {
-    filename <- eval(parse(text = cmd_args))
-    cat("Received known request:",
-        "-----------------------",
-        paste0("OPEN_FILE('", filename, "')"),
-        paste0("Opening file: ", filename),
-        sep = "\n")
+  switch(cmd,
+         OPEN = .process_OPEN(num, cmd_args),
+         SAVE = .process_SAVE(num, cmd_args),
+         SHOW = .process_SHOW(num, cmd_args),
+         .process_unknown(num, cmd, cmd_args))
+}
 
+.process_SAVE <-function(num, cmd_args) {
+  .process_unknown(num, "SAVE", cmd_args)
+}
+
+.process_SHOW <- function(num, cmd_args) {
+  if (num == 4) {
+    args_list <- eval(parse(text = cmd_args))
+    if (rstudioapi::isAvailable()) {
+      do.call(rstudioapi::showDialog, args_list)
+    }
+    TRUE
+  } else {
+    .process_unknown(num, "SHOW", cmd_args)
+  }
+}
+
+.process_OPEN <- function(num, cmd_args) {
+  if (num == 2 && substr(cmd_args, 1, 1) == "'") {
+    filename <- eval(parse(text = cmd_args))
+    cat(paste0("Opening file: ", filename),"\n")
     rstudioapi::isAvailable(rstudioapi::navigateToFile(filename))
     # FIX: should reopen with encoding if it does not match
     # the default on the system
     TRUE
   } else {
-    cat("Received unknown request:",
-        "------------------------", sep = "\n")
-    cat("Number:", num, "\n")
-    cat("Command:", cmd, "\n")
-    cat("Command args:", cmd_args, "\n")
-    FALSE
+    .process_unknown(num, "OPEN", cmd_args)
   }
+}
+
+.process_unknown <- function(num, cmd, cmd_args) {
+  cat("Received unknown request:",
+      "------------------------", sep = "\n")
+  cat("Number:", num, "\n")
+  cat("Command:", cmd, "\n")
+  cat("Command args:", cmd_args, "\n")
+  FALSE
 }
 
