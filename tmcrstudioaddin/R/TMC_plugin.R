@@ -72,40 +72,32 @@ tmcGadget <- function() {
   .global_env_copy <- .initialising_global_env()
 
   rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
-#   login_tab_data  <-  .loginTabUI(id = "login")
-#   course_tab_data <- .courseTabUI(id = "courses")
-#   submit_tab_data <- .submitTabUI(id = "testAndSubmit")
   tabs_data_list <- list(login_tab_data  =  .loginTabUI(id = "login"),
                          course_tab_data = .courseTabUI(id = "courses"),
                          submit_tab_data = .submitTabUI(id = "testAndSubmit"))
-
 #
   used_theme <- .choose_used_theme(css_prefix)
-  shiny::addResourcePath(css_prefix, system.file("www",
-                                                 package = "tmcrstudioaddin"))
+  shiny::addResourcePath(css_prefix,
+                         system.file("www", package = "tmcrstudioaddin"))
 #
-
-#   login_tab_data  <- tabs_data_list[["login_tab_data"]]
-#   course_tab_data <- tabs_data_list[["course_tab_data"]]
-#   submit_tab_data <- tabs_data_list[["submit_tab_data"]]
-
   ui <- .create_rtmc_ui(tabs_data_list, used_theme)
   tmc_shiny_server <- .create_rtmc_server(tabs_data_list)
 
   shiny::onStop(function() {
                   if (!rstudioapi::isAvailable()) {
-                      cat("RTMC session ended.\n")
-                      cat("Not really restoring environment...\n")
-                      assign(x = ".global_env_copy", value = .global_env_copy,
-                             envir = .GlobalEnv)
-                      .global_env_copy <- .clear_global_environment(".global_env_copy")
-                      .restore_global_environment(.global_env_copy)
+                    cat("RTMC session ended.\n")
+                    cat("Not really restoring environment...\n")
+                    assign(x = ".global_env_copy", value = .global_env_copy,
+                           envir = .GlobalEnv)
+                    .global_env_copy <- .clear_global_environment(".global_env_copy")
+                    .restore_global_environment(.global_env_copy)
                   }
   })
   app <- shiny::shinyApp(ui, tmc_shiny_server)
   if (!rstudioapi::isAvailable()) {
     shiny::runApp(app,
-                  launch.browser = shiny::paneViewer())
+                  launch.browser = shiny::paneViewer(),
+                  quiet = FALSE)
   } else {
     shiny::runApp(app,
                   launch.browser = shiny::paneViewer(),
