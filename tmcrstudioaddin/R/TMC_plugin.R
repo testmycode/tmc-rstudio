@@ -85,74 +85,13 @@ tmcGadget <- function() {
                                                  package = "tmcrstudioaddin"))
 #
 
-  login_tab_data  <- tabs_data_list[["login_tab_data"]]
-  course_tab_data <- tabs_data_list[["course_tab_data"]]
-  submit_tab_data <- tabs_data_list[["submit_tab_data"]]
+#   login_tab_data  <- tabs_data_list[["login_tab_data"]]
+#   course_tab_data <- tabs_data_list[["course_tab_data"]]
+#   submit_tab_data <- tabs_data_list[["submit_tab_data"]]
 
   ui <- .create_rtmc_ui(tabs_data_list, used_theme)
-  tmc_shiny_server <- function(input, output, session) {
-    login_tab_ui  <-  login_tab_data[["ns_inputIDs"]]
-    course_tab_ui <- course_tab_data[["ns_inputIDs"]]
-    submit_tab_ui <- submit_tab_data[["ns_inputIDs"]]
-    UI_limited    <- list(login_tab  = login_tab_ui["login"],
-                          course_tab = course_tab_ui,
-                          submit_tab = submit_tab_ui[c("refreshExercises", "submit")])
-    UI_limited2   <- list(submit_tab = submit_tab_ui[c("openFiles",
-                                                       "saveFiles",
-                                                       "source",
-                                                       "runTests",
-                                                       "submit")])
-    UI_limited3   <- list(course_tab = course_tab_ui[c("download")])
-    UI_normal     <- list(all_tabs   = c("exit"),
-                          login_tab  = login_tab_ui,
-                          course_tab = course_tab_ui,
-                          submit_tab = submit_tab_ui)
-    globalReactiveValues <-
-      reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
-                     downloadedExercises = tmcrstudioaddin::downloadedExercisesPaths(),
-                     exerciseMap = list(),
-                     selectedExercisePath = tmcrstudioaddin::exercisePathFromWd(),
-                     UI_disabled = FALSE,
-                     UI_state    = c("not_logged_in"   = FALSE,
-                                     "not_selected"    = FALSE,
-                                     "not_downloading" = FALSE),
-                     UI_elements = list(UI_limited              = UI_limited,
-                                        UI_no_selected_exercise = UI_limited2,
-                                        UI_nothing_to_download  = UI_limited3,
-                                        UI_normal               = UI_normal),
-                     unpublishedExercisesMap = list(),
-                     downloadedExercisesMap = list(),
-                     coursesInfo = list())
-    shiny::onStop(function() {
-                    if (!rstudioapi::isAvailable()) {
-                      cat("RTMC session crashed... Ending RTMC session.\n")
-                      shiny::stopApp(stop("RTMC session crashed..."))
-                    }
-                    cat("RTMC session ended.\n")
-                    cat("Restoring environment...\n")
-                    # fix this later
-                    assign(x = ".global_env_copy", value = .global_env_copy,
-                           envir = .GlobalEnv)
-                    # print(exists(".global_env_copy", envir = .GlobalEnv))
-                    .global_env_copy <- .clear_global_environment(".global_env_copy")
-                    .restore_global_environment(.global_env_copy)
-                    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
-                  })
-    # Function for the exit button
-    shiny::observeEvent(input$exit, { shiny::stopApp() })
-    # Function for the cancel button (which we don't have)
-    # observeEvent(input$cancel, { shiny::stopApp(stop("User cancel", call. = FALSE)) })
+  tmc_shiny_server <- .create_rtmc_server(tabs_data_list)
 
-    shiny::callModule(.loginTab,
-                      "login",
-                      globalReactiveValues = globalReactiveValues)
-    shiny::callModule(.courseTab,
-                      "courses",
-                      globalReactiveValues = globalReactiveValues)
-    shiny::callModule(.submitTab,
-                      "testAndSubmit",
-                      globalReactiveValues = globalReactiveValues)
-  }
   shiny::onStop(function() {
                   if (!rstudioapi::isAvailable()) {
                       cat("RTMC session ended.\n")
@@ -253,6 +192,76 @@ tmcGadget <- function() {
                    miniUI::miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
                                              course_tab_data[["mini_tab_panel"]],
                                              submit_tab_data[["mini_tab_panel"]]))
+}
+
+.create_rtmc_server <- function(tabs_data_list) {
+  login_tab_data  <- tabs_data_list[["login_tab_data"]]
+  course_tab_data <- tabs_data_list[["course_tab_data"]]
+  submit_tab_data <- tabs_data_list[["submit_tab_data"]]
+  function(input, output, session) {
+    cat("3\n")
+    login_tab_ui  <-  login_tab_data[["ns_inputIDs"]]
+    course_tab_ui <- course_tab_data[["ns_inputIDs"]]
+    submit_tab_ui <- submit_tab_data[["ns_inputIDs"]]
+    UI_limited    <- list(login_tab  = login_tab_ui["login"],
+                          course_tab = course_tab_ui,
+                          submit_tab = submit_tab_ui[c("refreshExercises", "submit")])
+    UI_limited2   <- list(submit_tab = submit_tab_ui[c("openFiles",
+                                                       "saveFiles",
+                                                       "source",
+                                                       "runTests",
+                                                       "submit")])
+    UI_limited3   <- list(course_tab = course_tab_ui[c("download")])
+    UI_normal     <- list(all_tabs   = c("exit"),
+                          login_tab  = login_tab_ui,
+                          course_tab = course_tab_ui,
+                          submit_tab = submit_tab_ui)
+    globalReactiveValues <-
+      reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
+                     downloadedExercises = tmcrstudioaddin::downloadedExercisesPaths(),
+                     exerciseMap = list(),
+                     selectedExercisePath = tmcrstudioaddin::exercisePathFromWd(),
+                     UI_disabled = FALSE,
+                     UI_state    = c("not_logged_in"   = FALSE,
+                                     "not_selected"    = FALSE,
+                                     "not_downloading" = FALSE),
+                     UI_elements = list(UI_limited              = UI_limited,
+                                        UI_no_selected_exercise = UI_limited2,
+                                        UI_nothing_to_download  = UI_limited3,
+                                        UI_normal               = UI_normal),
+                     unpublishedExercisesMap = list(),
+                     downloadedExercisesMap = list(),
+                     coursesInfo = list())
+    shiny::onStop(function() {
+                    if (!rstudioapi::isAvailable()) {
+                      cat("RTMC session crashed... Ending RTMC session.\n")
+                      shiny::stopApp(stop("RTMC session crashed..."))
+                    }
+                    cat("RTMC session ended.\n")
+                    cat("Restoring environment...\n")
+                    # fix this later
+                    assign(x = ".global_env_copy", value = .global_env_copy,
+                           envir = .GlobalEnv)
+                    # print(exists(".global_env_copy", envir = .GlobalEnv))
+                    .global_env_copy <- .clear_global_environment(".global_env_copy")
+                    .restore_global_environment(.global_env_copy)
+                    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+                  })
+    # Function for the exit button
+    shiny::observeEvent(input$exit, { shiny::stopApp() })
+    # Function for the cancel button (which we don't have)
+    # observeEvent(input$cancel, { shiny::stopApp(stop("User cancel", call. = FALSE)) })
+
+    shiny::callModule(.loginTab,
+                      "login",
+                      globalReactiveValues = globalReactiveValues)
+    shiny::callModule(.courseTab,
+                      "courses",
+                      globalReactiveValues = globalReactiveValues)
+    shiny::callModule(.submitTab,
+                      "testAndSubmit",
+                      globalReactiveValues = globalReactiveValues)
+  }
 }
 
 #' @title Run the nonblocking TMC addin
