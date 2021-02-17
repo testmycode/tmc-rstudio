@@ -67,42 +67,26 @@
 #' \code{\link[shiny]{shiny-package}}, which allows making web
 #' applications and \code{RStudio} addins using \code{R}.
 tmcGadget <- function() {
-  css_prefix <- "tmcrstudioaddin-0.6.3"
   .starting_messages()
-  .global_env_copy <- .initialising_global_env()
-
+  .global_env_copy <- if (rstudioapi::isAvailable()) {
+    .initialising_global_env()
+  } else {
+    FALSE
+  }
+#
   rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   tabs_data_list <- list(login_tab_data  =  .loginTabUI(id = "login"),
                          course_tab_data = .courseTabUI(id = "courses"),
                          submit_tab_data = .submitTabUI(id = "testAndSubmit"))
 #
-  used_theme <- .choose_used_theme(css_prefix)
-  shiny::addResourcePath(css_prefix,
-                         system.file("www", package = "tmcrstudioaddin"))
 #
-  ui <- .create_rtmc_ui(tabs_data_list, used_theme)
-  tmc_shiny_server <- .create_rtmc_server(tabs_data_list)
+  ui <- .create_rtmc_ui(tabs_data_list)
+  tmc_shiny_server <- .create_rtmc_server(tabs_data_list, .global_env_copy)
 #
-  .ending_non_breaking_rtmc_session <- function() {
-    .restore_host_global_env <- function() {
-      assign(x = ".global_env_copy", value = .global_env_copy,
-             envir = .GlobalEnv)
-      .global_env_copy <- .clear_global_environment(".global_env_copy")
-      .restore_global_environment(.global_env_copy)
-    }
-    if (!rstudioapi::isAvailable()) {
-      cat("RTMC session ended.\n")
-      cat("Not really restoring environment...\n")
-      .restore_host_global_env()
-    }
-  }
-#
-  shiny::onStop(.ending_non_breaking_rtmc_session)
+  shiny::onStop(.ending_rtmc_session(.global_env_copy))
 #
   app <- shiny::shinyApp(ui, tmc_shiny_server)
   .run_rtmc_addin(app)
-
-
 }
 
 .starting_messages <- function() {
@@ -170,7 +154,11 @@ tmcGadget <- function() {
   }
 }
 
-.create_rtmc_ui <- function(tabs_data_list, used_theme) {
+.create_rtmc_ui <- function(tabs_data_list) {
+  css_prefix <- "tmcrstudioaddin-0.6.3"
+  used_theme <- .choose_used_theme(css_prefix)
+  shiny::addResourcePath(css_prefix,
+                         system.file("www", package = "tmcrstudioaddin"))
   login_tab_data  <- tabs_data_list[["login_tab_data"]]
   course_tab_data <- tabs_data_list[["course_tab_data"]]
   submit_tab_data <- tabs_data_list[["submit_tab_data"]]
@@ -185,7 +173,7 @@ tmcGadget <- function() {
                                              submit_tab_data[["mini_tab_panel"]]))
 }
 
-.create_rtmc_server <- function(tabs_data_list) {
+.create_rtmc_server <- function(tabs_data_list, .global_env_copy) {
   login_tab_data  <- tabs_data_list[["login_tab_data"]]
   course_tab_data <- tabs_data_list[["course_tab_data"]]
   submit_tab_data <- tabs_data_list[["submit_tab_data"]]
@@ -223,20 +211,13 @@ tmcGadget <- function() {
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      coursesInfo = list())
+
     shiny::onStop(function() {
                     if (!rstudioapi::isAvailable()) {
                       cat("RTMC session crashed... Ending RTMC session.\n")
                       shiny::stopApp(stop("RTMC session crashed..."))
                     }
-                    cat("RTMC session ended.\n")
-                    cat("Restoring environment...\n")
-                    # fix this later
-                    assign(x = ".global_env_copy", value = .global_env_copy,
-                           envir = .GlobalEnv)
-                    # print(exists(".global_env_copy", envir = .GlobalEnv))
-                    .global_env_copy <- .clear_global_environment(".global_env_copy")
-                    .restore_global_environment(.global_env_copy)
-                    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+                    .ending_rtmc_session(.global_env_copy)
                   })
     # Function for the exit button
     shiny::observeEvent(input$exit, { shiny::stopApp() })
@@ -266,6 +247,25 @@ tmcGadget <- function() {
     shiny::runApp(app,
                   launch.browser = shiny::paneViewer(),
                   quiet = TRUE)
+  }
+}
+
+.restore_host_global_env <- function(.global_env_copy) {
+  cat("Restoring environment...\n")
+  assign(x     = ".global_env_copy",
+         value = .global_env_copy,
+         envir = .GlobalEnv)
+  .global_env_copy <- .clear_global_environment(".global_env_copy")
+  .restore_global_environment(.global_env_copy)
+}
+
+.ending_rtmc_session <- function(.global_env_copy) {
+  function() {
+    cat("RTMC session ended.\n")
+    if (rstudioapi::isAvailable()) {
+      .restore_host_global_env(.global_env_copy)
+      rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+    }
   }
 }
 
