@@ -82,27 +82,26 @@ tmcGadget <- function() {
 #
   ui <- .create_rtmc_ui(tabs_data_list, used_theme)
   tmc_shiny_server <- .create_rtmc_server(tabs_data_list)
-
-  shiny::onStop(function() {
-                  if (!rstudioapi::isAvailable()) {
-                    cat("RTMC session ended.\n")
-                    cat("Not really restoring environment...\n")
-                    assign(x = ".global_env_copy", value = .global_env_copy,
-                           envir = .GlobalEnv)
-                    .global_env_copy <- .clear_global_environment(".global_env_copy")
-                    .restore_global_environment(.global_env_copy)
-                  }
-  })
-  app <- shiny::shinyApp(ui, tmc_shiny_server)
-  if (!rstudioapi::isAvailable()) {
-    shiny::runApp(app,
-                  launch.browser = shiny::paneViewer(),
-                  quiet = FALSE)
-  } else {
-    shiny::runApp(app,
-                  launch.browser = shiny::paneViewer(),
-                  quiet = TRUE)
+#
+  .ending_non_breaking_rtmc_session <- function() {
+    .restore_host_global_env <- function() {
+      assign(x = ".global_env_copy", value = .global_env_copy,
+             envir = .GlobalEnv)
+      .global_env_copy <- .clear_global_environment(".global_env_copy")
+      .restore_global_environment(.global_env_copy)
+    }
+    if (!rstudioapi::isAvailable()) {
+      cat("RTMC session ended.\n")
+      cat("Not really restoring environment...\n")
+      .restore_host_global_env()
+    }
   }
+#
+  shiny::onStop(.ending_non_breaking_rtmc_session)
+#
+  app <- shiny::shinyApp(ui, tmc_shiny_server)
+  .run_rtmc_addin(app)
+
 
 }
 
@@ -253,6 +252,20 @@ tmcGadget <- function() {
     shiny::callModule(.submitTab,
                       "testAndSubmit",
                       globalReactiveValues = globalReactiveValues)
+  }
+}
+
+.run_rtmc_addin <- function(app) {
+  if (!rstudioapi::isAvailable()) {
+    cat("2\n")
+    shiny::runApp(app,
+                  launch.browser = FALSE, #shiny::paneViewer(),
+                  quiet = FALSE)
+  } else {
+    cat("2\n")
+    shiny::runApp(app,
+                  launch.browser = shiny::paneViewer(),
+                  quiet = TRUE)
   }
 }
 
