@@ -75,12 +75,9 @@ tmcGadget <- function() {
 #   login_tab_data  <-  .loginTabUI(id = "login")
 #   course_tab_data <- .courseTabUI(id = "courses")
 #   submit_tab_data <- .submitTabUI(id = "testAndSubmit")
-  tabs_data_list <- list(login_tab_data  = .loginTabUI(id = "login"),
+  tabs_data_list <- list(login_tab_data  =  .loginTabUI(id = "login"),
                          course_tab_data = .courseTabUI(id = "courses"),
                          submit_tab_data = .submitTabUI(id = "testAndSubmit"))
-  login_tab_data  <- tabs_data_list[["login_tab_data"]]
-  course_tab_data <- tabs_data_list[["course_tab_data"]]
-  submit_tab_data <- tabs_data_list[["submit_tab_data"]]
 
 #
   used_theme <- .choose_used_theme(css_prefix)
@@ -88,16 +85,11 @@ tmcGadget <- function() {
                                                  package = "tmcrstudioaddin"))
 #
 
-  ui <- miniUI::miniPage(shinyjs::useShinyjs(), theme = used_theme,
-                         miniUI::gadgetTitleBar(title = "TMC RStudio",
-                          # right = miniUI::miniTitleBarCancelButton(inputId = "cancel",
-                          #                                          label = "Cancel"),
-                                                right = NULL,
-                                                left  = miniUI::miniTitleBarCancelButton(inputId = "exit",
-                                                                                         label = "Exit")),
-                         miniUI::miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
-                                                   course_tab_data[["mini_tab_panel"]],
-                                                   submit_tab_data[["mini_tab_panel"]]))
+  login_tab_data  <- tabs_data_list[["login_tab_data"]]
+  course_tab_data <- tabs_data_list[["course_tab_data"]]
+  submit_tab_data <- tabs_data_list[["submit_tab_data"]]
+
+  ui <- .create_rtmc_ui(tabs_data_list, used_theme)
   tmc_shiny_server <- function(input, output, session) {
     login_tab_ui  <-  login_tab_data[["ns_inputIDs"]]
     course_tab_ui <- course_tab_data[["ns_inputIDs"]]
@@ -248,6 +240,20 @@ tmcGadget <- function() {
   }
 }
 
+.create_rtmc_ui <- function(tabs_data_list, used_theme) {
+  login_tab_data  <- tabs_data_list[["login_tab_data"]]
+  course_tab_data <- tabs_data_list[["course_tab_data"]]
+  submit_tab_data <- tabs_data_list[["submit_tab_data"]]
+  miniUI::miniPage(shinyjs::useShinyjs(),
+                   theme = used_theme,
+                   miniUI::gadgetTitleBar(title = "TMC RStudio",
+                                          right = NULL, # Might be needed: cancel button
+                                          left  = miniUI::miniTitleBarCancelButton(inputId = "exit",
+                                                                                   label = "Exit")),
+                   miniUI::miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
+                                             course_tab_data[["mini_tab_panel"]],
+                                             submit_tab_data[["mini_tab_panel"]]))
+}
 
 #' @title Run the nonblocking TMC addin
 #'
