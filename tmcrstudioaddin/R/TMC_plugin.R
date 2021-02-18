@@ -102,7 +102,9 @@ tmcGadget <- function() {
         "after the session.",
         sep = "\n")
   } else {
-    cat("The console is relased after the addin has started and IS AVAILABLE normally",
+    cat(paste0("The console is working while RTMC is running and ",
+               '\033', "[", "3", "2", "m", "IS AVAILABLE",
+               '\033', "[", "3", "9", "m", " normally"),
         "during RTMC session. For sourcing you should use the normal source, since",
         "the addin source button is obsolete and will be removed shortly.",
         "",
@@ -179,7 +181,7 @@ tmcGadget <- function() {
   course_tab_data <- tabs_data_list[["course_tab_data"]]
   submit_tab_data <- tabs_data_list[["submit_tab_data"]]
   function(input, output, session) {
-    cat("3\n")
+    # cat("3\n")
     login_tab_ui  <-  login_tab_data[["ns_inputIDs"]]
     course_tab_ui <- course_tab_data[["ns_inputIDs"]]
     submit_tab_ui <- submit_tab_data[["ns_inputIDs"]]
@@ -239,12 +241,12 @@ tmcGadget <- function() {
 
 .run_rtmc_addin <- function(app) {
   if (!rstudioapi::isAvailable()) {
-    cat("2\n")
+    # cat("2\n")
     shiny::runApp(app,
                   launch.browser = FALSE, #shiny::paneViewer(),
                   quiet = FALSE)
   } else {
-    cat("2\n")
+    # cat("2\n")
     shiny::runApp(app,
                   launch.browser = shiny::paneViewer(),
                   quiet = TRUE)
@@ -288,65 +290,57 @@ tmcGadget <- function() {
 #' is implemented using \code{later}.
 
 tmcGadget_nonblock <- function() {
-  value_name <- "inspection"
+  value_name <- NULL
   env1 <- parent.frame()
   rx <- callr::r_bg(function() { tmcrstudioaddin::tmcGadget() },
                     stdout = "|", stderr = "2>&1", poll_connection = TRUE)
   listener_env <- .listener(rx, res_name = value_name, env = NULL)
-  launch <-
-    function (port) {
-      server_port <- paste0("http://127.0.0.1:", port)
-      cat("Server for 'shiny' has started.\n")
-      cat("Server port = ", server_port, "\n")
-      # cat("count = ", count1, "\n")
-      cat("Opening viewer.\n")
-      rstudioapi::viewer(server_port)
-    }
-  # cat(rx$is_alive(), "\n")
   polls <- rx$poll_io(timeout = 10)
   count1 <- 0
   count  <- 0
   server_port <- ""
-  cat("Waiting for 'shiny' to start.\n")
-  while (server_port == "" & rx$is_alive()) {
-    while (polls["output"] != "ready") {
-      cat(".")
-      # cat(polls["output"])
-      Sys.sleep(0.1)
-      # cat("Woke up.\n")
-      polls <- rx$poll_io(timeout = 10)
-      count <- count + 1
-    }
-    err_text <- rx$read_output()
-    if (count > 0) cat("\n")
-    start_idx   <- regexpr("http://", err_text)
-    if (start_idx >= 0) {
-      server_port <-  sub(pattern = "\n", replacement = "",
-                          substr(err_text, start = start_idx, stop = nchar(err_text)))
-    } else {
-      cat(err_text)
-    }
-    count1 <- count1 + count
-    count <- 0
-    polls <- rx$poll_io(timeout = 10)
-  }
-  if (rx$is_alive()) {
-    cat("Server for 'shiny' has started.\n")
-    cat("Server port = ", server_port, "\n")
-    cat("count = ", count1, "\n")
-    cat("Opening viewer.\n")
-    rstudioapi::viewer(server_port)
-#  cat("Waiting 4 seconds to show that before releasing console printing works\n")
-#  Sys.sleep(4)
-    cat("Releasing console. Have fun!\n")
-    listener_env
-  } else {
-    cat("Server 'shiny' failed to start.\n")
-    cat("Just retry, it is normal that it just sometimes fails.\n")
-    listener_env
-  }
-
-
-
+  cat("Waiting for RTMC to start.\n")
+#   while (server_port == "" & rx$is_alive()) {
+#     while (polls["output"] != "ready") {
+#       cat(".")
+#       # cat(polls["output"])
+#       Sys.sleep(0.1)
+#       # cat("Woke up.\n")
+#       polls <- rx$poll_io(timeout = 10)
+#       count <- count + 1
+#     }
+#     err_text <- rx$read_output()
+#     if (count > 0) cat("\n")
+#     start_idx   <- regexpr("http://", err_text)
+#     if (start_idx >= 0) {
+#       server_port <-  sub(pattern = "\n", replacement = "",
+#                           substr(err_text, start = start_idx, stop = nchar(err_text)))
+#     } else {
+#       cat(err_text)
+#     }
+#     count1 <- count1 + count
+#     count <- 0
+#     #cat("+")
+#     polls <- rx$poll_io(timeout = 10)
+#     #cat("What if rx falls...\n")
+#     if (count1 > 30) {
+#       rx$interrupt()
+#     }
+#   }
+#   if (rx$is_alive()) {
+#     cat("Server for 'shiny' has started.\n")
+#     cat("Server port = ", server_port, "\n")
+#     cat("count = ", count1, "\n")
+#     cat("Opening viewer.\n")
+#     rstudioapi::viewer(server_port)
+# #  cat("Waiting 4 seconds to show that before releasing console printing works\n")
+# #  Sys.sleep(4)
+#     cat("Releasing console. Have fun!\n")
+#     listener_env
+#   } else {
+#     cat("Server 'shiny' failed to start.\n")
+#     cat("Just retry, it is normal that it just sometimes fails.\n")
+    invisible(listener_env)
+#   }
 }
 

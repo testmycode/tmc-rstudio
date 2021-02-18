@@ -18,24 +18,63 @@
   paste(formatC(time_vec[-4], width = 2, flag = "0"), collapse  = ":")
 }
 
-.listener <- function(rx, res_name = "val", count = 0, env = NULL) {
+.listener <- function(rx, res_name = NULL, count = 0, env = NULL) {
   cmd_mode <- TRUE
   if (is.null(env)) {
     env1 <- parent.frame()
   } else {
     env1 <- env
   }
-  assign(res_name, list(value = NULL, status = "processing"), envir = env1)
-  cat("Listener started.",
-      paste0("Saving value to '", res_name, "'"),
-      sep = "\n")
-  env_listener	       <- new.env(parent = emptyenv())
-  env_listener$count   <- count
-  env_listener$elapsed <- function() {
-    .time_str(.run_time_count(env_listener$count))
+  if (!is.null(res_name)) {
+    assign(res_name, list(value = NULL, status = "processing"), envir = env1)
+    cat("Listener started.",
+        paste0("Saving value to '", res_name, "'"),
+        sep = "\n")
   }
-  env_listener$running <- TRUE
-  env_listener$rx      <- rx
+  listener_env	       <- new.env(parent = emptyenv())
+  listener_env$count   <- count
+  listener_env$elapsed <- function() {
+    .time_str(.run_time_count(listener_env$count))
+  }
+  listener_env$running <- TRUE
+  listener_env$rx      <- rx
+  listener_env$port    <- ""
+  server_port          <- ""
+  listener_init_loop <- function(count, server_port) {
+    # cat("Listener init loop.\n")
+    if (server_port == "" & rx$is_alive()) {
+      init_message <- .parse_init(rx$read_output(), cmd_mode)
+      output      <- init_message[[1]]
+      server_port <- init_message[[2]]
+      # cat("-")
+      # if (output == "") {
+      #  cat(".")
+      # }
+      cat(output)
+      count <- count + 1
+      listener_env$count <- count
+      later::later(function() {
+                     listener_init_loop(count, server_port)
+        42L
+      },
+      delay = 0.2)
+    } else {
+      if (server_port != "") {
+        cat("RTMC has started.\n")
+        # cat("Server port = ", server_port, "\n")
+        # cat("count = ", count, "\n")
+        # cat("Opening viewer.\n")
+        listener_env$port <- server_port
+        rstudioapi::viewer(server_port)
+      }
+      later::later(function() {
+                     # cat("Entering normal reader loop.", "\n")
+                     listener_loop(count)
+        42L
+      },
+      delay = 0.2)
+    }
+  }
   listener_loop <- function(count) {
     if (rx$is_alive()) {
       output <- .parse_cmd(rx$read_output(), cmd_mode)
@@ -44,7 +83,7 @@
       #  cat(".")
       # }
       count <- count + 1
-      env_listener$count <- count
+      listener_env$count <- count
       later::later(function() {
         listener_loop(count)
         42L
@@ -53,19 +92,61 @@
     } else {
       cat(rx$read_output())
       cat("-------------\n")
-      cat("Listener process ended.\n")
-      env_listener$running <- FALSE
-      cat("Elapsed time (approximately):", count / 5, "sec \n")
-      assign(res_name, list(value = rx$get_result(), status = "ready"), envir = env1)
+      cat("RTMC session has ended.\n")
+      listener_env$running <- FALSE
+      cat("Elapsed time (approximately):", listener_env$elapsed(), "\n")
+
+      if (!is.null(res_name)) {
+        assign(res_name, list(value = rx$get_result(), status = "ready"), envir = env1)
+      }
     }
   }
-  listener_loop(count)
-  env_listener
+  listener_init_loop(count, server_port)
+  listener_env
 }
+
+.process_init_matches <- function(output_str, matches) {
+  # .dcat("output_str", output_str)
+  # .dcat("matches", matches)
+  n1 <- nchar("\nListening on ")
+  new_output_str <- substr(output_str, start = 1, stop = matches - 1)
+  tmp_str <- substr(output_str, start = matches + n1, stop = nchar(output_str))
+  # .dcat("new_output_str", new_output_str)
+  # .dcat("server_match_str", tmp_str)
+  listen_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
+  if (listen_end < 0) {
+    cat("Listener init crash\n")
+    stop("Crash")
+  }
+  server_port <- substr(tmp_str, start = 1, stop = listen_end - 1)
+  output_str <- paste0(new_output_str, substr(tmp_str,
+                                              start = listen_end + 1,
+                                              stop = nchar(tmp_str)))
+  # .dcat("server_port", server_port)
+  # .dcat("output_str", output_str)
+  c(output_str, server_port)
+}
+.parse_init <- function(output_str, cmd_mode) {
+  server_port <- ""
+  if (cmd_mode & output_str != "") {
+    # cat(":")
+    matches <- gregexpr(pattern = "\nListening on http://", text = output_str)[[1]]
+    # .dcat("matches", matches)
+    if (matches[1] > 0) {
+      # cat("LISTENER> LISTENING REQ.\n")
+      parsed_message <- .process_init_matches(output_str, matches)
+      output_str  <- parsed_message[1]
+      server_port <- parsed_message[2]
+      # .dcat("server_port", server_port)
+    }
+  }
+  c(output_str, server_port)
+}
+
 
 .parse_cmd <- function(output_str, cmd_mode) {
   if (cmd_mode & output_str != "") {
-    cat("+")
+    # cat("+")
     matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
     if (matches[1] > 0) {
       # cat("LISTENER> LISTENING REQ.\n")

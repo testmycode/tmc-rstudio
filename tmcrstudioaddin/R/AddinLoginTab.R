@@ -1,6 +1,7 @@
 .loginTabUI <- function(id, label = "Login tab") {
   # Create a namespace function using the provided id
   # print(".loginTabUI launched")
+  # cat("5\n")
   ns <- shiny::NS(id)
 
   inputIDs    <- c("username",
