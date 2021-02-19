@@ -41,54 +41,42 @@
   listener_env$port    <- ""
   server_port          <- ""
   listener_init_loop <- function(count, server_port) {
-    # cat("Listener init loop.\n")
     if (server_port == "" & rx$is_alive()) {
       init_message <- .parse_init(rx$read_output(), cmd_mode)
-      output      <- init_message[[1]]
-      server_port <- init_message[[2]]
-      # cat("-")
-      # if (output == "") {
-      #  cat(".")
-      # }
-      cat(output)
-      count <- count + 1
+      output       <- init_message[[1]]
+      server_port  <- init_message[[2]]
+      count        <- count + 1
       listener_env$count <- count
-      later::later(function() {
-                     listener_init_loop(count, server_port)
+      init_loop <- function() {
+        listener_init_loop(count, server_port)
         42L
-      },
-      delay = 0.2)
+      }
+      cat(output)
+      later::later(init_loop, delay = 0.2)
     } else {
       if (server_port != "") {
         cat("RTMC has started.\n")
-        # cat("Server port = ", server_port, "\n")
-        # cat("count = ", count, "\n")
-        # cat("Opening viewer.\n")
         listener_env$port <- server_port
         rstudioapi::viewer(server_port)
       }
-      later::later(function() {
-                     # cat("Entering normal reader loop.", "\n")
-                     listener_loop(count)
+      normal_loop <- function() {
+        listener_loop(count)
         42L
-      },
-      delay = 0.2)
+      }
+      later::later(normal_loop, delay = 0.2)
     }
   }
   listener_loop <- function(count) {
     if (rx$is_alive()) {
       output <- .parse_cmd(rx$read_output(), cmd_mode)
-      cat(output)
-      # if (output == "") {
-      #  cat(".")
-      # }
-      count <- count + 1
+      count  <- count + 1
       listener_env$count <- count
-      later::later(function() {
+      cat(output)
+      normal_loop <- function() {
         listener_loop(count)
         42L
-      },
-      delay = 0.2)
+      }
+      later::later(normal_loop, delay = 0.2)
     } else {
       cat(rx$read_output())
       cat("-------------\n")
@@ -106,13 +94,9 @@
 }
 
 .process_init_matches <- function(output_str, matches) {
-  # .dcat("output_str", output_str)
-  # .dcat("matches", matches)
   n1 <- nchar("\nListening on ")
   new_output_str <- substr(output_str, start = 1, stop = matches - 1)
   tmp_str <- substr(output_str, start = matches + n1, stop = nchar(output_str))
-  # .dcat("new_output_str", new_output_str)
-  # .dcat("server_match_str", tmp_str)
   listen_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
   if (listen_end < 0) {
     cat("Listener init crash\n")
@@ -122,26 +106,21 @@
   output_str <- paste0(new_output_str, substr(tmp_str,
                                               start = listen_end + 1,
                                               stop = nchar(tmp_str)))
-  # .dcat("server_port", server_port)
-  # .dcat("output_str", output_str)
   c(output_str, server_port)
 }
+
 .parse_init <- function(output_str, cmd_mode) {
   server_port <- ""
   if (cmd_mode & output_str != "") {
-    # cat(":")
     matches <- gregexpr(pattern = "\nListening on http://", text = output_str)[[1]]
-    # .dcat("matches", matches)
     if (matches[1] > 0) {
       parsed_message <- .process_init_matches(output_str, matches)
       output_str  <- parsed_message[1]
       server_port <- parsed_message[2]
-      # .dcat("server_port", server_port)
     }
   }
   c(output_str, server_port)
 }
-
 
 .parse_cmd <- function(output_str, cmd_mode) {
   if (cmd_mode & output_str != "") {
@@ -167,9 +146,7 @@
     skip_start <- matches[match_idx] + n1 - 1
     tmp_str <- substr(output_str, start = skip_start, stop = n2)
     num     <- as.integer(substr(tmp_str, start = 2, stop = 2))
-    # cat("-----------------\n")
-    # cat("Processing match:", matches[match_idx], "\n")
-    # cat("Number:", as.integer(num), "\n")
+    # -----------------
     tmp_str <- substr(tmp_str, start = 5, stop = nchar(tmp_str))
     skip    <- 5 - 1
     cmd_end <- regexpr(pattern = " ", text = tmp_str)[[1]]
@@ -179,33 +156,24 @@
     cmd_str <- substr(tmp_str, start = 1, stop = cmd_end - 1)
     tmp_str <- substr(tmp_str, start = cmd_end + 1, stop = nchar(tmp_str))
     skip    <- skip + cmd_end
-    # cat("Command:", cmd_str, "\n")
+    #
     cmd_args_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
     if (cmd_args_end < 0) {
       stop("Listener crashed 2.")
     }
     cmd_args <- substr(tmp_str, start = 1, stop = cmd_args_end - 1)
     skip    <- skip + cmd_args_end
-    # cat("Command args:", cmd_args, "\n")
-#     cat("Skipped string:", substr(output_str,
-#                                   start = skip_start,
-#                                   stop = skip_start + skip - 1),
-#         "\n")
+    #
     skip_start  <- skip_start + skip
     val <- .process_command(as.integer(num), cmd_str, cmd_args)
-#     cat("new_output_str: <", new_output_str, ">new_output_str", sep = "\n")
+    #
   }
-  # cat("-----------------\n")
-#   cat("skip_start:", skip_start, "\n")
-#   cat("skip_start:", n2, "\n")
-#   cat("missing:", substr(output_str, start = skip_start, stop = n2), "\n")
   if (skip_start <= n2) {
     new_output_str <- paste0(new_output_str,
                              substr(output_str,
                                     start = skip_start,
                                     stop = n2))
   }
-#   cat("new_output_str: <", new_output_str, ">new_output_str", sep = "\n")
   new_output_str
 }
 
