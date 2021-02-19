@@ -156,17 +156,18 @@
       })
     }
     test_globals_boolean <- c("points", "points_for_all_tests") %in% ls(.GlobalEnv)
-    .ddprint(test_globals_boolean)
+    # .ddprint(test_globals_boolean)
     test_globals_missing <-
       c("points", "points_for_all_tests")[!test_globals_boolean]
     test_globals_names <-
       c("points", "points_for_all_tests")[test_globals_boolean]
     test_globals_store <- mget(c("points", "points_for_all_tests")[test_globals_boolean],
                                envir = .GlobalEnv)
-    .ddprint(test_globals_missing)
-    .ddprint(test_globals_names)
-    .ddprint(test_globals_store)
+    # .ddprint(test_globals_missing)
+    # .ddprint(test_globals_names)
+    # .ddprint(test_globals_store)
     cat("Running local tests...\n")
+    lock_code <- .send_listener_lock()
     run_results <- withProgress(message = "Running tests",
                                 value   = 1/3,
                                 { guard_test_run() })
@@ -174,6 +175,7 @@
     for (name in test_globals_names) {
       assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
     }
+    .send_listener_unlock(lock_code)
     run_results
   }
   group_exercises <- function(exercise_paths) {
@@ -232,16 +234,8 @@
     .dprint("ST_observer1 launching...")
     # This function is run when the Run tests -button is pressed
     disable_tab_UI()
-    .dprint("runTestrunner()")
-    .ddprint("Run when tests are launched.")
-##     if (globalReactiveValues$selectedExercisePath == "") {
-##       rstudioapi::showDialog("Cannot run tests",
-##                              "You have not selected the exercises. Please
-##                              choose the exercises you wish to test first.")
-##       run_results <- list(run_results = list(), run_status = "run_failed")
-##     } else {
-    run_results <- silent_run_tests()
-##     }
+    # cat("Run when tests are launched.", "\n"))
+    run_results            <- silent_run_tests()
     reactive$runResults    <- run_results
     reactive$testResults   <- run_results$test_results
     reactive$test_names    <- do_the_computation(run_results$test_results)
@@ -250,7 +244,7 @@
     reactive$sourcing      <- FALSE
     reactive$error_state   <- FALSE
     enable_tab_UI()
-    # check https://docs.rstudio.com/ide/server-pro/latest/rstudio-ide-commands.html
+#
     rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   }
 

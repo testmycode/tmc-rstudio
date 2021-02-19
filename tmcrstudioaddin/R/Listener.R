@@ -60,20 +60,26 @@
         rstudioapi::viewer(server_port)
       }
       normal_loop <- function() {
-        listener_loop(count)
+        listener_loop(count, cmd_mode)
         42L
       }
       later::later(normal_loop, delay = 0.2)
     }
   }
-  listener_loop <- function(count) {
+  listener_loop <- function(count, cmd_mode) {
     if (rx$is_alive()) {
-      output <- .parse_cmd(rx$read_output(), cmd_mode)
-      count  <- count + 1
+      output_data <- .parse_cmd(rx$read_output(), cmd_mode)
+      output      <- output_data[1]
+      lock_code   <- output_data[2]
+      if (lock_code != "") {
+        cat("++@@", lock_code, "@@++")
+        cmd_mode <- !cmd_mode
+      }
+      count       <- count + 1
       listener_env$count <- count
       cat(output)
       normal_loop <- function() {
-        listener_loop(count)
+        listener_loop(count, cmd_mode)
         42L
       }
       later::later(normal_loop, delay = 0.2)
@@ -93,6 +99,39 @@
   listener_env
 }
 
+.process_unlock_matches <- function(output_str, matches) {
+  n1 <- nchar("\n@@@@ >LISTENER ::: UNLOCK,")
+  n2 <- nchar(output_str)
+  new_output_str <- substr(output_str, start = 1, stop = matches - 1)
+  tmp_str <- substr(output_str, start = matches + n1, stop = nchar(output_str))
+  unlock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
+  if (unlock_end < 0) {
+    cat("Listener unlocking crash\n")
+    stop("Crash")
+  }
+  lock_code <- substr(tmp_str, start = 1, stop = unlock_end - 1)
+  output_str <- paste0(new_output_str, substr(tmp_str,
+                                              start = unlock_end + 1,
+                                              stop = nchar(tmp_str)))
+  c(output_str, lock_code)
+}
+
+.process_lock_matches <- function(output_str, matches) {
+  n1 <- nchar("\n@@@@ >LISTENER ::: LOCK,")
+  n2 <- nchar(output_str)
+  new_output_str <- substr(output_str, start = 1, stop = matches - 1)
+  tmp_str <- substr(output_str, start = matches + n1, stop = nchar(output_str))
+  lock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
+  if (lock_end < 0) {
+    cat("Listener locking crash\n")
+    stop("Crash")
+  }
+  lock_code <- substr(tmp_str, start = 1, stop = lock_end - 1)
+  output_str <- paste0(new_output_str, substr(tmp_str,
+                                              start = lock_end + 1,
+                                              stop = nchar(tmp_str)))
+  c(output_str, lock_code)
+}
 .process_init_matches <- function(output_str, matches) {
   n1 <- nchar("\nListening on ")
   new_output_str <- substr(output_str, start = 1, stop = matches - 1)
@@ -123,14 +162,31 @@
 }
 
 .parse_cmd <- function(output_str, cmd_mode) {
-  if (cmd_mode & output_str != "") {
-    matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
-    if (matches[1] > 0) {
-      # cat("LISTENER> LISTENING REQ.\n")
-      output_str <- .process_matches(output_str, matches)
+  lock_code <- ""
+  output_data <- c(output_str, lock_code)
+  if (output_str != "") {
+    if (cmd_mode) {
+      lock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: LOCK,", text = output_str)[[1]]
+      req_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
+      if (lock_matches[1] > 0) {
+        if (req_matches[1] > 0) {
+          stop("SIMULTANEOUS. TODO")
+        }
+        output_data <- .process_lock_matches(output_str, lock_matches)
+        # .dcat("output_data", output_data)
+      } else if (req_matches[1] > 0) {
+        # cat("LISTENER> LISTENING REQ.\n")
+        output_data <- c(.process_matches(output_str, req_matches), lock_code)
+      }
+    } else {
+      unlock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: UNLOCK,", text = output_str)[[1]]
+      if (unlock_matches[1] > 0) {
+        output_data <- .process_unlock_matches(output_str, unlock_matches)
+        # .dcat("output_data", output_data)
+      }
     }
   }
-  output_str
+  output_data
 }
 
 .process_matches <- function(output_str, matches) {
@@ -252,4 +308,24 @@
   cat(" ")
   .listener_req_cmd_args(cmd_args_list)
   cat("\n")
+}
+
+.send_listener_lock <- function() {
+  lock_code <- "some_magic_123451_q4hkafbl@!k"
+  if (!rstudioapi::isAvailable()) {
+    cat("\n")
+    cat("@@@@ >LISTENER ::: LOCK,")
+    cat(lock_code)
+    cat("\n")
+  }
+  lock_code
+}
+
+.send_listener_unlock <- function(lock_code) {
+  if (!rstudioapi::isAvailable()) {
+    cat("\n")
+    cat("@@@@ >LISTENER ::: UNLOCK,")
+    cat(lock_code)
+    cat("\n")
+  }
 }
