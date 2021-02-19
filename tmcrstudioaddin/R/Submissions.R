@@ -248,17 +248,9 @@ showMessage <- function(submitResults) {
   message <- getDialogMessage(submitResults)
   if (message$show) {
     if (!rstudioapi::isAvailable()) {
-      cat("\n@@@@ >LISTENER ::: REQ,4,\n")
-      cat("SHOW",
-          paste(paste0("list(", deparse(message$title)),
-                deparse(message$text),
-                paste0(deparse(""), ")"),
-                sep = ", "))
-      cat("\n")
-      # cat("Showing message not yet implemented\n")
+      .send_listener_request("SHOW",
+                             list(message$title, message$text, ""))
       cat("-------------\n")
-      # cat(message$title, "\n")
-      # cat("Message:\n")
       cat(.console_text(message$text), "\n")
     } else {
       rstudioapi::showDialog(title   = message$title,

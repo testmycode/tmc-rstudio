@@ -133,7 +133,6 @@
     matches <- gregexpr(pattern = "\nListening on http://", text = output_str)[[1]]
     # .dcat("matches", matches)
     if (matches[1] > 0) {
-      # cat("LISTENER> LISTENING REQ.\n")
       parsed_message <- .process_init_matches(output_str, matches)
       output_str  <- parsed_message[1]
       server_port <- parsed_message[2]
@@ -146,12 +145,10 @@
 
 .parse_cmd <- function(output_str, cmd_mode) {
   if (cmd_mode & output_str != "") {
-    # cat("+")
     matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
     if (matches[1] > 0) {
       # cat("LISTENER> LISTENING REQ.\n")
       output_str <- .process_matches(output_str, matches)
-      # cat("\n")
     }
   }
   output_str
@@ -245,7 +242,7 @@
 }
 
 .process_OPEN <- function(num, cmd_args) {
-  if (num == 2 && substr(cmd_args, 1, 1) == "'") {
+  if (num == 2) {
     filename <- eval(parse(text = cmd_args))
     cat(paste0("Opening file: ", filename),"\n")
     rstudioapi::isAvailable(rstudioapi::navigateToFile(filename))
@@ -270,10 +267,11 @@
   if (length(cmd_args_list) == 0) {
     cat("")
   } else if (length(cmd_args_list) == 1) {
-    cat(paste0("'", cmd_args_list[[1]], "'"))
+    cat(deparse(cmd_args_list[[1]]))
   } else {
-    .dcat("cmd_args_list", cmd_args_list)
-    stop("NOW")
+    cat("list(")
+    cat(do.call(paste, c(lapply(cmd_args_list, FUN = deparse), sep = ", ")))
+    cat(")")
   }
 }
 
@@ -282,7 +280,6 @@
   cat("@@@@ >LISTENER ::: REQ,")
   cat(length(cmd_args_list) + 1)
   cat(",\n")
-  #cat(paste0("CMD:'", cmd, "'"))
   cat(cmd)
   cat(" ")
   .listener_req_cmd_args(cmd_args_list)
