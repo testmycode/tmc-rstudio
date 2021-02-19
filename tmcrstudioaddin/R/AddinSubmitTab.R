@@ -637,9 +637,7 @@
     # print("ST_observer9 launching...")
     disable_tab_UI()
     if (!rstudioapi::isAvailable()) {
-      cat("\n@@@@ >LISTENER ::: REQ,1,\n")
-      cat("SAVE ")
-      cat("\n")
+      .send_listener_request("SAVE", list())
     } else {
       rstudioapi::documentSaveAll()
     }

@@ -266,3 +266,18 @@
   FALSE
 }
 
+.listener_req_cmd_args <- function(cmd_args_list) {
+  cat("")
+}
+
+.send_listener_request <- function(cmd, cmd_args_list) {
+  cat("\n")
+  cat("@@@@ >LISTENER ::: REQ,")
+  cat(length(cmd_args_list) + 1)
+  cat(",\n")
+  #cat(paste0("CMD:'", cmd, "'"))
+  cat(cmd)
+  cat(" ")
+  .listener_req_cmd_args(cmd_args_list)
+  cat("\n")
+}
