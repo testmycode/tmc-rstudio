@@ -60,26 +60,33 @@
         rstudioapi::viewer(server_port)
       }
       normal_loop <- function() {
-        listener_loop(count, cmd_mode)
+        listener_loop(count, cmd_mode, "")
         42L
       }
       later::later(normal_loop, delay = 0.2)
     }
   }
-  listener_loop <- function(count, cmd_mode) {
+  listener_loop <- function(count, cmd_mode, unlock_code) {
     if (rx$is_alive()) {
       output_data <- .parse_cmd(rx$read_output(), cmd_mode)
       output      <- output_data[1]
       lock_code   <- output_data[2]
       if (lock_code != "") {
-        cat("++@@", lock_code, "@@++")
-        cmd_mode <- !cmd_mode
+        if (cmd_mode) {
+          cat("++@@", lock_code, "@@++")
+          cmd_mode <- FALSE
+          unlock_code <- lock_code
+        } else if (lock_code == unlock_code) {
+          cat("UNLOCKING\n++@@", lock_code, "@@++")
+          cmd_mode <- TRUE
+          unlock_code <- ""
+        }
       }
       count       <- count + 1
       listener_env$count <- count
       cat(output)
       normal_loop <- function() {
-        listener_loop(count, cmd_mode)
+        listener_loop(count, cmd_mode, unlock_code)
         42L
       }
       later::later(normal_loop, delay = 0.2)
