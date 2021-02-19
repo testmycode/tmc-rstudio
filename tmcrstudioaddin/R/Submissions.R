@@ -238,6 +238,13 @@ processSubmission <- function(submitJson) {
 #' @seealso \code{\link{getDialogMessage}},
 #' \code{\link[rstudioapi]{showDialog}}
 showMessage <- function(submitResults) {
+  .console_text <- function(html_txt) {
+    val <- gsub(pattern = "<p>", replacement = "\n", html_txt)
+    val <- gsub(pattern = "</p>", replacement = "\n", val)
+    val <- gsub(pattern = "<b>",  replacement = paste0('\033', "[", "1", "m"), val)
+    val <- gsub(pattern = "</b>", replacement = paste0('\033', "[", "0", "m"), val)
+    val
+  }
   message <- getDialogMessage(submitResults)
   if (message$show) {
     if (!rstudioapi::isAvailable()) {
@@ -248,11 +255,11 @@ showMessage <- function(submitResults) {
                 paste0(deparse(""), ")"),
                 sep = ", "))
       cat("\n")
-      cat("Showing message not yet implemented\n")
-      cat("Title:\n")
-      cat(message$title, "\n")
-      cat("Message:\n")
-      cat(message$text, "\n")
+      # cat("Showing message not yet implemented\n")
+      cat("-------------\n")
+      # cat(message$title, "\n")
+      # cat("Message:\n")
+      cat(.console_text(message$text), "\n")
     } else {
       rstudioapi::showDialog(title   = message$title,
                              message = message$text,

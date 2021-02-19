@@ -221,7 +221,15 @@
 }
 
 .process_SAVE <-function(num, cmd_args) {
-  .process_unknown(num, "SAVE", cmd_args)
+  if (num == 1) {
+    args_list <- eval(parse(text = cmd_args))
+    if (rstudioapi::isAvailable()) {
+      rstudioapi::documentSaveAll()
+    }
+    TRUE
+  } else {
+    .process_unknown(num, "SAVE", cmd_args)
+  }
 }
 
 .process_SHOW <- function(num, cmd_args) {
