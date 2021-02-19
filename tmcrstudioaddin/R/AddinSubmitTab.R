@@ -40,15 +40,15 @@
                                  actionButton(inputId  = ns("submit"),
                                               label    = "Submit to server")))
   bottom2_row  <- fluidRow(column(width = 6,
-				  class = "col-xs-6",
-				  checkboxInput(inputId = ns("showAllResults"),
-						label   = "Show all results",
+                                  class = "col-xs-6",
+                                  checkboxInput(inputId = ns("showAllResults"),
+                                                label   = "Show all results",
                                                 value   = TRUE)),
-			   column(width = 6,
-				  class = "col-xs-6",
-				  checkboxInput(inputId = ns("toggleEcho"),
-						label   = "Echo source",
-						value   = TRUE)))
+                           column(width = 6,
+                                  class = "col-xs-6",
+                                  checkboxInput(inputId = ns("toggleEcho"),
+                                                label   = "Echo source",
+                                                value   = TRUE)))
   fluid_page  <- fluidPage(style = "padding:0px;margin:0px;",
                            top_row,
                            second_row,
@@ -271,7 +271,7 @@
                 "</p><p>This happens after submission deadline has closed.",
                 "Please check that you have chosen the",
                 "right exercise set.",
-		"</p>Other common cause of this are firewalls, VPN's,",
+                "</p>Other common cause of this are firewalls, VPN's,",
                 "antivirus programs that block the connection as well as",
                 "stale credentials. It can also happen if the server is",
                 "down. </p><p> Try logging out and back in from addin in a",
@@ -282,7 +282,7 @@
                 "</p><p>This happens after submission deadline has closed.",
                 "Please check that you have chosen the",
                 "right exercise set.",
-		"</p>Other common cause of this are firewalls, VPN's,",
+                "</p>Other common cause of this are firewalls, VPN's,",
                 "antivirus programs that block the connection as well as",
                 "stale credentials. It can also happen if the server is",
                 "down. </p><p> Try logging out and back in from addin in a",
@@ -354,8 +354,8 @@
           paste(pre_error, "</p><p>Please contact the course instructors in this case.")))
     messages_tmp <- matrix(byrow = TRUE, ncol = 3, messages_tmp)
     errormsgs <- list(keys      = messages_tmp[ , 1],
-		      msgs_win  = messages_tmp[ , 2],
-		      msgs_unix = messages_tmp[ , 3])
+                      msgs_win  = messages_tmp[ , 2],
+                      msgs_unix = messages_tmp[ , 3])
     if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
       errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
     } else {
@@ -618,15 +618,13 @@
     # print("ST_observer8 launching...")
     disable_tab_UI()
 
-    for (file in list.files(full.names = TRUE,
-                            path = file.path(grv$selectedExercisePath, "R"),
-                            pattern = "[.]R$")) {
-    if (!rstudioapi::isAvailable()) {
-        cat("\n@@@@ >LISTENER ::: REQ,2,\n")
-        cat("OPEN", paste0("'", file, "'"))
-        cat("\n")
+    for (filename in list.files(full.names = TRUE,
+                                path = file.path(grv$selectedExercisePath, "R"),
+                                pattern = "[.]R$")) {
+      if (!rstudioapi::isAvailable()) {
+        .send_listener_request("OPEN", list(filename))
       } else {
-        rstudioapi::navigateToFile(file)
+        rstudioapi::navigateToFile(filename)
         # FIX: should reopen with encoding if it does not match
         # the default on the system
       }

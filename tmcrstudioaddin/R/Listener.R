@@ -267,7 +267,14 @@
 }
 
 .listener_req_cmd_args <- function(cmd_args_list) {
-  cat("")
+  if (length(cmd_args_list) == 0) {
+    cat("")
+  } else if (length(cmd_args_list) == 1) {
+    cat(paste0("'", cmd_args_list[[1]], "'"))
+  } else {
+    .dcat("cmd_args_list", cmd_args_list)
+    stop("NOW")
+  }
 }
 
 .send_listener_request <- function(cmd, cmd_args_list) {
