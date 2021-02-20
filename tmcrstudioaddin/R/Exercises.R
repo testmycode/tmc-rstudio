@@ -101,7 +101,6 @@ downloadedExercisesPaths <- function() {
 # Sources all files in exercise with print.eval on.
 sourceExercise <- function(exercisePath, sourceEcho) {
   env <- .GlobalEnv
-  lock_code <- .send_listener_lock()
   for (file in list.files(pattern = "[.]R$",
                           path = file.path(exercisePath, "R"),
                           full.names = TRUE)) {
@@ -116,7 +115,6 @@ sourceExercise <- function(exercisePath, sourceEcho) {
       source(file, env, print.eval = TRUE, echo = sourceEcho)
     }
   }
-  .send_listener_unlock(lock_code)
   rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
 }
 

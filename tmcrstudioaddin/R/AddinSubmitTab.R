@@ -578,6 +578,7 @@
     disable_tab_UI()
 
     # print("Launched when Source is clicked")
+    lock_code <- .send_listener_lock()
     tryCatch({
       sourceExercise(grv$selectedExercisePath, reactive$sourceEcho)
       reactive$sourcing    <- TRUE
@@ -601,6 +602,7 @@
       # reactive$test_names  <- reactive$test_names # this stays as is
       reactive$error_state   <- TRUE
     })
+    .send_listener_unlock(lock_code)
     enable_tab_UI()
     rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
   }
