@@ -60,37 +60,22 @@
         rstudioapi::viewer(server_port)
       }
       normal_loop <- function() {
-        listener_loop(count, cmd_mode, "")
+        listener_loop(count, list(cmd_mode, ""))
         42L
       }
       later::later(normal_loop, delay = 0.2)
     }
   }
-  listener_loop <- function(count, cmd_mode, unlock_code) {
+  listener_loop <- function(count, lock_data) {
     if (rx$is_alive()) {
-      .handle_locking_and_printing <- function(output_data) {
-        output      <- output_data[[1]]
-        lock_code   <- output_data[[2]][[1]]
-        lock_data <- list(cmd_mode, unlock_code)
-        if (lock_code[1] != "") {
-          if (cmd_mode) {
-            lock_data <- list(FALSE, lock_code)
-            cat(output)
-          } else {
-            lock_data <- .try_unlocking(output_data, unlock_code, cmd_mode)
-          }
-        } else {
-          cat(output)
-        }
-        lock_data
-      }
-      raw_output <- rx$read_output()
+      cmd_mode    <- lock_data[[1]]
+      raw_output  <- rx$read_output()
       output_data <- .parse_cmd(raw_output, cmd_mode)
-      lock_data   <- .handle_locking_and_printing(output_data)
+      lock_data   <- .handle_locking_and_printing(output_data, lock_data)
       count       <- count + 1
       listener_env$count <- count
       normal_loop <- function() {
-        listener_loop(count, lock_data[[1]], lock_data[[2]])
+        listener_loop(count, lock_data)
         42L
       }
       later::later(normal_loop, delay = 0.2)
@@ -108,6 +93,25 @@
   }
   listener_init_loop(count, server_port)
   listener_env
+}
+
+.handle_locking_and_printing <- function(output_data, lock_data) {
+  unlock_code <- lock_data[[2]]
+  cmd_mode    <- lock_data[[1]]
+  output      <- output_data[[1]]
+  lock_code   <- output_data[[2]][[1]]
+  lock_data <- list(cmd_mode, unlock_code)
+  if (lock_code[1] != "") {
+    if (cmd_mode) {
+      lock_data <- list(FALSE, lock_code)
+      cat(output)
+    } else {
+      lock_data <- .try_unlocking(output_data, unlock_code, cmd_mode)
+    }
+  } else {
+    cat(output)
+  }
+  lock_data
 }
 
 .try_unlocking <- function(output_data, unlock_code, cmd_mode) {
