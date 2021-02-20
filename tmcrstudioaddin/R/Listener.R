@@ -31,7 +31,7 @@
         paste0("Saving value to '", res_name, "'"),
         sep = "\n")
   }
-  listener_env	       <- new.env(parent = emptyenv())
+  listener_env         <- new.env(parent = emptyenv())
   listener_env$count   <- count
   listener_env$elapsed <- function() {
     .time_str(.run_time_count(listener_env$count))
@@ -95,14 +95,11 @@
 }
 
 .handle_locking_and_printing <- function(output_data, lock_data) {
-  unlock_code <- lock_data$unlock_code
-  cmd_mode    <- lock_data$cmd_mode
-  output      <- output_data[[1]]
-  lock_code   <- output_data[[2]][[1]]
-  lock_data <- list(cmd_mode = cmd_mode, unlock_code = unlock_code)
+  output      <- output_data$output
+  lock_code   <- output_data$unlocking_data[[1]]
   if (lock_code[1] != "") {
-    if (cmd_mode) {
-      lock_data <- list(cmd_mode = FALSE, unlock_code = lock_code)
+    if (lock_data$cmd_mode) {
+      lock_data <- list(cmd_mode = FALSE, unlock_code = lock_data$unlock_code)
       cat(output)
     } else {
       lock_data <- .try_unlocking(output_data, lock_data)
@@ -116,9 +113,9 @@
 .try_unlocking <- function(output_data, lock_data) {
   unlock_code <- lock_data$unlock_code
   cmd_mode    <- lock_data$cmd_mode
-  output      <- output_data[[1]]
-  lock_codes  <- output_data[[2]][[1]]
-  matches     <- output_data[[2]][[2]]
+  output      <- output_data$output
+  lock_codes  <- output_data$unlocking_data[[1]]
+  matches     <- output_data$unlocking_data[[2]]
   for (ind in seq_along(lock_codes)) {
     lock_code <- lock_codes[ind]
     if (lock_code == unlock_code) {
@@ -159,7 +156,7 @@
   output_str <- paste0(new_output_str, substr(tmp_str,
                                               start = unlock_end + 1,
                                               stop = nchar(tmp_str)))
-  list(output_str, list(unlock_codes, matches))
+  list(output = output_str, unlocking_data = list(unlock_codes, matches))
 }
 
 .process_lock_matches <- function(output_str, matches) {
@@ -176,7 +173,7 @@
   output_str <- paste0(new_output_str, substr(tmp_str,
                                               start = lock_end + 1,
                                               stop = nchar(tmp_str)))
-  list(output_str, list(lock_code, matches))
+  list(output = output_str, unlocking_data = list(lock_code, matches))
 }
 .process_init_matches <- function(output_str, matches) {
   n1 <- nchar("\nListening on ")
@@ -209,18 +206,19 @@
 
 .parse_cmd <- function(output_str, cmd_mode) {
   lock_data <- list("", -1)
-  output_data <- list(output_str, lock_data)
+  output_data <- list(output = output_str, unlocking_data = lock_data)
   if (output_str != "") {
     if (cmd_mode) {
       lock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: LOCK,", text = output_str)[[1]]
-      req_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
+      req_matches  <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
       if (lock_matches[1] > 0) {
         if (req_matches[1] > 0) {
           stop("SIMULTANEOUS. TODO")
         }
         output_data <- .process_lock_matches(output_str, lock_matches)
       } else if (req_matches[1] > 0) {
-        output_data <- list(.process_matches(output_str, req_matches), lock_data)
+        output_data <- list(output = .process_matches(output_str, req_matches),
+                            unlocking_data = lock_data)
       }
     } else {
       unlock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: UNLOCK,", text = output_str)[[1]]
