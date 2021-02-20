@@ -60,7 +60,7 @@
         rstudioapi::viewer(server_port)
       }
       normal_loop <- function() {
-        listener_loop(count, list(cmd_mode, ""))
+        listener_loop(count, list(cmd_mode = cmd_mode, unlock_code = ""))
         42L
       }
       later::later(normal_loop, delay = 0.2)
@@ -68,9 +68,8 @@
   }
   listener_loop <- function(count, lock_data) {
     if (rx$is_alive()) {
-      cmd_mode    <- lock_data[[1]]
       raw_output  <- rx$read_output()
-      output_data <- .parse_cmd(raw_output, cmd_mode)
+      output_data <- .parse_cmd(raw_output, lock_data$cmd_mode)
       lock_data   <- .handle_locking_and_printing(output_data, lock_data)
       count       <- count + 1
       listener_env$count <- count
@@ -96,17 +95,17 @@
 }
 
 .handle_locking_and_printing <- function(output_data, lock_data) {
-  unlock_code <- lock_data[[2]]
-  cmd_mode    <- lock_data[[1]]
+  unlock_code <- lock_data$unlock_code
+  cmd_mode    <- lock_data$cmd_mode
   output      <- output_data[[1]]
   lock_code   <- output_data[[2]][[1]]
-  lock_data <- list(cmd_mode, unlock_code)
+  lock_data <- list(cmd_mode = cmd_mode, unlock_code = unlock_code)
   if (lock_code[1] != "") {
     if (cmd_mode) {
-      lock_data <- list(FALSE, lock_code)
+      lock_data <- list(cmd_mode = FALSE, unlock_code = lock_code)
       cat(output)
     } else {
-      lock_data <- .try_unlocking(output_data, unlock_code, cmd_mode)
+      lock_data <- .try_unlocking(output_data, lock_data)
     }
   } else {
     cat(output)
@@ -114,12 +113,12 @@
   lock_data
 }
 
-.try_unlocking <- function(output_data, unlock_code, cmd_mode) {
+.try_unlocking <- function(output_data, lock_data) {
+  unlock_code <- lock_data$unlock_code
+  cmd_mode    <- lock_data$cmd_mode
   output      <- output_data[[1]]
-  lock_code   <- output_data[[2]][[1]]
-  lock_codes <- lock_code
-  matches    <- output_data[[2]][[2]]
-  # output     <- output
+  lock_codes  <- output_data[[2]][[1]]
+  matches     <- output_data[[2]][[2]]
   for (ind in seq_along(lock_codes)) {
     lock_code <- lock_codes[ind]
     if (lock_code == unlock_code) {
@@ -134,7 +133,7 @@
                        substr(output, start = match1, stop = nchar(output)))
     }
   }
-  lock_data <- list(cmd_mode, unlock_code)
+  lock_data <- list(cmd_mode = cmd_mode, unlock_code = unlock_code)
   cat(output)
   lock_data
 }
