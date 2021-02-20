@@ -58,6 +58,8 @@
         cat("RTMC has started.\n")
         listener_env$port <- server_port
         rstudioapi::viewer(server_port)
+      } else {
+        cat("RTMC failed to start. This happens sometimes. Just try again.\n")
       }
       normal_loop <- function() {
         listener_loop(count, list(cmd_mode = cmd_mode, unlock_code = ""))

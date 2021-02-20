@@ -455,9 +455,7 @@
     all_courses$title[all_courses$id == rv$selection$course]
   }
   print_points <- function(exercises) {
-    cat(paste0('\033', "[", "3", "2", "m"))
-    cat("NOTE: ")
-    cat(paste0('\033', "[", "3", "9", "m"))
+    cat(.in_green("NOTE: "))
     cat("This is untested and preliminary version of RTMC score table.\n")
     cat("This might crash, so unset this and report the problem to instructors.\n")
     cat("\n\n")

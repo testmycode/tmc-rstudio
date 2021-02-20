@@ -66,9 +66,7 @@ get_tmcr_directory <- function() {
 
   tmcr_directory <- file.path(user_home, "tmcr")
   if (!dir.exists(user_home)) {
-    cat(paste0('\033', "[", "3", "2", "m"))
-    cat("\nNOTE: ")
-    cat(paste0('\033', "[", "3", "9", "m"))
+    cat(.in_green("\nNOTE: "))
     cat("TMCR_ROOT does not exist, so first we try to create that.\n")
     cat("This might fail so please use an existing directory as TMCR_ROOT.\n")
     dir.create(user_home, recursive = TRUE)

@@ -89,22 +89,46 @@ tmcGadget <- function() {
   .run_rtmc_addin(app)
 }
 
+.in_bold <- function(string) {
+  paste0(paste0('\033', "[1m"),
+         string,
+         paste0('\033', "[0m"))
+}
+.in_red <- function(string) {
+  paste0(paste0('\033', "[31m"),
+         string,
+         paste0('\033', "[39m"))
+}
+.in_br_red <- function(string) {
+  paste0(paste0('\033', "[31;1m"),
+         string,
+         paste0('\033', "[0m"))
+}
+.in_blue <- function(string) {
+  paste0(paste0('\033', "[34m"),
+         string,
+         paste0('\033', "[39m"))
+}
+.in_green <- function(string) {
+  paste0(paste0('\033', "[32m"),
+         string,
+         paste0('\033', "[39m"))
+}
 .starting_messages <- function() {
   is_blocking     <- rstudioapi::isAvailable()
   blocking_string <- if (is_blocking) "original" else "experimental nonblocking"
   cat("Starting", blocking_string, "RTMC session...\n")
-  cat(paste0('\033', "[", "3", "2", "m"))
-  cat("NOTE: ")
-  cat(paste0('\033', "[", "3", "9", "m"))
+  cat(.in_green("NOTE: "))
   if (is_blocking) {
-    cat("The console WILL NOT BE available during RTMC session and you",
+    cat(paste0("The console ", .in_br_red("WILL NOT BE AVAILABLE"),
+               " during RTMC session and you"),
         "need to use the addin buttons. The environment will be restored as is",
         "after the session.",
         sep = "\n")
   } else {
     cat(paste0("The console is working while RTMC is running and ",
-               '\033', "[", "3", "2", "m", "IS AVAILABLE",
-               '\033', "[", "3", "9", "m", " normally"),
+               .in_green("IS AVAILABLE"),
+               " normally"),
         "during RTMC session. For sourcing you should use the normal source, since",
         "the addin source button is obsolete and will be removed shortly.",
         "",
