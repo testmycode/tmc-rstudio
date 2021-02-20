@@ -71,33 +71,21 @@
       .handle_locking_and_printing <- function(output_data) {
         output      <- output_data[[1]]
         lock_code   <- output_data[[2]][[1]]
+        lock_data <- list(cmd_mode, unlock_code)
         if (lock_code[1] != "") {
           if (cmd_mode) {
-            cmd_mode <- FALSE
-            unlock_code <- lock_code
+            lock_data <- list(FALSE, lock_code)
+            cat(output)
           } else {
-            lock_codes <- lock_code
-            matches    <- output_data[[2]][[2]]
-            for (ind in seq_along(lock_codes)) {
-              lock_code <- lock_codes[ind]
-              if (lock_code == unlock_code) {
-                cmd_mode <- TRUE
-                unlock_code <- ""
-              } else {
-                match1 <- matches[ind]
-                output <- paste0(substr(output, start = 1, stop = match1 - 1),
-                                 "\n@@@@ >LISTENER ::: UNLOCK,",
-                                 lock_code,
-                                 "\n",
-                                 substr(output, start = match1, stop = nchar(output)))
-              }
-            }
+            lock_data <- .try_unlocking(output_data, unlock_code, cmd_mode)
           }
+        } else {
+          cat(output)
         }
-        cat(output)
-        list(cmd_mode, unlock_code)
+        lock_data
       }
-      output_data <- .parse_cmd(rx$read_output(), cmd_mode)
+      raw_output <- rx$read_output()
+      output_data <- .parse_cmd(raw_output, cmd_mode)
       lock_data   <- .handle_locking_and_printing(output_data)
       count       <- count + 1
       listener_env$count <- count
@@ -120,6 +108,31 @@
   }
   listener_init_loop(count, server_port)
   listener_env
+}
+
+.try_unlocking <- function(output_data, unlock_code, cmd_mode) {
+  output      <- output_data[[1]]
+  lock_code   <- output_data[[2]][[1]]
+  lock_codes <- lock_code
+  matches    <- output_data[[2]][[2]]
+  # output     <- output
+  for (ind in seq_along(lock_codes)) {
+    lock_code <- lock_codes[ind]
+    if (lock_code == unlock_code) {
+      cmd_mode <- TRUE
+      unlock_code <- ""
+    } else {
+      match1 <- matches[ind]
+      output <- paste0(substr(output, start = 1, stop = match1 - 1),
+                       "\n@@@@ >LISTENER ::: UNLOCK,",
+                       lock_code,
+                       "\n",
+                       substr(output, start = match1, stop = nchar(output)))
+    }
+  }
+  lock_data <- list(cmd_mode, unlock_code)
+  cat(output)
+  lock_data
 }
 
 .process_unlock_matches <- function(output_str, matches) {
