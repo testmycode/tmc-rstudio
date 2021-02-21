@@ -74,10 +74,8 @@
     if (rx$is_alive()) {
       raw_output  <- paste0(unhandled, rx$read_output())
       output_data <- .parse_cmd(raw_output, lock_data)
-#       if (output_data$unhandled != "") {
-#         .dcat("unhandled", output_data$unhandled)
-#       }
-      lock_data   <- .handle_locking_and_printing(output_data, lock_data)
+      lock_data   <- .handle_locking(output_data, lock_data)
+      cat(output_data$output)
       count       <- count + 1
       listener_env$count <- count
       normal_loop <- function() {
@@ -101,20 +99,14 @@
   listener_env
 }
 
-.handle_locking_and_printing <- function(output_data, lock_data) {
-  output      <- output_data$output
+.handle_locking <- function(output_data, lock_data) {
   lock_code   <- output_data$unlocking_data[[1]]
   if (lock_code[1] != "") {
     if (lock_data$cmd_mode) {
-      lock_data <- list(cmd_mode = FALSE, unlock_code = lock_code) #lock_data$unlock_code)
-#       .dcat("LOCKING NOW", lock_data)
-#       .dcat("lock_code", lock_code)
-      cat(output)
+      lock_data <- list(cmd_mode = FALSE, unlock_code = lock_code)
     } else {
       lock_data <- .try_unlocking(output_data, lock_data)
     }
-  } else {
-    cat(output)
   }
   lock_data
 }
@@ -122,68 +114,42 @@
 .try_unlocking <- function(output_data, lock_data) {
   unlock_code <- lock_data$unlock_code
   cmd_mode    <- lock_data$cmd_mode
-  output      <- output_data$output
   lock_codes  <- output_data$unlocking_data[[1]]
-  # matches     <- output_data$unlocking_data[[2]]
   if (lock_codes[1] == "unlock") {
     # cat("Unlocking.")
     cmd_mode <- TRUE
     unlock_code <- ""
   }
   lock_data <- list(cmd_mode = cmd_mode, unlock_code = unlock_code)
-  cat(output)
   lock_data
 }
 
 .process_unlock_matches <- function(output_str, matches, unlock_code) {
   n1 <- nchar("\n@@@@ >LISTENER ::: UNLOCK,")
-#   .dcat("UNLOCKING START", unlock_code)
-#   .dcat("matches", matches)
-#   .dcat("output_str", output_str)
   new_output_str <- ""
   unlock_codes <- c()
   skip <- 1
   n2 <- nchar(output_str)
   for (match1 in matches) {
-    # .dcat("new_output_str before", new_output_str)
     new_output_str <- paste0(new_output_str, substr(output_str, start = skip, stop = match1 - 1))
-    # .dcat("new_output_str after", new_output_str)
     tmp_str <- substr(output_str, start = match1 + n1, stop = nchar(output_str))
     unlock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
     if (unlock_end < 0) {
-#       cat("\nABOUT TO CRASH\n--------\n")
-#       .dcat("output_str", output_str)
-#       .dcat("new_output_str", new_output_str)
-#       .dcat("tmp_str", tmp_str)
-#       .dcat("unlock_end", unlock_end)
-      cat("Listener unlocking partial match crash fixed.\n")
+      # cat("Listener unlocking partial match crash fixed.\n")
       unhandled <- .remaining_part(output_str, match1)
-#       .dcat("unhandled", unhandled)
       return(list(output = new_output_str, unlocking_data = list("lock", -1),
                   unhandled = unhandled))
     }
     attempted_unlock_code <- substr(tmp_str, start = 1, stop = unlock_end - 1)
-    # .dcat("lock_code", attempted_unlock_code)
-    # .dcat("unlock_code", unlock_code)
     if (attempted_unlock_code == unlock_code) {
-      # .dcat("new_output_str", new_output_str)
       unhandled <- .remaining_part(tmp_str, unlock_end + 1)
-      # cat("NOW WE UNLOCK...\n")
       return(list(output = new_output_str, unlocking_data = list("unlock", -1),
                   unhandled = unhandled))
     } else {
-      # cat("This is no match\n")
       unlock_codes <- c(unlock_codes, "")
-      skip <- match1 # + n1 + unlock_end
+      skip <- match1
     }
   }
-  # .dcat("original", output_str)
-  # .dcat("current", new_output_str)
-  # .dcat("skip", skip)
-  # cat("FOUND NO MATCHING UNLOCKS, JUST RETURNING ORIGINAL\n")
-#   output_str <- paste0(new_output_str, substr(tmp_str,
-#                                               start = unlock_end + 1,
-#                                               stop = nchar(tmp_str)))
   list(output = output_str, unlocking_data = list("lock", -1),
        unhandled = "")
 }
@@ -191,28 +157,17 @@
 .process_lock_matches <- function(output_str, matches) {
   n1 <- nchar("\n@@@@ >LISTENER ::: LOCK,")
   n2 <- nchar(output_str)
-#   .dcat("matches", matches)
   match1 <- matches[1]
-#   .dcat("match1", match1)
   new_output_str <- substr(output_str, start = 1, stop = match1 - 1)
   tmp_str <- substr(output_str, start = match1 + n1, stop = nchar(output_str))
   lock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
   if (lock_end < 0) {
-#     cat("\nABOUT TO CRASH\n--------\n")
-#     .dcat("output_str", output_str)
-#     .dcat("new_output_str", new_output_str)
-#     .dcat("tmp_str", tmp_str)
-#     .dcat("lock_end", lock_end)
-#     cat("Listener locking crash\n")
     cat("Listener locking partial match crash fixed!\n")
     unhandled <- .remaining_part(output_str, match1)
     return(list(output = new_output_str, unlocking_data = list("", -1),
                 unhandled = unhandled))
   }
   lock_code <- substr(tmp_str, start = 1, stop = lock_end - 1)
-#   output_str <- paste0(new_output_str, substr(tmp_str,
-#                                               start = lock_end + 1,
-#                                               stop = nchar(tmp_str)))
   list(output         = new_output_str,
        unlocking_data = list(lock_code, match1),
        unhandled      = substr(tmp_str, start = lock_end + 1, stop = nchar(tmp_str)))
@@ -264,9 +219,7 @@
       if (lock_matches[1] > 0 & req_matches[1] > 0) {
         if (lock_matches[1] < req_matches[1]) {
           output_data <- .process_lock_matches(output_str, lock_matches)
-          cat("\nSimultaneous req/lock with lock before\n---------\n")
-          # .dcat("output_data", output_data)
-          # stop("Simultaneous req/lock with lock before")
+          # cat("\nSimultaneous req/lock with lock before\n---------\n")
         } else {
           .before_part <- function(output_str, before_end) {
             substr(output_str, start = 1, stop = before_end - 1)
@@ -277,23 +230,15 @@
                               unlocking_data = unlock_data,
                               unhandled = paste0(match_data$unhandled,
                                                  .remaining_part(output_str, lock_matches[1])))
-          cat("\nSimultaneous req/lock with req before\n---------\n")
-          # .dcat("output_data", output_data)
+          # cat("\nSimultaneous req/lock with req before\n---------\n")
         }
       } else if (lock_matches[1] > 0) {
         output_data <- .process_lock_matches(output_str, lock_matches)
       } else if (req_matches[1] > 0) {
         output_data <- .process_matches2(output_str, req_matches, unlock_data)
         output_data
-#         output_data <- list(output = .process_matches(output_str, req_matches),
-#                             unlocking_data = unlock_data,
-#                             unhandled = "")
       }
     } else {
-#       .dcat("output_str", output_str)
-#       .dcat("lock_data$unlock_code", lock_data$unlock_code)
-#       .dcat("unlock_data", unlock_data)
-#       .dcat("unlock_code", unlock_code)
       unlock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: UNLOCK,", text = output_str)[[1]]
       if (unlock_matches[1] > 0) {
         output_data <- .process_unlock_matches(output_str, unlock_matches,
