@@ -176,8 +176,16 @@
     tmp_str <- substr(output_str, start = match1 + n1, stop = nchar(output_str))
     unlock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
     if (unlock_end < 0) {
-      cat("Listener unlocking crash\n")
-      stop("Crash")
+#       cat("\nABOUT TO CRASH\n--------\n")
+#       .dcat("output_str", output_str)
+#       .dcat("new_output_str", new_output_str)
+#       .dcat("tmp_str", tmp_str)
+#       .dcat("unlock_end", unlock_end)
+      cat("Listener unlocking partial match crash fixed.\n")
+      unhandled <- .remaining_part(output_str, match1)
+#       .dcat("unhandled", unhandled)
+      return(list(output = new_output_str, unlocking_data = list("lock", -1),
+                  unhandled = unhandled))
     }
     attempted_unlock_code <- substr(tmp_str, start = 1, stop = unlock_end - 1)
     # .dcat("lock_code", attempted_unlock_code)
