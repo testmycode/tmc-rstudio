@@ -331,9 +331,9 @@
 
 .process_matches2 <- function(output_str, req_matches, unlock_data) {
   match_data  <- .process_matches(output_str, req_matches)
-  if (match_data$unhandled != "") {
-    .dcat("This might do the trick", match_data$unhandled)
-  }
+#   if (match_data$unhandled != "") {
+#     .dcat("This might do the trick", match_data$unhandled)
+#   }
   output_data <- list(output = match_data$output,
                       unlocking_data = unlock_data,
                       unhandled = match_data$unhandled)
@@ -357,7 +357,17 @@
     skip    <- 5 - 1
     cmd_end <- regexpr(pattern = " ", text = tmp_str)[[1]]
     if (cmd_end < 0) {
-      stop("Listener crashed 1.")
+#       cat("\nABOUT TO CRASH\n--------\n")
+#       .dcat("output_str", output_str)
+#       .dcat("match_idx", match_idx)
+#       .dcat("match_start", matches[match_idx])
+#       .dcat("remaingn", .remaining_part(output_str, matches[match_idx]))
+#       .dcat("new_output_str", new_output_str)
+#       .dcat("tmp_str", tmp_str)
+#       .dcat("cmd_end", cmd_end)
+      cat("Listener locking crash 1 fixed!!!\n")
+      return(list(output = new_output_str,
+                  unhandled = .remaining_part(output_str, matches[match_idx])))
     }
     cmd_str <- substr(tmp_str, start = 1, stop = cmd_end - 1)
     tmp_str <- substr(tmp_str, start = cmd_end + 1, stop = nchar(tmp_str))
