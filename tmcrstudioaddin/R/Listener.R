@@ -171,6 +171,7 @@
        unlocking_data = list(lock_code, match1),
        unhandled      = substr(tmp_str, start = lock_end + 1, stop = nchar(tmp_str)))
 }
+
 .process_init_matches <- function(output_str, matches) {
   n1 <- nchar("\nListening on ")
   new_output_str <- substr(output_str, start = 1, stop = matches - 1)
@@ -234,7 +235,10 @@
       } else if (lock_matches[1] > 0) {
         output_data <- .process_lock_matches(output_str, lock_matches)
       } else if (req_matches[1] > 0) {
-        output_data <- .process_matches2(output_str, req_matches, unlock_data)
+        match_data  <- .process_matches(output_str, req_matches)
+        output_data <- list(output = match_data$output,
+                            unlocking_data = unlock_data,
+                            unhandled = match_data$unhandled)
         output_data
       }
     } else {
@@ -248,13 +252,6 @@
   output_data
 }
 
-.process_matches2 <- function(output_str, req_matches, unlock_data) {
-  match_data  <- .process_matches(output_str, req_matches)
-  output_data <- list(output = match_data$output,
-                      unlocking_data = unlock_data,
-                      unhandled = match_data$unhandled)
-  output_data
-}
 .process_matches <- function(output_str, matches) {
   n1 <- nchar("\n@@@@ >LISTENER ::: REQ,")
   n2 <- nchar(output_str)
@@ -370,8 +367,7 @@
 }
 
 .send_listener_request <- function(cmd, cmd_args_list) {
-  cat("\n")
-  cat("@@@@ >LISTENER ::: REQ,")
+  cat("\n@@@@ >LISTENER ::: REQ,")
   cat(length(cmd_args_list) + 1)
   cat(",\n")
   # Sys.sleep(0.5) # Causes Listener 1 crash
@@ -385,8 +381,7 @@
 .send_listener_lock <- function() {
   lock_code <- "some_magic_123451_q4hkafbl@!k"
   if (!rstudioapi::isAvailable()) {
-    cat("\n")
-    cat("@@@@ >LISTENER ::: LOCK,")
+    cat("\n@@@@ >LISTENER ::: LOCK,")
     cat(lock_code)
     # Sys.sleep(0.5) # This causes locking crash
     cat("\n")
@@ -397,8 +392,7 @@
 .send_listener_unlock <- function(lock_code) {
   if (!rstudioapi::isAvailable()) {
     # Sys.sleep(0.3) # to prevent this to be dismissed
-    cat("\n")
-    cat("@@@@ >LISTENER ::: UNLOCK,")
+    cat("\n@@@@ >LISTENER ::: UNLOCK,")
     cat(lock_code)
     # Sys.sleep(0.5) # This causes unlocking crash
     cat("\n")
