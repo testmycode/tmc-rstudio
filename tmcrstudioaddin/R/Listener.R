@@ -296,19 +296,23 @@
           .before_part <- function(output_str, before_end) {
             substr(output_str, start = 1, stop = before_end - 1)
           }
-          output_data <- list(output = .process_matches(.before_part(output_str, lock_matches[1]),
-                                                        req_matches[req_matches < lock_matches[1]]),
+          match_data  <- .process_matches(.before_part(output_str, lock_matches[1]),
+                                          req_matches[req_matches < lock_matches[1]])
+          output_data <- list(output    = match_data$output,
                               unlocking_data = unlock_data,
-                              unhandled = .remaining_part(output_str, lock_matches[1]))
+                              unhandled = paste0(match_data$unhandled,
+                                                 .remaining_part(output_str, lock_matches[1])))
           cat("\nSimultaneous req/lock with req before\n---------\n")
           # .dcat("output_data", output_data)
         }
       } else if (lock_matches[1] > 0) {
         output_data <- .process_lock_matches(output_str, lock_matches)
       } else if (req_matches[1] > 0) {
-        output_data <- list(output = .process_matches(output_str, req_matches),
-                            unlocking_data = unlock_data,
-                            unhandled = "")
+        output_data <- .process_matches2(output_str, req_matches, unlock_data)
+        output_data
+#         output_data <- list(output = .process_matches(output_str, req_matches),
+#                             unlocking_data = unlock_data,
+#                             unhandled = "")
       }
     } else {
 #       .dcat("output_str", output_str)
@@ -325,6 +329,16 @@
   output_data
 }
 
+.process_matches2 <- function(output_str, req_matches, unlock_data) {
+  match_data  <- .process_matches(output_str, req_matches)
+  if (match_data$unhandled != "") {
+    .dcat("This might do the trick", match_data$unhandled)
+  }
+  output_data <- list(output = match_data$output,
+                      unlocking_data = unlock_data,
+                      unhandled = match_data$unhandled)
+  output_data
+}
 .process_matches <- function(output_str, matches) {
   n1 <- nchar("\n@@@@ >LISTENER ::: REQ,")
   n2 <- nchar(output_str)
@@ -351,7 +365,20 @@
     #
     cmd_args_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
     if (cmd_args_end < 0) {
-      stop("Listener crashed 2.")
+#      cat("\nABOUT TO CRASH\n--------\n")
+#      .dcat("output_str", output_str)
+#      .dcat("match_idx", match_idx)
+#      .dcat("match_start", matches[match_idx])
+#      .dcat("remaingn", .remaining_part(output_str, matches[match_idx]))
+#      .dcat("new_output_str", new_output_str)
+#      .dcat("num", num)
+#      .dcat("cmd_str", cmd_str)
+#      .dcat("tmp_str", tmp_str)
+#      .dcat("cmd_args_end", cmd_args_end)
+     cat("Listener locking crash 2 fixed!\n")
+     return(list(output = new_output_str,
+                 unhandled = .remaining_part(output_str, matches[match_idx])))
+      # stop("Listener crashed 2.")
     }
     cmd_args <- substr(tmp_str, start = 1, stop = cmd_args_end - 1)
     skip    <- skip + cmd_args_end
@@ -366,7 +393,7 @@
                                     start = skip_start,
                                     stop = n2))
   }
-  new_output_str
+  list(output = new_output_str, unhandled = "")
 }
 
 .process_command <- function(num, cmd, cmd_args) {
