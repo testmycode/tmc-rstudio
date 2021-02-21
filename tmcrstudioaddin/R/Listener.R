@@ -216,19 +216,30 @@
 .process_lock_matches <- function(output_str, matches) {
   n1 <- nchar("\n@@@@ >LISTENER ::: LOCK,")
   n2 <- nchar(output_str)
-  new_output_str <- substr(output_str, start = 1, stop = matches - 1)
-  tmp_str <- substr(output_str, start = matches + n1, stop = nchar(output_str))
+#   .dcat("matches", matches)
+  match1 <- matches[1]
+#   .dcat("match1", match1)
+  new_output_str <- substr(output_str, start = 1, stop = match1 - 1)
+  tmp_str <- substr(output_str, start = match1 + n1, stop = nchar(output_str))
   lock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
   if (lock_end < 0) {
-    cat("Listener locking crash\n")
-    stop("Crash")
+#     cat("\nABOUT TO CRASH\n--------\n")
+#     .dcat("output_str", output_str)
+#     .dcat("new_output_str", new_output_str)
+#     .dcat("tmp_str", tmp_str)
+#     .dcat("lock_end", lock_end)
+#     cat("Listener locking crash\n")
+    cat("Listener locking partial match crash fixed!\n")
+    unhandled <- .remaining_part(output_str, match1)
+    return(list(output = new_output_str, unlocking_data = list("", -1),
+                unhandled = unhandled))
   }
   lock_code <- substr(tmp_str, start = 1, stop = lock_end - 1)
 #   output_str <- paste0(new_output_str, substr(tmp_str,
 #                                               start = lock_end + 1,
 #                                               stop = nchar(tmp_str)))
   list(output         = new_output_str,
-       unlocking_data = list(lock_code, matches[1]),
+       unlocking_data = list(lock_code, match1),
        unhandled      = substr(tmp_str, start = lock_end + 1, stop = nchar(tmp_str)))
 }
 .process_init_matches <- function(output_str, matches) {
