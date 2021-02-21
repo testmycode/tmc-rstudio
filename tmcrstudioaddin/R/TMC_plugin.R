@@ -158,7 +158,7 @@ tmcGadget <- function() {
 
 .create_rtmc_ui <- function(tabs_data_list) {
   # cat("4\n")
-  css_prefix <- "tmcrstudioaddin-0.7.2"
+  css_prefix <- "tmcrstudioaddin-0.7.5"
   used_theme <- .choose_used_theme(css_prefix)
   shiny::addResourcePath(css_prefix,
                          system.file("www", package = "tmcrstudioaddin"))
