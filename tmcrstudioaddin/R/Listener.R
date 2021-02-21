@@ -116,7 +116,6 @@
   cmd_mode    <- lock_data$cmd_mode
   lock_codes  <- output_data$unlocking_data[[1]]
   if (lock_codes[1] == "unlock") {
-    # cat("Unlocking.")
     cmd_mode <- TRUE
     unlock_code <- ""
   }
@@ -135,7 +134,7 @@
     tmp_str <- substr(output_str, start = match1 + n1, stop = nchar(output_str))
     unlock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
     if (unlock_end < 0) {
-      # cat("Listener unlocking partial match crash fixed.\n")
+      # Listener unlocking partial match crash fixed
       unhandled <- .remaining_part(output_str, match1)
       return(list(output = new_output_str, unlocking_data = list("lock", -1),
                   unhandled = unhandled))
@@ -162,7 +161,7 @@
   tmp_str <- substr(output_str, start = match1 + n1, stop = nchar(output_str))
   lock_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
   if (lock_end < 0) {
-    cat("Listener locking partial match crash fixed!\n")
+    # Listener locking partial match crash fixed
     unhandled <- .remaining_part(output_str, match1)
     return(list(output = new_output_str, unlocking_data = list("", -1),
                 unhandled = unhandled))
@@ -219,7 +218,7 @@
       if (lock_matches[1] > 0 & req_matches[1] > 0) {
         if (lock_matches[1] < req_matches[1]) {
           output_data <- .process_lock_matches(output_str, lock_matches)
-          # cat("\nSimultaneous req/lock with lock before\n---------\n")
+          # Simultaneous req/lock with lock before
         } else {
           .before_part <- function(output_str, before_end) {
             substr(output_str, start = 1, stop = before_end - 1)
@@ -230,7 +229,7 @@
                               unlocking_data = unlock_data,
                               unhandled = paste0(match_data$unhandled,
                                                  .remaining_part(output_str, lock_matches[1])))
-          # cat("\nSimultaneous req/lock with req before\n---------\n")
+          # Simultaneous req/lock with req before
         }
       } else if (lock_matches[1] > 0) {
         output_data <- .process_lock_matches(output_str, lock_matches)
@@ -251,9 +250,6 @@
 
 .process_matches2 <- function(output_str, req_matches, unlock_data) {
   match_data  <- .process_matches(output_str, req_matches)
-#   if (match_data$unhandled != "") {
-#     .dcat("This might do the trick", match_data$unhandled)
-#   }
   output_data <- list(output = match_data$output,
                       unlocking_data = unlock_data,
                       unhandled = match_data$unhandled)
@@ -277,15 +273,7 @@
     skip    <- 5 - 1
     cmd_end <- regexpr(pattern = " ", text = tmp_str)[[1]]
     if (cmd_end < 0) {
-#       cat("\nABOUT TO CRASH\n--------\n")
-#       .dcat("output_str", output_str)
-#       .dcat("match_idx", match_idx)
-#       .dcat("match_start", matches[match_idx])
-#       .dcat("remaingn", .remaining_part(output_str, matches[match_idx]))
-#       .dcat("new_output_str", new_output_str)
-#       .dcat("tmp_str", tmp_str)
-#       .dcat("cmd_end", cmd_end)
-      cat("Listener locking crash 1 fixed!!!\n")
+      # Listener locking crash 1 fixed!!!
       return(list(output = new_output_str,
                   unhandled = .remaining_part(output_str, matches[match_idx])))
     }
@@ -295,20 +283,9 @@
     #
     cmd_args_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
     if (cmd_args_end < 0) {
-#      cat("\nABOUT TO CRASH\n--------\n")
-#      .dcat("output_str", output_str)
-#      .dcat("match_idx", match_idx)
-#      .dcat("match_start", matches[match_idx])
-#      .dcat("remaingn", .remaining_part(output_str, matches[match_idx]))
-#      .dcat("new_output_str", new_output_str)
-#      .dcat("num", num)
-#      .dcat("cmd_str", cmd_str)
-#      .dcat("tmp_str", tmp_str)
-#      .dcat("cmd_args_end", cmd_args_end)
-     cat("Listener locking crash 2 fixed!\n")
+     # Listener locking crash 2 fixed!!!
      return(list(output = new_output_str,
                  unhandled = .remaining_part(output_str, matches[match_idx])))
-      # stop("Listener crashed 2.")
     }
     cmd_args <- substr(tmp_str, start = 1, stop = cmd_args_end - 1)
     skip    <- skip + cmd_args_end
@@ -397,9 +374,11 @@
   cat("@@@@ >LISTENER ::: REQ,")
   cat(length(cmd_args_list) + 1)
   cat(",\n")
+  # Sys.sleep(0.5) # Causes Listener 1 crash
   cat(cmd)
   cat(" ")
   .listener_req_cmd_args(cmd_args_list)
+  # Sys.sleep(0.5) # Causes Listener 2 crash
   cat("\n")
 }
 
@@ -409,6 +388,7 @@
     cat("\n")
     cat("@@@@ >LISTENER ::: LOCK,")
     cat(lock_code)
+    # Sys.sleep(0.5) # This causes locking crash
     cat("\n")
   }
   lock_code
@@ -420,6 +400,7 @@
     cat("\n")
     cat("@@@@ >LISTENER ::: UNLOCK,")
     cat(lock_code)
+    # Sys.sleep(0.5) # This causes unlocking crash
     cat("\n")
   }
 }
