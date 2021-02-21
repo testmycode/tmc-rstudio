@@ -124,37 +124,12 @@
   cmd_mode    <- lock_data$cmd_mode
   output      <- output_data$output
   lock_codes  <- output_data$unlocking_data[[1]]
-  matches     <- output_data$unlocking_data[[2]]
-#   cat("\n.try_unlocking\n----------\n")
-#   .dcat("unlock_code", unlock_code)
-#   .dcat("cmd_mode", cmd_mode)
-#   .dcat("output", output)
-#   .dcat("lock_codes", lock_codes)
-#   .dcat("matches", matches)
-#   cat("BUT NOW WE SHOULD BE SKIPPING THIS...WE DON'T USE THIS ANYMORE\n")
+  # matches     <- output_data$unlocking_data[[2]]
   if (lock_codes[1] == "unlock") {
-    # cat("FINALLY UNLOCKING!!!!!")
+    # cat("Unlocking.")
     cmd_mode <- TRUE
     unlock_code <- ""
-  } else {
-    cat("")
-    # cat("Not unlocking\n")
   }
-#   for (ind in seq_along(lock_codes)) {
-#     lock_code <- lock_codes[ind]
-#     if (lock_code == unlock_code) {
-#       cmd_mode <- TRUE
-#       unlock_code <- ""
-#     } else {
-#       match1 <- matches[ind]
-#       stop("BUT NOW WE ARE NERE!")
-#       output <- paste0(substr(output, start = 1, stop = match1 - 1),
-#                        "\n@@@@ >LISTENER ::: UNLOCK,",
-#                        lock_code,
-#                        "\n",
-#                        substr(output, start = match1, stop = nchar(output)))
-#     }
-#   }
   lock_data <- list(cmd_mode = cmd_mode, unlock_code = unlock_code)
   cat(output)
   lock_data
@@ -496,7 +471,7 @@
 
 .send_listener_unlock <- function(lock_code) {
   if (!rstudioapi::isAvailable()) {
-    Sys.sleep(0.3) # to prevent this to be dismissed
+    # Sys.sleep(0.3) # to prevent this to be dismissed
     cat("\n")
     cat("@@@@ >LISTENER ::: UNLOCK,")
     cat(lock_code)
