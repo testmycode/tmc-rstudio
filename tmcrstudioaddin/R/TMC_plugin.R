@@ -144,7 +144,6 @@ tmcGadget <- function() {
   # these are always going to be empty
   assign(x = ".global_env_copy", value = .global_env_copy,
          envir = .GlobalEnv)
-  # print(ls(.GlobalEnv, all.names = TRUE))
   # clean this ASAP
   if (exists(".__tmc_debug", envir = .GlobalEnv)) {
     .tmc_debug <- get(".__tmc_debug", envir = .GlobalEnv)
@@ -152,12 +151,6 @@ tmcGadget <- function() {
     .tmc_debug <- NULL
   }
   .global_env_copy <- .clear_global_environment(".global_env_copy")
-  # print(.global_env_copy)
-  # print(ls(.global_env_copy, all.names = TRUE))
-  # print(ls(.GlobalEnv, all.names = TRUE))
-  # character(0)
-  # character(0)
-  # these are always going to be empty
 
   # Fix this later
   if (!is.null(.tmc_debug)) {
@@ -314,57 +307,11 @@ tmcGadget <- function() {
 #' is implemented using \code{later}.
 
 tmcGadget_nonblock <- function() {
-  value_name <- NULL
-  env1 <- parent.frame()
+#  value_name <- NULL
   rx <- callr::r_bg(function() { tmcrstudioaddin::tmcGadget() },
                     stdout = "|", stderr = "2>&1", poll_connection = TRUE)
-  listener_env <- .listener(rx, res_name = value_name, env = NULL)
-  polls <- rx$poll_io(timeout = 10)
-  count1 <- 0
-  count  <- 0
-  server_port <- ""
+  listener_env <- .listener(rx, res_name = NULL, env = NULL)
   cat("Waiting for RTMC to start.\n")
-#   while (server_port == "" & rx$is_alive()) {
-#     while (polls["output"] != "ready") {
-#       cat(".")
-#       # cat(polls["output"])
-#       Sys.sleep(0.1)
-#       # cat("Woke up.\n")
-#       polls <- rx$poll_io(timeout = 10)
-#       count <- count + 1
-#     }
-#     err_text <- rx$read_output()
-#     if (count > 0) cat("\n")
-#     start_idx   <- regexpr("http://", err_text)
-#     if (start_idx >= 0) {
-#       server_port <-  sub(pattern = "\n", replacement = "",
-#                           substr(err_text, start = start_idx, stop = nchar(err_text)))
-#     } else {
-#       cat(err_text)
-#     }
-#     count1 <- count1 + count
-#     count <- 0
-#     #cat("+")
-#     polls <- rx$poll_io(timeout = 10)
-#     #cat("What if rx falls...\n")
-#     if (count1 > 30) {
-#       rx$interrupt()
-#     }
-#   }
-#   if (rx$is_alive()) {
-#     cat("Server for 'shiny' has started.\n")
-#     cat("Server port = ", server_port, "\n")
-#     cat("count = ", count1, "\n")
-#     cat("Opening viewer.\n")
-#     rstudioapi::viewer(server_port)
-# #  cat("Waiting 4 seconds to show that before releasing console printing works\n")
-# #  Sys.sleep(4)
-#     cat("Releasing console. Have fun!\n")
-#     listener_env
-#   } else {
-#     cat("Server 'shiny' failed to start.\n")
-#     cat("Just retry, it is normal that it just sometimes fails.\n")
-    invisible(listener_env)
-#   }
+  invisible(listener_env)
 }
 
