@@ -42,7 +42,10 @@
   server_port          <- ""
   listener_init_loop <- function(count, server_port) {
     if (server_port == "" & rx$is_alive()) {
-      init_message <- .parse_init(rx$read_output(), cmd_mode)
+      # for windows
+      read_1 <- rx$read_output()
+      read_2 <- rx$read_output()
+      init_message <- .parse_init(paste0(read_1, read_2), cmd_mode)
       output       <- init_message[[1]]
       server_port  <- init_message[[2]]
       count        <- count + 1
@@ -64,27 +67,42 @@
       normal_loop <- function() {
         listener_loop(count,
                       list(cmd_mode = cmd_mode, unlock_code = ""),
-                      "")
+                      "",
+                      FALSE)
         42L
       }
       later::later(normal_loop, delay = 0.2)
     }
   }
-  listener_loop <- function(count, lock_data, unhandled) {
+  listener_loop <- function(count, lock_data, unhandled, partial) {
     if (rx$is_alive()) {
-      raw_output  <- paste0(unhandled, rx$read_output())
+      # for windows, making an explicit double read
+      read_1      <- rx$read_output()
+      read_2      <- rx$read_output()
+      raw_output  <- paste0(unhandled, read_1, "", read_2)
       output_data <- .parse_cmd(raw_output, lock_data)
       lock_data   <- .handle_locking(output_data, lock_data)
       cat(output_data$output)
+      if (output_data$partial) {
+        if (partial) {
+          cat(output_data$unhandled)
+          output_data$unhandled <- ""
+          output_data$partial <- FALSE
+        }
+      }
       count       <- count + 1
       listener_env$count <- count
       normal_loop <- function() {
-        listener_loop(count, lock_data, output_data$unhandled)
+        listener_loop(count, lock_data, output_data$unhandled,
+                      output_data$partial)
         42L
       }
       later::later(normal_loop, delay = 0.2)
     } else {
-      cat(rx$read_output())
+      # for windows, making an explicit double read
+      read_1 <- rx$read_output()
+      read_2 <- rx$read_output()
+      cat(paste0(read_1, read_2))
       cat("-------------\n")
       cat("RTMC session has ended.\n")
       listener_env$running <- FALSE
@@ -123,8 +141,18 @@
   lock_data
 }
 
+.lsep <- if (.Platform$OS.type == "windows") {
+  "\r\n"
+} else {
+  "\n"
+}
+.nclsep <- nchar(.lsep)
+.listener_outprefix <-
+  paste0("#", "\n",  "@@@@ >LISTENER ::: ")
+.listener_prefix <-
+  paste0("#", .lsep, "@@@@ >LISTENER ::: ")
 .process_unlock_matches <- function(output_str, matches, unlock_code) {
-  n1 <- nchar("\n@@@@ >LISTENER ::: UNLOCK,")
+  n1 <- nchar(paste0(.listener_prefix, "UNLOCK,")) # "\n@@@@ >LISTENER ::: UNLOCK,")
   new_output_str <- ""
   unlock_codes <- c()
   skip <- 1
@@ -154,7 +182,7 @@
 }
 
 .process_lock_matches <- function(output_str, matches) {
-  n1 <- nchar("\n@@@@ >LISTENER ::: LOCK,")
+  n1 <- nchar(paste0(.listener_prefix, "LOCK,")) # "\n@@@@ >LISTENER ::: LOCK,")
   n2 <- nchar(output_str)
   match1 <- matches[1]
   new_output_str <- substr(output_str, start = 1, stop = match1 - 1)
@@ -173,17 +201,17 @@
 }
 
 .process_init_matches <- function(output_str, matches) {
-  n1 <- nchar("\nListening on ")
+  n1 <- nchar(paste0(.lsep, "Listening on "))
   new_output_str <- substr(output_str, start = 1, stop = matches - 1)
   tmp_str <- substr(output_str, start = matches + n1, stop = nchar(output_str))
-  listen_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
+  listen_end <- regexpr(pattern = .lsep, text = tmp_str)[[1]]
   if (listen_end < 0) {
     cat("Listener init crash\n")
     stop("Crash")
   }
   server_port <- substr(tmp_str, start = 1, stop = listen_end - 1)
   output_str <- paste0(new_output_str, substr(tmp_str,
-                                              start = listen_end + 1,
+                                              start = listen_end + .nclsep,
                                               stop = nchar(tmp_str)))
   c(output_str, server_port)
 }
@@ -191,7 +219,7 @@
 .parse_init <- function(output_str, cmd_mode) {
   server_port <- ""
   if (cmd_mode & output_str != "") {
-    matches <- gregexpr(pattern = "\nListening on http://", text = output_str)[[1]]
+    matches <- gregexpr(pattern = paste0(.lsep, "Listening on http://"), text = output_str)[[1]]
     if (matches[1] > 0) {
       parsed_message <- .process_init_matches(output_str, matches)
       output_str  <- parsed_message[1]
@@ -211,14 +239,16 @@
   unlock_data <- list("", -1)
   output_data <- list(output         = output_str,
                       unlocking_data = unlock_data,
-                      unhandled      = "")
+                      unhandled      = "",
+                      partial        = FALSE)
   if (output_str != "") {
     if (cmd_mode) {
-      lock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: LOCK,", text = output_str)[[1]]
-      req_matches  <- gregexpr(pattern = "\n@@@@ >LISTENER ::: REQ,", text = output_str)[[1]]
+      lock_matches <- gregexpr(pattern = paste0(.listener_prefix, "LOCK,"), text = output_str)[[1]]
+      req_matches  <- gregexpr(pattern = paste0(.listener_prefix, "REQ,"), text = output_str)[[1]]
       if (lock_matches[1] > 0 & req_matches[1] > 0) {
         if (lock_matches[1] < req_matches[1]) {
           output_data <- .process_lock_matches(output_str, lock_matches)
+          output_data$partial <- FALSE
           # Simultaneous req/lock with lock before
         } else {
           .before_part <- function(output_str, before_end) {
@@ -229,23 +259,43 @@
           output_data <- list(output    = match_data$output,
                               unlocking_data = unlock_data,
                               unhandled = paste0(match_data$unhandled,
-                                                 .remaining_part(output_str, lock_matches[1])))
+                                                 .remaining_part(output_str, lock_matches[1])),
+                              partial = FALSE)
           # Simultaneous req/lock with req before
         }
       } else if (lock_matches[1] > 0) {
         output_data <- .process_lock_matches(output_str, lock_matches)
+        output_data$partial <- FALSE
       } else if (req_matches[1] > 0) {
         match_data  <- .process_matches(output_str, req_matches)
         output_data <- list(output = match_data$output,
                             unlocking_data = unlock_data,
-                            unhandled = match_data$unhandled)
+                            unhandled = match_data$unhandled,
+                            partial = FALSE)
         output_data
+      } else {
+        partial_match <- gregexpr(pattern = "#", text = output_str)[[1]][1] > 0
+        if (partial_match) {
+          output_data <- list(output = "",
+                              unlocking_data = unlock_data,
+                              unhandled = output_str,
+                              partial = TRUE)
+        }
       }
     } else {
-      unlock_matches <- gregexpr(pattern = "\n@@@@ >LISTENER ::: UNLOCK,", text = output_str)[[1]]
+      unlock_matches <- gregexpr(pattern = paste0(.listener_prefix, "UNLOCK,"), text = output_str)[[1]]
       if (unlock_matches[1] > 0) {
         output_data <- .process_unlock_matches(output_str, unlock_matches,
                                                lock_data$unlock_code)
+        output_data$partial <- FALSE
+      } else {
+        partial_match <- gregexpr(pattern = "#", text = output_str)[[1]][1] > 0
+        if (partial_match) {
+          output_data <- list(output = "",
+                              unlocking_data = unlock_data,
+                              unhandled = output_str,
+                              partial = TRUE)
+        }
       }
     }
   }
@@ -253,7 +303,7 @@
 }
 
 .process_matches <- function(output_str, matches) {
-  n1 <- nchar("\n@@@@ >LISTENER ::: REQ,")
+  n1 <- nchar(paste0(.listener_prefix, "REQ,"))
   n2 <- nchar(output_str)
   skip_start <- 1
   new_output_str <- ""
@@ -266,8 +316,8 @@
     tmp_str <- substr(output_str, start = skip_start, stop = n2)
     num     <- as.integer(substr(tmp_str, start = 2, stop = 2))
     # -----------------
-    tmp_str <- substr(tmp_str, start = 5, stop = nchar(tmp_str))
-    skip    <- 5 - 1
+    tmp_str <- substr(tmp_str, start = 4 + .nclsep, stop = nchar(tmp_str))
+    skip    <- 4 + .nclsep - 1
     cmd_end <- regexpr(pattern = " ", text = tmp_str)[[1]]
     if (cmd_end < 0) {
       # Listener locking crash 1 fixed!!!
@@ -278,7 +328,7 @@
     tmp_str <- substr(tmp_str, start = cmd_end + 1, stop = nchar(tmp_str))
     skip    <- skip + cmd_end
     #
-    cmd_args_end <- regexpr(pattern = "\n", text = tmp_str)[[1]]
+    cmd_args_end <- regexpr(pattern = .lsep, text = tmp_str)[[1]]
     if (cmd_args_end < 0) {
      # Listener locking crash 2 fixed!!!
      return(list(output = new_output_str,
@@ -287,7 +337,7 @@
     cmd_args <- substr(tmp_str, start = 1, stop = cmd_args_end - 1)
     skip    <- skip + cmd_args_end
     #
-    skip_start  <- skip_start + skip
+    skip_start  <- skip_start + skip + (.nclsep - 1)
     val <- .process_command(as.integer(num), cmd_str, cmd_args)
     #
   }
@@ -367,7 +417,7 @@
 }
 
 .send_listener_request <- function(cmd, cmd_args_list) {
-  cat("\n@@@@ >LISTENER ::: REQ,")
+  cat(paste0(.listener_outprefix, "REQ,"))
   cat(length(cmd_args_list) + 1)
   cat(",\n")
   # Sys.sleep(0.5) # Causes Listener 1 crash
@@ -381,7 +431,7 @@
 .send_listener_lock <- function() {
   lock_code <- "some_magic_123451_q4hkafbl@!k"
   if (!rstudioapi::isAvailable()) {
-    cat("\n@@@@ >LISTENER ::: LOCK,")
+    cat(paste0(.listener_outprefix, "LOCK,"))
     cat(lock_code)
     # Sys.sleep(0.5) # This causes locking crash
     cat("\n")
@@ -392,7 +442,7 @@
 .send_listener_unlock <- function(lock_code) {
   if (!rstudioapi::isAvailable()) {
     # Sys.sleep(0.3) # to prevent this to be dismissed
-    cat("\n@@@@ >LISTENER ::: UNLOCK,")
+    cat(paste0(.listener_outprefix, "UNLOCK,"))
     cat(lock_code)
     # Sys.sleep(0.5) # This causes unlocking crash
     cat("\n")
