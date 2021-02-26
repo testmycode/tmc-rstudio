@@ -80,7 +80,8 @@ test_that("Dialog message outputs error correctly", {
   submitResults$data$exercise_name <- "project1"
   submitResults$error <- "<Some url error>"
   message <- getDialogMessage(submitResults)
-  expect_equal(message$text, paste0("<p>", "<Some url error>"))
+  # expect_equal(message$text, paste0("<p>", "<Some url error>"))
+  expect_equal(message$text, "")
 })
 
 test_that("Error messages over 300 characters are cut to 300 characters", {
@@ -90,7 +91,8 @@ test_that("Error messages over 300 characters are cut to 300 characters", {
   submitResults$error <- paste(replicate(400, "a"), collapse = "")
   message <- getDialogMessage(submitResults)
   expected <- paste(replicate(300, "a"), collapse = "")
-  expect_equal(message$text, paste0("<p>", expected))
+  #expect_equal(message$text, paste0("<p>", expected))
+  expect_equal(message$text, "")
 })
 
 test_that("Dialog message outputs all tests passed correctly", {
@@ -99,8 +101,11 @@ test_that("Dialog message outputs all tests passed correctly", {
   submitResults$data$all_tests_passed <- TRUE
   submitResults$data$exercise_name <- "project1"
   message <- getDialogMessage(submitResults)
-  expect_equal(message$text, paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
-                                    "r1, r2</b><p>View model solution"))
+  expected_message <- 
+    paste0("Congratulations! All tests passed on the server!",
+	   "<p><b>Points permanently awarded: r1, r2</b>",
+	   "<p>You can now view the model solution on the server.")
+  expect_equal(message$text, expected_message)
 })
 
 test_that("Dialog message outputs some tests passed correctly", {
@@ -109,8 +114,14 @@ test_that("Dialog message outputs some tests passed correctly", {
   submitResults$data$all_tests_passed <- FALSE
   submitResults$data$exercise_name <- "project1"
   message <- getDialogMessage(submitResults)
-  expect_equal(message$text, paste0("Exercise project1 failed partially.<p><b>Points permanently awarded: ",
-                                    "r1, r2</b><p>Some tests failed on the server.<p>Press OK to see failing tests"))
+  expected_message <-
+    paste0("You are getting there! You received 2 points from Exercise set 'project1'. ",
+	   "<p><b>Points permanently awarded: ",
+	   "r1, r2</b>",
+	   "<p>Some tests still failed on the server.",
+	   "<p>Press OK to see failing tests")
+
+  expect_equal(message$text, paste0(expected_message))
 })
 
 test_that("SubmitExercise works correctly with right json from server", {
@@ -142,6 +153,9 @@ test_that("Message function is called", {
   args <- mock_args(mock)
   expect_called(mock, 1)
   expect_equal(args[[1]]$title, "Results")
-  expect_equal(args[[1]]$message, paste0("All tests passed on the server.<p><b>Points permanently awarded: ",
-                                 "r1, r2</b><p>View model solution"))
+  expected_message <- 
+    paste0("Congratulations! All tests passed on the server!",
+	   "<p><b>Points permanently awarded: r1, r2</b>",
+	   "<p>You can now view the model solution on the server")
+  expect_equal(args[[1]]$message, expected_message)
 })

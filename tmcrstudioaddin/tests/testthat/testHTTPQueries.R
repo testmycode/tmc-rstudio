@@ -1,3 +1,8 @@
+.dcat <- function(name, x) {
+  cat(paste0("<", name, ">\n"))
+  print(x)
+  cat(paste0("</", name, ">\n"))
+}
 # context("Submitting")
 # httptest::with_mock_API({
 #   # The needed json is different depending on path of the exercise. Can test locally with the correct json
@@ -42,9 +47,9 @@ httptest::with_mock_API({
     }
 
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
-    login("a", "b", "c", "d", "tmc.mooc.fi")
+    tmcrstudioaddin::login("a", "b", "c", "d", "tmc.mooc.fi")
 
-    courses <- getAllCourses("hy")
+    courses <- tmcrstudioaddin::get_all_courses("hy")
     expect_true(length(courses) > 0)
 
     for (name in courses$name) {
@@ -69,7 +74,7 @@ httptest::with_mock_API({
 
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
     login("a", "b", "c", "d", "tmc.mooc.fi")
-    organizations <- tmcrstudioaddin::getAllOrganizations()
+    organizations <- tmcrstudioaddin::get_all_organizations()
 
     expect_true(length(organizations$name) > 0)
 
@@ -93,7 +98,7 @@ httptest::with_mock_API({
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
     login("a", "b", "c", "d", "tmc.mooc.fi")
 
-    organizations <- tmcrstudioaddin::getAllOrganizations()
+    organizations <- tmcrstudioaddin::get_all_organizations()
 
     expect_true(length(organizations$name) > 0)
 
@@ -137,7 +142,7 @@ httptest::with_mock_API({
     authenticate("rtest", "asdasdasd", "https://tmc.moasdoc.fi")
     # login("a", "b", "c", "d", "tmc.moasasddas.fi")
 
-    courses <- getAllCourses("hy")
+    courses <- tmcrstudioaddin::get_all_courses("hy")
     expect_true(length(courses$id) == 0)
     expect_true(length(courses$name) == 0)
 
@@ -152,7 +157,7 @@ httptest::with_mock_API({
     }
 
     authenticate("rtest", "asdasdasd", "https://tmc.mooasdc.fi")
-    organizations <- tmcrstudioaddin::getAllOrganizations()
+    organizations <- tmcrstudioaddin::get_all_organizations()
     expect_true(length(organizations$slug) == 0)
     expect_true(length(organizations$name) == 0)
 

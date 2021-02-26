@@ -1,3 +1,8 @@
+.dcat <- function(name, x) {
+  cat(paste0("<", name, ">\n"))
+  print(x)
+  cat(paste0("</", name, ">\n"))
+}
 context("Logging in")
 httptest::with_mock_API({
   test_that("Fetching client ID and secret works", {
@@ -19,8 +24,8 @@ httptest::with_mock_API({
 
     response <- login("a", "b", "c", "d", "tmc.mooc.fi")
 
-    expect_is(response, "character")
-    expect_equal(substr(response, 0, 6), "Bearer")
+    expect_is(response$token, "character")
+    expect_equal(substr(response$token, 0, 6), "Bearer")
 
     expect_true(file.exists(credentials_path))
 
