@@ -40,6 +40,10 @@
   listener_env$rx      <- rx
   listener_env$port    <- ""
   server_port          <- ""
+  gc()
+  gc_res	       <- gc()
+  listener_env$ncells  <- gc_res["Ncells", "used"]
+  listener_env$vcells  <- gc_res["Vcells", "used"]
   listener_init_loop <- function(count, server_port) {
     if (server_port == "" & rx$is_alive()) {
       # for windows
@@ -49,7 +53,8 @@
       output       <- init_message[[1]]
       server_port  <- init_message[[2]]
       count        <- count + 1
-      listener_env$count <- count
+      listener_env$count  <- count
+      update_gc()
       init_loop <- function() {
         listener_init_loop(count, server_port)
         42L
@@ -74,29 +79,50 @@
       later::later(normal_loop, delay = 0.2)
     }
   }
+  show_update_gc <- function() {
+    gc_res <- gc()
+    ncells <- gc_res["Ncells", "used"]
+    vcells <- gc_res["Vcells", "used"]
+    if (ncells > listener_env$ncells) cat("+")
+    if (vcells > listener_env$vcells) cat("*")
+    gc_res
+  }
+  update_gc <- function() {
+    gc_res <- show_update_gc()
+    listener_env$ncells <- gc_res["Ncells", "used"]
+    listener_env$vcells <- gc_res["Vcells", "used"]
+  }
+
+  read_raw_output <- function(rx, unhandled) {
+    # for windows, making an explicit double read
+    read_1      <- rx$read_output()
+    read_2      <- rx$read_output()
+    raw_output  <- paste0(unhandled, read_1, "", read_2)
+    raw_output
+  }
   listener_loop <- function(count, lock_data, unhandled, partial) {
     if (rx$is_alive()) {
-      # for windows, making an explicit double read
-      read_1      <- rx$read_output()
-      read_2      <- rx$read_output()
-      raw_output  <- paste0(unhandled, read_1, "", read_2)
-      output_data <- .parse_cmd(raw_output, lock_data)
-      lock_data   <- .handle_locking(output_data, lock_data)
+      output_data   <- .parse_cmd(read_raw_output(rx, unhandled), lock_data)
+      new_lock_data <- .handle_locking(output_data, lock_data)
       cat(output_data$output)
-      if (output_data$partial) {
-        if (partial) {
-          cat(output_data$unhandled)
-          output_data$unhandled <- ""
-          output_data$partial <- FALSE
-        }
+      if (partial & output_data$partial) {
+	cat(output_data$unhandled)
+	output_data$unhandled <- ""
+	output_data$partial   <- FALSE
       }
       count       <- count + 1
       listener_env$count <- count
+      unhandled <- output_data$unhandled
+      partial   <- output_data$partial
+      newer_lock_data <- list(cmd_mode    = new_lock_data$cmd_mode,
+			      unlock_code = new_lock_data$unlock_code)
+      rm(new_lock_data)
+      rm(output_data)
       normal_loop <- function() {
-        listener_loop(count, lock_data, output_data$unhandled,
-                      output_data$partial)
-        42L
+        listener_loop(count, newer_lock_data, unhandled, partial)
       }
+      if (count %% 20 == 0) cat("\n")
+      update_gc()
       later::later(normal_loop, delay = 0.2)
     } else {
       # for windows, making an explicit double read
