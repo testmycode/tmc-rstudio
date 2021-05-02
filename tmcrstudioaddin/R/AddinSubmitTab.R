@@ -1,54 +1,82 @@
+.create_top_row <- function(top_row_IDs) {
+  fluidRow(column(width = 6,
+                  class = "col-xs-6",
+                  selectInput(inputId   = top_row_IDs[[1]],
+                              label     = "Exercise:",
+                              choices   = c(),
+                              selected  = exercisePathFromWd())),
+           column(width = 6,
+                  class = "col-xs-6",
+                  actionButton(inputId  = top_row_IDs[[2]],
+                               label    = "Refresh exercises",
+                               style    = "margin-top:25px;")))
+}
+.create_second_row <- function(ns_inputIDs) {
+  if (rstudioapi::isAvailable()) {
+    fluidRow(column(width = 12,
+                    class = "col-xs-12",
+                    actionButton(inputId  = ns_inputIDs[[3]], #ns("openFiles"),
+                                 label    = "Open files",
+                                 style    = "margin-top:5px;"),
+                    actionButton(inputId  = ns_inputIDs[[6]], #ns("saveFiles"),
+                                 label    = "Save modifications",
+                                 style    = "margin-top:5px;")))
+  } else {
+    fluidRow(column(width = 12, class = "col-xs-12"))
+  }
+}
+.create_bottom_row <- function(ns_inputIDs) {
+  if (rstudioapi::isAvailable()) {
+    fluidRow(column(width = 12,
+                    style = "margin-top:5px;",
+                    actionButton(inputId  = ns_inputIDs[[7]], #ns("source"),
+                                 label    = "Source"),
+                    actionButton(inputId  = ns_inputIDs[[4]], #ns("runTests"),
+                                 label    = "Run tests"),
+                    actionButton(inputId  = ns_inputIDs[[5]], #ns("submit"),
+                                 label    = "Submit to server")))
+  } else {
+    fluidRow(column(width = 12,
+                    style = "margin-top:5px;",
+                    actionButton(inputId  = ns_inputIDs[[3]], #ns("openFiles"),
+                                 label    = "Open files"),
+                    actionButton(inputId  = ns_inputIDs[[4]], # ns("runTests"),
+                                 label    = "Run tests"),
+                    actionButton(inputId  = ns_inputIDs[[5]], #ns("submit"),
+                                 label    = "Submit to server")))
+  }
+}
+.create_bottom2_row <- function(ns_inputIDs) {
+  if (rstudioapi::isAvailable()) {
+    fluidRow(column(width = 6,
+                    class = "col-xs-6",
+                    checkboxInput(inputId = ns_inputIDs[[8]], #ns("showAllResults"),
+                                  label   = "Show all results",
+                                  value   = TRUE)),
+             column(width = 6,
+                    class = "col-xs-6",
+                    checkboxInput(inputId = ns_inputIDs[[9]], #ns("toggleEcho"),
+                                  label   = "Echo source",
+                                  value   = TRUE)))
+  } else {
+    fluidRow(column(width = 12, class = "col-xs-12"))
+  }
+}
 .submitTabUI <- function(id, label = "Submit tab") {
   #init selected exercise (this is now done in TMC_plugin.R
   .dprint(".submitTabUI launched")
   ns <- shiny::NS(id)
-  inputIDs    <- c("selectExercise",
-                   "refreshExercises",
-                   "openFiles",
-                   "saveFiles",
-                   "source",
-                   "runTests",
-                   "submit",
-                   "showAllResults",
-                   "toggleEcho")
+  inputIDs <- c("selectExercise", "refreshExercises",
+                "openFiles", "runTests", "submit")
+  if (rstudioapi::isAvailable()) {
+    inputIDs <- c(inputIDs, "saveFiles", "source",
+                  "showAllResults", "toggleEcho")
+  }
   ns_inputIDs <- sapply(inputIDs, ns)
-  top_row     <- fluidRow(column(width = 6,
-                                 class = "col-xs-6",
-                                 selectInput(inputId   = ns("selectExercise"),
-                                             label     = "Exercise:",
-                                             choices   = c(),
-                                             selected  = exercisePathFromWd())),
-                          column(width = 6,
-                                 class = "col-xs-6",
-                                 actionButton(inputId  = ns("refreshExercises"),
-                                              label    = "Refresh exercises",
-                                              style    = "margin-top:25px;")))
-  second_row  <- fluidRow(column(width = 12,
-                                 class = "col-xs-12",
-                                 actionButton(inputId  = ns("openFiles"),
-                                              label    = "Open files",
-                                              style    = "margin-top:5px;"),
-                                 actionButton(inputId  = ns("saveFiles"),
-                                              label    = "Save modifications",
-                                              style    = "margin-top:5px;")))
-  bottom_row  <- fluidRow(column(width = 12,
-                                 style = "margin-top:5px;",
-                                 actionButton(inputId  = ns("source"),
-                                              label    = "Source"),
-                                 actionButton(inputId  = ns("runTests"),
-                                              label    = "Run tests"),
-                                 actionButton(inputId  = ns("submit"),
-                                              label    = "Submit to server")))
-  bottom2_row  <- fluidRow(column(width = 6,
-                                  class = "col-xs-6",
-                                  checkboxInput(inputId = ns("showAllResults"),
-                                                label   = "Show all results",
-                                                value   = TRUE)),
-                           column(width = 6,
-                                  class = "col-xs-6",
-                                  checkboxInput(inputId = ns("toggleEcho"),
-                                                label   = "Echo source",
-                                                value   = TRUE)))
+  top_row     <- .create_top_row(ns_inputIDs[1:2])
+  second_row  <- .create_second_row(ns_inputIDs)
+  bottom_row  <- .create_bottom_row(ns_inputIDs)
+  bottom2_row <- .create_bottom2_row(ns_inputIDs)
   fluid_page  <- fluidPage(style = "padding:0px;margin:0px;",
                            top_row,
                            second_row,
@@ -574,6 +602,7 @@
     .dprint("ST_observer5 done")
   }
   ST_observer6 <- function() {
+    if (!rstudioapi::isAvailable()) return()
     # print("ST_observer6 launching...")
     disable_tab_UI()
 
@@ -628,6 +657,7 @@
     enable_tab_UI()
   }
   ST_observer9 <- function() {
+    if (!rstudioapi::isAvailable()) return()
     # print("ST_observer9 launching...")
     disable_tab_UI()
     if (!rstudioapi::isAvailable()) {

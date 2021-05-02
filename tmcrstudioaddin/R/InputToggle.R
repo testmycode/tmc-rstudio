@@ -142,15 +142,13 @@ enable_UI_elements <- function(UI_list  = NULL,
 
 disable_submit_tab <- function() {
   # no access to globalReactiveValues
-  disable_elements("selectExercise",
-                   "refreshExercises",
-                   "openFiles",
-                   "saveFiles",
-                   "source",
-                   "runTests",
-                   "submit",
-                   "showAllResults",
-                   "toggleEcho")
+  submit_elements <- c("selectExercise", "refreshExercises",
+                       "openFiles", "runTests", "submit")
+  if (rstudioapi::isAvailable()) {
+    submit_elements <- c(submit_elements, "saveFiles", "source",
+                         "showAllResults", "toggleEcho")
+  }
+  disable_elements(submit_elements)
 }
 
 #' @title Enable Shiny input elements in the Test & Submit tab
@@ -162,15 +160,13 @@ disable_submit_tab <- function() {
 #' @seealso \code{\link{enable_elements}}
 enable_submit_tab <- function() {
   # no access to globalReactiveValues
-  enable_elements("selectExercise",
-                  "refreshExercises",
-                  "openFiles",
-                  "saveFiles",
-                  "source",
-                  "runTests",
-                  "submit",
-                  "showAllResults",
-                  "toggleEcho")
+  submit_elements <- c("selectExercise", "refreshExercises",
+                       "openFiles", "runTests", "submit")
+  if (rstudioapi::isAvailable()) {
+    submit_elements <- c(submit_elements, "saveFiles", "source",
+                         "showAllResults", "toggleEcho")
+  }
+  enable_elements(submit_elements)
 }
 
 #' @title Disable Shiny input elements in the Course & Exercise tab

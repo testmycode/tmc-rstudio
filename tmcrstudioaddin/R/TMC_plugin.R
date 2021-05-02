@@ -202,14 +202,15 @@ tmcGadget <- function() {
     login_tab_ui  <-  login_tab_data[["ns_inputIDs"]]
     course_tab_ui <- course_tab_data[["ns_inputIDs"]]
     submit_tab_ui <- submit_tab_data[["ns_inputIDs"]]
+
+    UI_lim_names2 <- c("openFiles", "runTests", "submit")
+    if (rstudioapi::isAvailable()) {
+      UI_lim_names2 <- c(UI_lim_names2, "saveFiles", "source")
+    }
     UI_limited    <- list(login_tab  = login_tab_ui["login"],
                           course_tab = course_tab_ui,
                           submit_tab = submit_tab_ui[c("refreshExercises", "submit")])
-    UI_limited2   <- list(submit_tab = submit_tab_ui[c("openFiles",
-                                                       "saveFiles",
-                                                       "source",
-                                                       "runTests",
-                                                       "submit")])
+    UI_limited2   <- list(submit_tab = submit_tab_ui[UI_lim_names2])
     UI_limited3   <- list(course_tab = course_tab_ui[c("download")])
     UI_normal     <- list(all_tabs   = c("exit"),
                           login_tab  = login_tab_ui,
