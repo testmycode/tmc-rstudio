@@ -1,6 +1,11 @@
 # install.packages("httptest", repos="http://cran.r-project.org")
+# install.packages("mockery", repos="http://cran.r-project.org")
 library(testthat)
+library(mockery)
 library(httptest)
+detach("package:tmcrstudioaddin", unload = TRUE)
+detach("package:tmcRtestrunner", unload = TRUE)
+library(tmcRtestrunner)
 library(tmcrstudioaddin)
 
 test_check("tmcrstudioaddin")
