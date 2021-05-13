@@ -76,38 +76,13 @@ httptest::with_mock_API({
     if (file.exists(credentials_path)){
       file.remove(credentials_path)
     }
-
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
-    credentials_1 <- login("a", "b", "c", "d", "tmc.mooc.fi")
+    credentials_1               <- login("a", "b", "c", "d", "tmc.mooc.fi")
     credentials_1$serverAddress <- "tmc.mooc.fi"
 
     stub(get_all_organizations, "shiny::withProgress", withProgress_mocksi)
     stub(get_all_organizations, "shiny::setProgress", "")
     organizations <- get_all_organizations(credentials = credentials_1)
-
-    expect_true(length(organizations$name) > 0)
-
-    for (organization in organizations$name){
-      expect_true(is.character(organization))
-    }
-
-    if (file.exists(credentials_path)){
-      file.remove(credentials_path)
-    }
-  })
-
-  test_that("organizations are fetched from the server", {
-    credentials_path <- paste(get_tmcr_directory(),
-        ".credentials.rds", sep = .Platform$file.sep)
-
-    if (file.exists(credentials_path)){
-      file.remove(credentials_path)
-    }
-
-    # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
-    login("a", "b", "c", "d", "tmc.mooc.fi")
-
-    organizations <- tmcrstudioaddin::get_all_organizations()
 
     expect_true(length(organizations$name) > 0)
 
