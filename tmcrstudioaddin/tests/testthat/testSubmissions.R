@@ -32,12 +32,13 @@ test_that("If no metadata file, does not submit", {
   expect_equal(submitJson$error[[1]], "Could not read json")
 })
 
-test_that("SubmitCurrent works when no errors", {
+test_that("submit_current works when no errors", {
   path <- "path"
-  stub(submitCurrent, "tmcrstudioaddin::getCredentials", list(token = "abc"))
-  stub(submitCurrent, "upload_current_exercise", list(error = NULL))
-  stub(submitCurrent, "getExerciseFromServer", mockSubmitJson())
-  submitJson <- submitCurrent(path)
+  stub(submit_current, "tmcrstudioaddin::getCredentials", list(token = "abc"))
+  stub(submit_current, "upload_current_exercise", list(error = NULL))
+  stub(submit_current, "getExerciseFromServer", mockSubmitJson())
+  submitJson <- submit_current(path	    = path,
+			       credentials  = list())
   expect_equal(submitJson$results$status, "ok")
   testCases <- submitJson$results$test_cases
   expect_equal(length(testCases), 2)
@@ -127,7 +128,7 @@ test_that("Dialog message outputs some tests passed correctly", {
 
 test_that("SubmitExercise works correctly with right json from server", {
   mock <- mock(mockSubmitJson())
-  stub(submitExercise, "submitCurrent", mock)
+  stub(submitExercise, "submit_current", mock)
   stub(submitExercise, "showMessage", "")
   submitResults <- submitExercise(simpleProject)
   expect_equal(submitResults$data$tests[[1]]$name, "hello-world test_hello")
@@ -137,7 +138,7 @@ test_that("SubmitExercise works correctly with right json from server", {
 test_that("SubmitExercise displays error correctly", {
   submitJson <- list()
   submitJson$error <- mockErrorSubmitJson()$results$error
-  stub(submitExercise, "submitCurrent", submitJson)
+  stub(submitExercise, "submit_current", submitJson)
   stub(submitExercise, "showMessage", "")
   submitResults <- submitExercise(simpleProject)
   expect_equal(submitResults$error, "Internal Server Error")
