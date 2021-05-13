@@ -126,21 +126,42 @@ test_that("Dialog message outputs some tests passed correctly", {
   expect_equal(message$text, paste0(expected_message))
 })
 
-test_that("SubmitExercise works correctly with right json from server", {
-  mock <- mock(mockSubmitJson())
-  stub(submitExercise, "submit_current", mock)
-  stub(submitExercise, "showMessage", "")
-  submitResults <- submitExercise(simpleProject)
+processSubmissionJson_mocksi <- function(submitJson) {
+  submission_id <- function(xx) {
+    yy <- strsplit(xx, "/")[[1]]
+    yy[length(yy)]
+  }
+  submitted_at <- function(xx) {
+    zz <- as.POSIXct(xx,format="%Y-%m-%dT%H:%M:%OS")
+    format(zz, "%d.%m.%Y %H:%M")
+  }
+  submitRes <- list()
+  submitRes$submitted_at          <- submitted_at(submitJson$submitted_at)
+  submitRes$submission_id         <- submission_id(submitJson$submission_url)
+  submitRes[["tests"]]            <- processSubmission(submitJson)
+  submitRes[["exercise_name"]]    <- submitJson$exercise_name
+  submitRes[["all_tests_passed"]] <- submitJson$all_tests_passed
+  submitRes[["points"]]           <- submitJson$points
+  return(submitRes)
+}
+
+test_that("submit_exercise works correctly with right JSON from server", {
+  mock_fn <- mock(mockSubmitJson())
+  stub(submit_exercise, "submit_current", mock_fn)
+  stub(submit_exercise, "showMessage", "")
+  credentials   <- list()
+  submitResults <- submit_exercise(path        = simpleProject, 
+                                   credentials = credentials)
   expect_equal(submitResults$data$tests[[1]]$name, "hello-world test_hello")
   expect_equal(submitResults$data$tests[[1]]$status, "pass")
 })
 
-test_that("SubmitExercise displays error correctly", {
+test_that("submit_exercise displays error correctly", {
   submitJson <- list()
   submitJson$error <- mockErrorSubmitJson()$results$error
-  stub(submitExercise, "submit_current", submitJson)
-  stub(submitExercise, "showMessage", "")
-  submitResults <- submitExercise(simpleProject)
+  stub(submit_exercise, "submit_current", submitJson)
+  stub(submit_exercise, "showMessage", "")
+  submitResults <- submit_exercise(simpleProject)
   expect_equal(submitResults$error, "Internal Server Error")
 })
 
@@ -157,7 +178,7 @@ test_that("Message function is called", {
   expect_equal(args[[1]]$title, "Results")
   expected_message <- 
     paste0("Congratulations! All tests passed on the server!",
-	   "<p><b>Points permanently awarded: r1, r2</b>",
-	   "<p>You can now view the model solution on the server")
+           "<p><b>Points permanently awarded: r1, r2</b>",
+           "<p>You can now view the model solution on the server")
   expect_equal(args[[1]]$message, expected_message)
 })
