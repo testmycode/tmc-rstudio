@@ -65,6 +65,10 @@ httptest::with_mock_API({
       file.remove(credentials_path)
     }
   })
+  withProgress_mocksi <- function(message, value, expr) {
+    cat("Message:", message)
+    return(expr)
+  }
 
   test_that("organizations are fetched from the server", {
     credentials_path <- paste(get_tmcr_directory(),
@@ -74,8 +78,12 @@ httptest::with_mock_API({
     }
 
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
-    login("a", "b", "c", "d", "tmc.mooc.fi")
-    organizations <- tmcrstudioaddin::get_all_organizations()
+    credentials_1 <- login("a", "b", "c", "d", "tmc.mooc.fi")
+    credentials_1$serverAddress <- "tmc.mooc.fi"
+
+    stub(get_all_organizations, "shiny::withProgress", withProgress_mocksi)
+    stub(get_all_organizations, "shiny::setProgress", "")
+    organizations <- get_all_organizations(credentials = credentials_1)
 
     expect_true(length(organizations$name) > 0)
 
