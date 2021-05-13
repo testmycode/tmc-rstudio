@@ -37,8 +37,8 @@ test_that("submit_current works when no errors", {
   stub(submit_current, "tmcrstudioaddin::getCredentials", list(token = "abc"))
   stub(submit_current, "upload_current_exercise", list(error = NULL))
   stub(submit_current, "getExerciseFromServer", mockSubmitJson())
-  submitJson <- submit_current(path	    = path,
-			       credentials  = list())
+  submitJson <- submit_current(path         = path,
+                               credentials  = list())
   expect_equal(submitJson$results$status, "ok")
   testCases <- submitJson$results$test_cases
   expect_equal(length(testCases), 2)
@@ -105,8 +105,8 @@ test_that("Dialog message outputs all tests passed correctly", {
   message <- getDialogMessage(submitResults)
   expected_message <- 
     paste0("Congratulations! All tests passed on the server!",
-	   "<p><b>Points permanently awarded: r1, r2</b>",
-	   "<p>You can now view the model solution on the server.")
+           "<p><b>Points permanently awarded: r1, r2</b>",
+           "<p>You can now view the model solution on the server.")
   expect_equal(message$text, expected_message)
 })
 
@@ -118,10 +118,10 @@ test_that("Dialog message outputs some tests passed correctly", {
   message <- getDialogMessage(submitResults)
   expected_message <-
     paste0("You are getting there! You received 2 points from Exercise set 'project1'. ",
-	   "<p><b>Points permanently awarded: ",
-	   "r1, r2</b>",
-	   "<p>Some tests still failed on the server.",
-	   "<p>Press OK to see failing tests")
+           "<p><b>Points permanently awarded: ",
+           "r1, r2</b>",
+           "<p>Some tests still failed on the server.",
+           "<p>Press OK to see failing tests")
 
   expect_equal(message$text, paste0(expected_message))
 })
