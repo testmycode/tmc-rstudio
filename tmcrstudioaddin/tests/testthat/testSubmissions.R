@@ -161,7 +161,8 @@ test_that("submit_exercise displays error correctly", {
   submitJson$error <- mockErrorSubmitJson()$results$error
   stub(submit_exercise, "submit_current", submitJson)
   stub(submit_exercise, "showMessage", "")
-  submitResults <- submit_exercise(simpleProject)
+  submitResults <- submit_exercise(path        = simpleProject,
+                                   credentials = list())
   expect_equal(submitResults$error, "Internal Server Error")
 })
 
