@@ -27,8 +27,9 @@ mockProcessingSubmitJson <- function() {
 }
 
 test_that("If no metadata file, does not submit", {
-  submitJson <- submitCurrent(noMetadata)
-  expect_equal(submitJson$error, "Could not read json")
+  credentials <- list()
+  submitJson <- submit_current(path = noMetadata, credentials = credentials)
+  expect_equal(submitJson$error[[1]], "Could not read json")
 })
 
 test_that("SubmitCurrent works when no errors", {
