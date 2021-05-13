@@ -177,6 +177,7 @@ getExerciseFromServer <- function(response, token, sleepTime) {
 #' @seealso \code{\link{processSubmission}}
 processSubmissionJson <- function(submitJson) {
   submission_id <- function(xx) {
+    if (is.null(xx)) return(NULL)
     yy <- strsplit(xx, "/")[[1]]
     yy[length(yy)]
   }
