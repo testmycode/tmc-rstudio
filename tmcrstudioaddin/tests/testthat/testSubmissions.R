@@ -171,15 +171,22 @@ test_that("Message function is called", {
   submitResults$data$points <- list("r1", "r2")
   submitResults$data$all_tests_passed <- TRUE
   submitResults$data$exercise_name <- "project1"
-  mock <- mock("")
-  stub(showMessage, "rstudioapi::showDialog", mock)
+  mock_fn <- mock("")
+  stub(showMessage, "rstudioapi::showDialog", mock_fn)
+  stub(showMessage, ".send_listener_request", mock_fn)
   showMessage(submitResults)
-  args <- mock_args(mock)
-  expect_called(mock, 1)
-  expect_equal(args[[1]]$title, "Results")
+  args <- mock_args(mock_fn)
+  expect_called(mock_fn, 1)
+  if (!rstudioapi::isAvailable()) {
+    args <- args[[1]][[2]]
+  } else {
+    args <- args[[1]]
+  }
+
+  expect_equal(args[[1]], "Results")
   expected_message <- 
     paste0("Congratulations! All tests passed on the server!",
            "<p><b>Points permanently awarded: r1, r2</b>",
-           "<p>You can now view the model solution on the server")
-  expect_equal(args[[1]]$message, expected_message)
+           "<p>You can now view the model solution on the server.")
+  expect_equal(args[[2]], expected_message)
 })

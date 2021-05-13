@@ -38,7 +38,7 @@ context("Fetching data")
 
 httptest::with_mock_API({
   withProgress_mocksi <- function(message, value, expr) {
-    cat("Message:", message)
+    cat("Message:", message, "\n")
     return(expr)
   }
 
@@ -138,7 +138,6 @@ httptest::with_mock_API({
     courses <- get_all_courses(organization = "hy",
                                credentials  = credentials_1)
     cat("done\n")
-    print(courses)
     expect_true(length(courses$id) == 0)
     expect_true(length(courses$name) == 0)
 
