@@ -49,7 +49,8 @@ httptest::with_mock_API({
     # authenticate("rtest", "asdasdasd", "https://tmc.mooc.fi")
     tmcrstudioaddin::login("a", "b", "c", "d", "tmc.mooc.fi")
 
-    courses <- tmcrstudioaddin::get_all_courses("hy")
+    courses <- tmcrstudioaddin::get_all_courses(organization = "hy",
+                                                credentials  = list())
     expect_true(length(courses) > 0)
 
     for (name in courses$name) {
@@ -142,7 +143,8 @@ httptest::with_mock_API({
     authenticate("rtest", "asdasdasd", "https://tmc.moasdoc.fi")
     # login("a", "b", "c", "d", "tmc.moasasddas.fi")
 
-    courses <- tmcrstudioaddin::get_all_courses("hy")
+    courses <- tmcrstudioaddin::get_all_courses(organization = "hy",
+                                                credentials  = list())
     expect_true(length(courses$id) == 0)
     expect_true(length(courses$name) == 0)
 
