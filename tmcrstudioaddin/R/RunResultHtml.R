@@ -118,7 +118,7 @@ createRunSourcingFailHtml <- function(runResults, exercise_path, submission_info
   if (runResults$run_status == "sourcing_failed") {
     fail_name <- "Sourcing failed during testing. The tester could not run tests."
   } else if (runResults$run_status == "local_sourcing_failed") {
-    fail_name <- "Sourcing of exercises failed. There is an error in you code."
+    fail_name <- "Sourcing of exercises failed. There is an error in your code."
   } else if (runResults$run_status == "server_failed") {
     fail_name <- "Sourcing failed at the server. The server could not run tests."
   } else if (runResults$run_status == "submission_failed") {
