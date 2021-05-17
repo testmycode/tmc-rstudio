@@ -713,15 +713,16 @@ pre_error)
       return()
     } 
     if (input$organizationSelect != "") {
-      print("RELOADING THE STATE, SO ORG BECOMES VISIBLE DURING LOGOUT")
+      # print("RELOADING THE STATE, SO ORG BECOMES VISIBLE DURING LOGOUT")
       rv$selection$org <- input$organizationSelect
       rv$state$org_chosen  <- TRUE
       rv$state$org_visible <- TRUE
       grv$credentials$organization <- rv$selection$org
     } else if (!is.null(grv$credentials$organization)) {
-      print("ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
-      print("BUT AT LOG IN THIS IS GLOBBERED... SO THIS HAS TO BE FIXED LATER...")
-      print(grv$credentials$organization)
+      # print("ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
+      # print("BUT AT LOG IN THIS IS GLOBBERED... SO THIS HAS TO BE FIXED LATER...")
+      # print(grv$credentials$organization)
+      #
       # rv$selection$org <- grv$credentials$organization
       # rv$state$org_chosen  <- TRUE 
       # the correct ones after fix
@@ -737,7 +738,7 @@ pre_error)
                                choices  = character(0),
                                selected = character(0))
     } else {
-      print("NO ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
+      # print("NO ORGANIZATION WAS LOADED... AND WE ARE NOT LOGGED IN")
       rv$selection$org <- character(0)
       rv$state$org_chosen  <- FALSE
       rv$state$org_visible <- FALSE
