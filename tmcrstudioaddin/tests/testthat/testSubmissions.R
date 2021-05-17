@@ -27,9 +27,17 @@ mockProcessingSubmitJson <- function() {
 }
 
 test_that("If no metadata file, does not submit", {
-  credentials <- list()
+  credentials <- list(token = "token", serverAddress = "local.host.nowhere")
+#  stub(submit_current, "upload_current_exercise",
+#       list(error = list("Could not read json")))
+  print("AA")
+  print(noMetadata)
+  print(credentials)
   submitJson <- submit_current(path = noMetadata, credentials = credentials)
-  expect_equal(submitJson$error[[1]], "Could not read json")
+  print(submitJson)
+  print("BB")
+  expect_equal(submitJson$error[[1]], "Corrupted project: missing RTMC metadata")
+  print("CC")
 })
 
 test_that("submit_current works when no errors", {
@@ -190,3 +198,4 @@ test_that("Message function is called", {
            "<p>You can now view the model solution on the server.")
   expect_equal(args[[2]], expected_message)
 })
+
