@@ -113,15 +113,13 @@ download_exercise <- function(exercise_id,
 }
 
   .upload_exercise1 <- function(token, exercise_id, server_address) {
-    exercises_response <- list()
     exercises_url      <- paste0(server_address,
                                  "api/v8/core/exercises/",
                                  exercise_id,
                                  "/",
                                  "submissions")
     url_config         <- httr::add_headers(Authorization = token)
-    list(exercises_response = list(),
-         exercises_url      = exercises_url,
+    list(exercises_url      = exercises_url,
          url_config         = url_config)
   }
 
@@ -161,57 +159,60 @@ download_exercise <- function(exercise_id,
 upload_exercise <- function(token, exercise_id, project_path,
                             server_address, zip_name = "temp",
                             remove_zip = TRUE) {
-  tmp <- .upload_exercise1(token, exercise_id, server_address)
-  exercises_response <- tmp$exercises_response
-  exercises_url      <- tmp$exercises_url
-  url_config         <- tmp$url_config
+  url_data <- .upload_exercise1(token, exercise_id, server_address)
+  .upload_exercise2 <- function(url_data, project_path, remove_zip) {
+    exercises_response <- list()
+    exercises_url      <- url_data$exercises_url
+    url_config         <- url_data$url_config
 
-  .dprint("upload_exercise()")
-  zip_path <- paste0(tempfile(), ".zip")
-  tryCatch({
-    .tmc_zip(project_path, zip_path)
-  }, error = function(e) {
-    cat("Creating submission failed.\n")
-    stop(e)
-  })
-  tryCatch({
-    cat("Sending submission package to server...\n")
-    if (!is.null(shiny::getDefaultReactiveDomain())) {
-      shiny::setProgress(message = "Sending submission package",
-                         value = 1/4)
-    }
-    .dprint(paste("Project path", project_path))
-    .dprint(paste0("Sending zip to server ", zip_path))
-    .dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
-    submission_file <- httr::upload_file(zip_path)
-  }, error = function(e) {
-    cat("Uploading failed.\n")
-    stop(e)
-  })
+    .dprint("upload_exercise()")
+    zip_path <- paste0(tempfile(), ".zip")
+    tryCatch({
+      .tmc_zip(project_path, zip_path)
+    }, error = function(e) {
+      cat("Creating submission failed.\n")
+      stop(e)
+    })
+    tryCatch({
+      cat("Sending submission package to server...\n")
+      if (!is.null(shiny::getDefaultReactiveDomain())) {
+        shiny::setProgress(message = "Sending submission package",
+                           value = 1/4)
+      }
+      .dprint(paste("Project path", project_path))
+      .dprint(paste0("Sending zip to server ", zip_path))
+      .dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
+      submission_file <- httr::upload_file(zip_path)
+    }, error = function(e) {
+      cat("Uploading failed.\n")
+      stop(e)
+    })
 
-  .dprint("exercises_response")
-  exercises_response <- tryCatch({
-    exercises_response$data <-
-      httr::stop_for_status(httr::POST(exercises_url,
-                                       config = url_config,
-                                       encode = "multipart",
-                                       body = list("submission[file]" = submission_file)))
-    .ddprint(str(exercises_response))
-    if (!is.null(exercises_response$error)) {
-      stop(exercises_response$error)
+    .dprint("exercises_response")
+    exercises_response <- tryCatch({
+      exercises_response$data <-
+        httr::stop_for_status(httr::POST(exercises_url,
+                                         config = url_config,
+                                         encode = "multipart",
+                                         body = list("submission[file]" = submission_file)))
+      .ddprint(str(exercises_response))
+      if (!is.null(exercises_response$error)) {
+        stop(exercises_response$error)
+      }
+      exercises_response
+    }, error = function(e) {
+      .dprint(str(e))
+      exercises_response$error <- e
+      exercises_response
+    })
+    .dprint("exercises_response2")
+    if (remove_zip) {
+      file.remove(zip_path)
     }
-    exercises_response
-  }, error = function(e) {
-    .dprint(str(e))
-    exercises_response$error <- e
-    exercises_response
-  })
-  .dprint("exercises_response2")
-  if (remove_zip) {
-    file.remove(zip_path)
+
+    return(exercises_response)
   }
-
-  return(exercises_response)
+  .upload_exercise2(url_data, project_path, remove_zip)
 }
 
 #' @title Get exercise submission result JSON
