@@ -1,3 +1,21 @@
+#
+# public (all need work)
+#
+# download_exercise
+# get_json_from_submission_url      # ok
+# upload_exercise                   # ok
+# get_submission_json               # ok
+# get_all_organizations             # mostly ok (refactor)
+# get_all_courses                   # mostly ok
+# get_all_exercises                 # mostly ok
+
+#
+# private
+#
+# .simplify_error_message
+
+
+
 #' @title Download an exercise from the TMC server
 #'
 #' @description Download an exercise from the TMC server.
@@ -94,6 +112,20 @@ download_exercise <- function(exercise_id,
   return(exercises_response)
 }
 
+  .upload_exercise1 <- function(token, exercise_id, server_address) {
+    exercises_response <- list()
+    exercises_url      <- paste0(server_address,
+                                 "api/v8/core/exercises/",
+                                 exercise_id,
+                                 "/",
+                                 "submissions")
+    url_config         <- httr::add_headers(Authorization = token)
+    list(exercises_response = list(),
+         exercises_url      = exercises_url,
+         url_config         = url_config)
+  }
+
+
 #' @title Upload an exercise to the TMC server
 #'
 #' @description Upload an exercise to the TMC server
@@ -127,13 +159,12 @@ download_exercise <- function(exercise_id,
 # Returns the response, which contains a field $submission_url
 # containing the details of the submission.
 upload_exercise <- function(token, exercise_id, project_path,
-                             server_address, zip_name = "temp",
-                             remove_zip = TRUE) {
-  exercises_response <- list()
-  base_url <- server_address
-  exercises_url <- paste(sep = "", base_url, "api/v8/core/exercises/",
-                         exercise_id, "/", "submissions")
-  url_config <- httr::add_headers(Authorization = token)
+                            server_address, zip_name = "temp",
+                            remove_zip = TRUE) {
+  tmp <- .upload_exercise1(token, exercise_id, server_address)
+  exercises_response <- tmp$exercises_response
+  exercises_url      <- tmp$exercises_url
+  url_config         <- tmp$url_config
 
   .dprint("upload_exercise()")
   zip_path <- paste0(tempfile(), ".zip")
@@ -215,89 +246,6 @@ get_submission_json <- function(token, url) {
 
 # #' @param token \code{OAuth2} token associated with the current login
 # #' session.
-
-#' @title Upload the currently open exercise to the TMC server
-#'
-#' @description Upload the currently open exercise to the TMC server.
-#'
-#' @usage upload_current_exercise(credentials, project_path, zip_name =
-#' "temp", remove_zip = TRUE)
-#'
-#' @param credentials List of user credentials.
-#' @param project_path Path to the directory of the submitted exercise.
-#' @param zip_name Name of the \code{zip} file which contains the
-#' exercise submission. Default is \code{temp}.
-#' @param remove_zip \code{TRUE} or \code{FALSE} depending on if you
-#' wish to delete the submission \code{zip} file after sending it to the
-#' server. Defaults to \code{TRUE}.
-#'
-#' @details Reads the exercise id from \code{.metadata.json} and the
-#' \code{OAuth2} token associated with the current login session and the
-#' server address from \code{credentials} which are used to form
-#' the correct uploading address.
-#'
-#' @return \code{HTTP} response as a list to the submission attempt.
-#' List containing \code{error} key with an error message if reading the
-#' metadata or credentials file caused an error.
-#'
-#' @seealso \code{\link[base]{list.files}},
-#' \code{\link[jsonlite]{fromJSON}}, \code{\link{getCredentials}},
-#' \code{\link{upload_exercise}}
-
-# Zips the current working directory and uploads it to the server Uses
-# the path of the currently active R-project by default For testing
-# purposes, you can provide some other file path
-upload_current_exercise <- function(credentials,
-                                    project_path,
-                                    zip_name = "temp",
-                                    remove_zip = TRUE) {
-  read_metadata <- function() {
-    json <- base::list.files(path = project_path,
-                             pattern = ".metadata.json",
-                             all.files = TRUE,
-                             full.names = TRUE)
-    if (length(json) == 0) {
-      stop("Corrupted project: missing RTMC metadata")
-    }
-    if (length(json) > 1) {
-      stop("Corrupted project: multiple RTMC metadata")
-    }
-    metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
-    return(metadata)
-  }
-  metadata_to_id <- function(metadata) {
-    if (is.null(metadata$id) || is.na(metadata$id)) {
-      stop("RTMC metadata read, but metadata is corrupted")
-    }
-    return(metadata$id[[1]])
-  }
-  upload_with_id <- function(id) {
-    token    <- credentials$token
-    address  <- paste(sep = "", credentials$serverAddress, "/")
-    #
-    # uploading starts
-    tryCatch({
-      response <- upload_exercise(token = credentials$token,
-                                  exercise_id = id,
-                                  project_path = project_path,
-                                  server_address = address,
-                                  zip_name = zip_name,
-                                  remove_zip = remove_zip)
-      return(response)
-      }, error = function(e) {
-        cat("Uploading exercise failed.\n")
-        stop(e$message)
-      })
-  }
-  tryCatch(upload_with_id(metadata_to_id(read_metadata())),
-           error = function(e) {
-             response <- list(data = list(),
-                              error = e)
-             response$error$server_access <- FALSE
-             return(response)
-           })
-
-}
 
 #' @title Get all TMC organizations
 #'
