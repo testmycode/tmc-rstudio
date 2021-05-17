@@ -251,39 +251,52 @@ upload_current_exercise <- function(credentials,
                                     project_path,
                                     zip_name = "temp",
                                     remove_zip = TRUE) {
-  response <- list()
-  .dprint("upload_current_exercise()")
-  metadata <- tryCatch({
+  read_metadata <- function() {
     json <- base::list.files(path = project_path,
                              pattern = ".metadata.json",
                              all.files = TRUE,
                              full.names = TRUE)
-    jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
-  }, error = function(e) {
-    NULL
-  })
-  response <-
-    if (!is.null(metadata$id[[1]])) {
-      id <- metadata$id[[1]]
-      token <- credentials$token
-      address <- paste(sep = "", credentials$serverAddress, "/")
-      tryCatch({
-      response <- upload_exercise(token = token, exercise_id = id,
+    if (length(json) == 0) {
+      stop("Corrupted project: missing RTMC metadata")
+    }
+    if (length(json) > 1) {
+      stop("Corrupted project: multiple RTMC metadata")
+    }
+    metadata <- jsonlite::fromJSON(txt = json, simplifyVector = FALSE)
+    return(metadata)
+  }
+  metadata_to_id <- function(metadata) {
+    if (is.null(metadata$id) || is.na(metadata$id)) {
+      stop("RTMC metadata read, but metadata is corrupted")
+    }
+    return(metadata$id[[1]])
+  }
+  upload_with_id <- function(id) {
+    token    <- credentials$token
+    address  <- paste(sep = "", credentials$serverAddress, "/")
+    #
+    # uploading starts
+    tryCatch({
+      response <- upload_exercise(token = credentials$token,
+                                  exercise_id = id,
                                   project_path = project_path,
                                   server_address = address,
                                   zip_name = zip_name,
                                   remove_zip = remove_zip)
-      response
+      return(response)
       }, error = function(e) {
         cat("Uploading exercise failed.\n")
-        response$error <- e
-        response
+        stop(e$message)
       })
-    } else {
-      response$error <- "Could not read json"
-      response
-    }
-  return(response)
+  }
+  tryCatch(upload_with_id(metadata_to_id(read_metadata())),
+           error = function(e) {
+             response <- list(data = list(),
+                              error = e)
+             response$error$server_access <- FALSE
+             return(response)
+           })
+
 }
 
 #' @title Get all TMC organizations

@@ -76,8 +76,12 @@ submit_current <- function(path, credentials) {
   } else {
     .dprint("HERE NOW. NO CONNECTION TO SERVER")
     cat("No access to server.\n")
-    submitJson$error <- response$error
-    submitJson$error$server_access <- FALSE
+    submitJson2 <- list()
+    submitJson2$error <- response$error
+    submitJson2$error$server_access <- FALSE
+    submitJson <- list(error = list(message         = response$error$message,
+                                    call            = response$error$call,
+                                    server_access   = FALSE))
   }
   return(submitJson)
 }
