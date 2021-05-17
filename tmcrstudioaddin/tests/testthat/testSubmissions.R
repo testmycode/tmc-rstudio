@@ -28,16 +28,8 @@ mockProcessingSubmitJson <- function() {
 
 test_that("If no metadata file, does not submit", {
   credentials <- list(token = "token", serverAddress = "local.host.nowhere")
-#  stub(submit_current, "upload_current_exercise",
-#       list(error = list("Could not read json")))
-  print("AA")
-  print(noMetadata)
-  print(credentials)
-  submitJson <- submit_current(path = noMetadata, credentials = credentials)
-  print(submitJson)
-  print("BB")
+  submitJson  <- submit_current(path = noMetadata, credentials = credentials)
   expect_equal(submitJson$error[[1]], "Corrupted project: missing RTMC metadata")
-  print("CC")
 })
 
 test_that("submit_current works when no errors", {
@@ -54,8 +46,8 @@ test_that("submit_current works when no errors", {
 
 test_that("Exercise data is gotten correctly", {
   response <- "url"
-  token <- "abc"
-  mock <- mock(mockProcessingSubmitJson(), mockSubmitJson())
+  token    <- "abc"
+  mock     <- mock(mockProcessingSubmitJson(), mockSubmitJson())
   stub(getExerciseFromServer, "get_json_from_submission_url", mock)
   submitJson <- getExerciseFromServer(response, token, 0.1)
   expect_equal(submitJson$results$status, "ok")
@@ -64,8 +56,8 @@ test_that("Exercise data is gotten correctly", {
 
 test_that("Errors from the server are reported correctly when collecting exercise data", {
   response <- "url"
-  token <- "abc"
-  mock <- mock(mockProcessingSubmitJson(), mockErrorSubmitJson())
+  token    <- "abc"
+  mock     <- mock(mockProcessingSubmitJson(), mockErrorSubmitJson())
   stub(getExerciseFromServer, "get_json_from_submission_url", mock)
   submitJson <- getExerciseFromServer(response, token, 0.1)
   expect_equal(submitJson$results$status, "error")
@@ -101,7 +93,6 @@ test_that("Error messages over 300 characters are cut to 300 characters", {
   submitResults$error <- paste(replicate(400, "a"), collapse = "")
   message <- getDialogMessage(submitResults)
   expected <- paste(replicate(300, "a"), collapse = "")
-  #expect_equal(message$text, paste0("<p>", expected))
   expect_equal(message$text, "")
 })
 
@@ -190,8 +181,6 @@ test_that("Message function is called", {
   } else {
     args <- args[[1]]
   }
-
-  expect_equal(args[[1]], "Results")
   expected_message <- 
     paste0("Congratulations! All tests passed on the server!",
            "<p><b>Points permanently awarded: r1, r2</b>",
