@@ -113,16 +113,17 @@ upload_current_exercise <- function(credentials,
                                     remove_zip = TRUE) {
   upload_with_id <- function(id) {
     token    <- credentials$token
+    upload_exercise <- function(exercise_id,
+                                server_address) {
+      url_data <- .upload_exercise1(token, exercise_id, server_address)
+      .upload_exercise2(url_data, project_path, remove_zip)
+    }
     address  <- paste(sep = "", credentials$serverAddress, "/")
     #
     # uploading starts
     tryCatch({
-      response <- upload_exercise(token = credentials$token,
-                                  exercise_id = id,
-                                  project_path = project_path,
-                                  server_address = address,
-                                  zip_name = zip_name,
-                                  remove_zip = remove_zip)
+      response <- upload_exercise(exercise_id    = id,
+                                  server_address = address)
       return(response)
       }, error = function(e) {
         cat("Uploading exercise failed.\n")
