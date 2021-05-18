@@ -112,28 +112,22 @@ upload_current_exercise <- function(credentials,
                                     zip_name = "temp",
                                     remove_zip = TRUE) {
   upload_with_id <- function(id) {
-    token    <- credentials$token
-    upload_exercise <- function(exercise_id,
-                                server_address) {
-      url_data <- .upload_exercise1(token, exercise_id, server_address)
-      .upload_exercise2(url_data, project_path, remove_zip)
-    }
-    address  <- paste(sep = "", credentials$serverAddress, "/")
+    token           <- credentials$token
+    exercise_id     <- id
+    exercise_id     #  Note: R is lazy, this forces exercise_id evaluation
+    address         <- paste(sep = "", credentials$serverAddress, "/")
+    server_address  <- address
     #
     # uploading starts
-    tryCatch({
-      response <- upload_exercise(exercise_id    = id,
-                                  server_address = address)
-      return(response)
-      }, error = function(e) {
-        cat("Uploading exercise failed.\n")
-        stop(e$message)
-      })
+    url_data <- .upload_exercise1(token, exercise_id, server_address)
+    response <- .upload_exercise2(url_data, project_path, remove_zip)
+    return(response)
   }
   .upload_current_exercise_internal <- function() {
   }
   tryCatch(upload_with_id(.metadata_to_id(.read_metadata(project_path))),
            error = function(e) {
+             cat("Uploading exercise failed 2.\n")
              response <- list(data = list(),
                               error = e)
              response$error$server_access <- FALSE
