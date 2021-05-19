@@ -14,7 +14,23 @@
 #
 # .simplify_error_message
 
-
+  .randomize_name  <- function(body, tmp_dir) {
+    zip_name <- ""
+    repeat {
+      zip_name <- paste0(paste0(sample(c(0:9, letters[1:6]),
+                                       size    = 12,
+                                       replace = TRUE),
+                                collapse = ""),
+                         "_",
+                         body)
+      full_name <- paste0(tmp_dir, "/", zip_name)
+      .ddprint("RANDOMIZE")
+      .ddprint(zip_name)
+      .ddprint(full_name)
+      if (!file.exists(paste0(tmp_dir, "/", zip_name))) break
+    }
+    zip_name
+  }
 
 #' @title Download an exercise from the TMC server
 #'
@@ -59,33 +75,19 @@ download_exercise <- function(exercise_id,
                               exercise_name,
                               credentials,
                               unique_random = FALSE) {
-  randomize_name  <- function(body, tmp_dir) {
-    zip_name <- ""
-    repeat {
-      zip_name <- paste0(paste0(sample(c(0:9, letters[1:6]), size = 12, replace = TRUE),
-                                collapse = ""),
-                         "_",
-                         body)
-      full_name <- paste0(tmp_dir, "/", zip_name)
-      .ddprint("RANDOMIZE")
-      .ddprint(zip_name)
-      .ddprint(full_name)
-      if (!file.exists(paste0(tmp_dir, "/", zip_name))) break
-    }
-    zip_name
-  }
   .dprint("download_exercise()")
   token <- credentials$token
-  serverAddress <- credentials$serverAddress
 
   if (unique_random) {
-    zip_name <- randomize_name(zip_name, zip_target)
+    zip_name <- .randomize_name(zip_name, zip_target)
   }
   zip_path <- paste(sep = "", zip_target, "/", zip_name)
   .ddprint(str(zip_path))
 
-  exercises_url <- paste(sep = "", serverAddress, "/", "api/v8/core/exercises/",
-                        exercise_id, "/", "download")
+  exercises_url <- paste(credentials$serverAddress,
+                         "/", "api/v8/core/exercises/",
+                         exercise_id, "/", "download",
+                         sep = "")
   exercises_response <- httr::GET(exercises_url,
                                   httr::add_headers(Authorization = token),
                                   config = timeout(10),
@@ -148,12 +150,12 @@ download_exercise <- function(exercise_id,
     .upload_content_to_server <- function(url_data, submission_file) {
       exercises_url      <- url_data$exercises_url
       url_config         <- url_data$url_config
-      POST_body          <- list("submission[file]" = submission_file)
+      post_body          <- list("submission[file]" = submission_file)
       tryCatch({
         response <- httr::POST(url      = exercises_url,
                                config   = url_config,
                                encode   = "multipart",
-                               body     = POST_body)
+                               body     = post_body)
         list(data = response)
       }, error = function(err) {
         cat("Upload content uploading failed.\n")
@@ -263,14 +265,10 @@ upload_exercise <- function(token, exercise_id, project_path,
 get_submission_json <- function(token, url) {
   url_config <- httr::add_headers(Authorization = token)
 
-#  exercises_response <- httr::GET(url, config = url_config, timeout(30))
   exercises_response <- httr::GET(url, config = url_config, timeout(5))
 
   return(exercises_response)
 }
-
-# #' @param token \code{OAuth2} token associated with the current login
-# #' session.
 
 #' @title Get all TMC organizations
 #'
@@ -293,28 +291,30 @@ get_submission_json <- function(token, url) {
 #' \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
 #' \code{\link[jsonlite]{fromJSON}}
 get_all_organizations <- function(credentials) {
-  .dprint("get_all_organizations launched...")
+  .do_with_progress <- function() {
+    url     <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
+    token   <- credentials$token
+    headers <- httr::add_headers(Authorization = token)
+    req     <-
+      httr::stop_for_status(httr::GET(url    = url,
+                                      headers,
+                                      config = httr::timeout(10),
+                                      encode = "json"))
+    Sys.sleep(0.1)
+    cat("connected.\n")
+    shiny::setProgress(message = "Connected to server",
+                       value = 0.9)
+    Sys.sleep(0.2)
+    return_value <- jsonlite::fromJSON(httr::content(req, "text"))
+    shiny::setProgress(value = 1)
+    Sys.sleep(0.2)
+    return_value
+  }
   organizations <- tryCatch({
-    url <- paste(credentials$serverAddress, "/api/v8/org.json", sep = "")
-    token <- credentials$token
+    cat("Conneting to server...\t")
     shiny::withProgress(message = "Connecting to server",
                         value   = 1/2,
-                        {
-                          headers <- httr::add_headers(Authorization = token)
-                          req <-
-                            httr::stop_for_status(httr::GET(url = url,
-                                                            headers,
-                                                            config = httr::timeout(10),
-                                                            encode = "json"))
-                          Sys.sleep(0.1)
-                          shiny::setProgress(message = "Connected to server",
-                                             value = 0.9)
-                          Sys.sleep(0.2)
-                          return_value <- jsonlite::fromJSON(httr::content(req, "text"))
-                          shiny::setProgress(value = 1)
-                          Sys.sleep(0.2)
-                          return_value
-                        })
+                        .do_with_progress())
   }, error = function(e) {
     cat("An error occured while connecting to server:\n")
     cat(.simplify_error_message(e$message))
@@ -348,33 +348,33 @@ get_all_organizations <- function(credentials) {
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 get_all_courses <- function(organization, credentials) {
-  .dprint("get_all_courses launched...")
   # no access to globalReactiveValues
-  serverAddress <- credentials$serverAddress
-  token <- credentials$token
-  url <- paste(serverAddress, "/api/v8/core/org/",
-               organization,
-               "/courses",
-               sep = "")
+  .do_with_progress <- function() {
+    url     <- paste(credentials$serverAddress, "/api/v8/core/org/",
+                     organization, "/courses",
+                     sep = "")
+    token   <- credentials$token
+    headers <- httr::add_headers(Authorization = token)
+    req     <-
+      httr::stop_for_status(httr::GET(url    = url,
+                                      config = headers,
+                                      encode = "json",
+                                      timeout(10)))
+    Sys.sleep(0.1)
+    cat("getting courses.\n")
+    shiny::setProgress(message = "Getting courses",
+                       value = 0.9)
+    Sys.sleep(0.2)
+    return_value <- jsonlite::fromJSON(httr::content(req, "text"))
+    shiny::setProgress(value = 1)
+    Sys.sleep(0.2)
+    return_value
+  }
   courses <- tryCatch({
+    cat("Conneting to server...\t")
     shiny::withProgress(message = "Connecting to server",
                         value   = 1/2,
-                        {
-                          headers <- httr::add_headers(Authorization = token)
-                          req <-
-                            httr::stop_for_status(httr::GET(url = url,
-                                                            config = headers,
-                                                            encode = "json",
-                                                            timeout(10)))
-                          Sys.sleep(0.1)
-                          shiny::setProgress(message = "Getting courses",
-                                             value = 0.9)
-                          Sys.sleep(0.2)
-                          return_value <- jsonlite::fromJSON(httr::content(req, "text"))
-                          shiny::setProgress(value = 1)
-                          Sys.sleep(0.2)
-                          return_value
-                        })
+                        .do_with_progress())
   }, error = function(e) {
     cat("An error occured while connecting to server.\n")
     cat(.simplify_error_message(e$message))
@@ -406,37 +406,32 @@ get_all_courses <- function(organization, credentials) {
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[jsonlite]{fromJSON}}
 get_all_exercises <- function(course, credentials) {
-  .dprint("get_all_exercises launched")
-  .ddprint(course)
-  exercises <- tryCatch({
-    serverAddress <- credentials$serverAddress
-    token <- credentials$token
-    url <- paste(serverAddress,
-                 "/api/v8/courses/",
-                 course,
-                 "/exercises",
-                 sep = "")
+  .do_without_progress <- function() {
     # shiny::withProgress is done at the call site
     #
+    url     <- paste(credentials$serverAddress, "/api/v8/courses/",
+                     course, "/exercises", sep = "")
+    token   <- credentials$token
     headers <- httr::add_headers(Authorization = token)
-    # Sys.sleep(3)
-    req <- httr::stop_for_status(httr::GET(url = url,
-                                           headers,
-                                           config = httr::timeout(10),
-                                           encode = "json"))
-    # print(str(req))
+    req     <-
+      httr::stop_for_status(httr::GET(url = url,
+                                      headers,
+                                      config = httr::timeout(10),
+                                      encode = "json"))
     jsonlite::fromJSON(httr::content(req, "text"))
-  }, error = function(e) {
-      cat("An error occured while connecting to server.\n")
-      cat(.simplify_error_message(e$message))
-      list()
-  })
-  .dprint("get_all_exercises done")
+  }
+  exercises <- tryCatch(.do_without_progress(),
+                        error = function(e) {
+                          cat("An error occured while connecting to server.\n")
+                          cat(.simplify_error_message(e$message))
+                          list()
+                        })
   exercises
 }
 
 .simplify_error_message <- function(msg) {
-  standard_reply <- paste("Most likely you don't have working connection, something",
+  standard_reply <- paste("Most likely you don't have working connection,",
+                          "something",
                           "is blocking your access or the server is down.",
                           "Check connection and try again.")
   translations <- c("LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60",
@@ -485,31 +480,31 @@ get_all_exercises <- function(course, credentials) {
 #'
 #' @seealso \code{\link[httr]{content}}, \code{\link{get_submission_json}}
 get_json_from_submission_url <- function(response, token) {
-  submitJson <- list()
+  submit_json <- list()
   url <- list()
   url$error <- NULL
-  submitJson <- tryCatch({
+  submit_json <- tryCatch({
     url <- httr::content(response)
-    submitJson$results <-
+    submit_json$results <-
       httr::content(get_submission_json(token, url$submission_url))
-    .dprint(str(submitJson))
-    submitJson
+    .dprint(str(submit_json))
+    submit_json
   }, error = function(e) {
     if (!is.null(url$error)) {
       .dprint("Case1")
       .dprint(str(url$error))
-      submitJson$error <- url$error
+      submit_json$error <- url$error
     }
     .dprint("Case2")
     .dprint(str(e))
-    submitJson$results$error <- e
+    submit_json$results$error <- e
     if (grepl("Timeout was reached", e$message)) {
-      submitJson$results$status <- "timeout"
+      submit_json$results$status <- "timeout"
     } else {
-      submitJson$results$status <- "error"
+      submit_json$results$status <- "error"
     }
-    .dprint(str(submitJson))
-    submitJson
+    .dprint(str(submit_json))
+    submit_json
   })
-  return(submitJson)
+  return(submit_json)
 }
