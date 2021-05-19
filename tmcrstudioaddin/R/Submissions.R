@@ -410,27 +410,25 @@ getDialogMessage <- function(submitResults) {
         cat("Server couldn't run tests with your code,",
             "since your code produced the following error:", sep = "\n")
         cat(console_error, "\n")
-	if (console_error == "unable to start data viewer") {
-	  next_line <- paste("Server does not have View(...) functionality, so please",
-			     "comment out or remove all the View(...) commands.",
-			     sep = " ")
-	} else if (grepl("invalid multibyte character", console_error)) {
-	  next_line <- paste("You might have used",
-			     "nordic letters in text with encoding that is not UTF-8.",
-			     "Try using UTF-8 encoding or use only ASCII characters.",
-			     sep = " ")
-	} else {
-	  next_line <- paste("You can find the error message on the console.",
-			     "This should help you identifying and locating the error.",
-			     sep = " ")
-	}
-	server_error <- paste("Server could not run tests.",
-			      next_line,
-## 			      "#gsub("\n", "<p>", console_error),
-			      sep = "<p>")
-## 	print(gsub("\n", "<br>", console_error))
+        if (console_error == "unable to start data viewer") {
+          next_line <- paste("Server does not have View(...) functionality, so please",
+                             "comment out or remove all the View(...) commands.",
+                             sep = " ")
+        } else if (grepl("invalid multibyte character", console_error)) {
+          next_line <- paste("You might have used",
+                             "nordic letters in text with encoding that is not UTF-8.",
+                             "Try using UTF-8 encoding or use only ASCII characters.",
+                             sep = " ")
+        } else {
+          next_line <- paste("You can find the error message on the console.",
+                             "This should help you identifying and locating the error.",
+                             sep = " ")
+        }
+        server_error <- paste("Server could not run tests.",
+                              next_line,
+                              sep = "<p>")
         .ddprint(server_error)
-	submitResults$error <- server_error
+        submitResults$error <- server_error
         message$title <- "Submission succeeded with code problem"
         submitResults$error
       } else {
@@ -444,75 +442,75 @@ getDialogMessage <- function(submitResults) {
       }
     messages_tmp <-
       matrix(byrow = TRUE, ncol = 3,
-	     c(c("Unauthorized (HTTP 401).",
-		 paste("Your submission was refused by server (HTTP 401).",
-		       "This most likely means that the submission deadline",
-		       "has closed."),
-		 paste("Your submission was refused by server (HTTP 401).",
-		       "This most likely means that the submission deadline",
-		       "has closed.")),
-	       c("Forbidden (HTTP 403).",
-		 paste("Your submission failed as forbidden request (HTTP 403).",
-		       "<p>The most common cause of this are firewalls, VPN's,",
-		       "antivirus programs that block the connection as well as",
-		       "stale credentials. It can also happen if the server is",
-		       "down. <p> Try logging out and back in from addin in a",
-		       "different network and check if tmc.mooc.fi is working.",
-		       "<p> If the problem persists, please contact the course",
-		       "instructors."),
-		 paste("Your submission failed as forbidden request (HTTP 403).",
-		       "<p>The most common cause of this are firewalls, VPN's,",
-		       "antivirus programs that block the connection as well as",
-		       "stale credentials. It can also happen if the server is",
-		       "down. <p> Try logging out and back in from addin in a",
-		       "different network and check if tmc.mooc.fi is working.",
-		       "<p> If the problem persists, please contact the course",
-		       "instructors.")),
-	       c("file.exists(path) is not TRUE",
-		 paste("Submission uploading failed with 'file.exists(path)",
-		       "is not TRUE'. <p> The reason for this is most likely",
-		       "with your installation of Rtools. Please take a look at",
-		       "Rtools installationmanual. <p> If you are unable to fix this",
-		       "contact the course instructors in this case."),
-		 paste("Submission uploading failed with 'file.exists(path)",
-		       "is not TRUE'.  <p> This is most likely an issue with",
-		       "file permissions. <p> Please contact the course instructors",
-		       "in this case.")),
-	       c("Bad Gateway (HTTP 502).",
-		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
-		       "You can try restarting RStudio and RTMC and then resubmitting.<p>",
-		       "This can also mean that server is is temporarily not accepting",
-		       "requests. You should try resubmitting again later, but if you",
-		       "are in a hurry, contact the course teacher"),
-		 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
-		       "You can try restarting RStudio and RTMC and then resubmitting.<p>",
-		       "This can also mean that server is is temporarily not accepting",
-		       "requests. You should try resubmitting again later, but if you",
-		       "are in a hurry, contact the course teacher")),
+             c(c("Unauthorized (HTTP 401).",
+                 paste("Your submission was refused by server (HTTP 401).",
+                       "This most likely means that the submission deadline",
+                       "has closed."),
+                 paste("Your submission was refused by server (HTTP 401).",
+                       "This most likely means that the submission deadline",
+                       "has closed.")),
+               c("Forbidden (HTTP 403).",
+                 paste("Your submission failed as forbidden request (HTTP 403).",
+                       "<p>The most common cause of this are firewalls, VPN's,",
+                       "antivirus programs that block the connection as well as",
+                       "stale credentials. It can also happen if the server is",
+                       "down. <p> Try logging out and back in from addin in a",
+                       "different network and check if tmc.mooc.fi is working.",
+                       "<p> If the problem persists, please contact the course",
+                       "instructors."),
+                 paste("Your submission failed as forbidden request (HTTP 403).",
+                       "<p>The most common cause of this are firewalls, VPN's,",
+                       "antivirus programs that block the connection as well as",
+                       "stale credentials. It can also happen if the server is",
+                       "down. <p> Try logging out and back in from addin in a",
+                       "different network and check if tmc.mooc.fi is working.",
+                       "<p> If the problem persists, please contact the course",
+                       "instructors.")),
+               c("file.exists(path) is not TRUE",
+                 paste("Submission uploading failed with 'file.exists(path)",
+                       "is not TRUE'. <p> The reason for this is most likely",
+                       "with your installation of Rtools. Please take a look at",
+                       "Rtools installationmanual. <p> If you are unable to fix this",
+                       "contact the course instructors in this case."),
+                 paste("Submission uploading failed with 'file.exists(path)",
+                       "is not TRUE'.  <p> This is most likely an issue with",
+                       "file permissions. <p> Please contact the course instructors",
+                       "in this case.")),
+               c("Bad Gateway (HTTP 502).",
+                 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+                       "You can try restarting RStudio and RTMC and then resubmitting.<p>",
+                       "This can also mean that server is is temporarily not accepting",
+                       "requests. You should try resubmitting again later, but if you",
+                       "are in a hurry, contact the course teacher"),
+                 paste("Your submission failed with 'Bad Gateway (HTTP 502)'.",
+                       "You can try restarting RStudio and RTMC and then resubmitting.<p>",
+                       "This can also mean that server is is temporarily not accepting",
+                       "requests. You should try resubmitting again later, but if you",
+                       "are in a hurry, contact the course teacher")),
                c("LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60",
-		 paste("Your submission failed with 'LibreSSL ... errno 60'",
-		       "This usually means that your connection failed just before",
+                 paste("Your submission failed with 'LibreSSL ... errno 60'",
+                       "This usually means that your connection failed just before",
                        "submission. You should try resubmitting again for more informative",
                        "error message."),
-		 paste("Your submission failed with 'LibreSSL ... errno 60'",
-		       "This usually means that your connection failed just before",
+                 paste("Your submission failed with 'LibreSSL ... errno 60'",
+                       "This usually means that your connection failed just before",
                        "submission. You should try resubmitting again for more informative",
                        "error message.")),
-	       c("Could not resolve host: tmc.mooc.fi",
-		 paste("Host tmc.mooc.fi could not be reached. Do you have a working",
-		       "network connection? If you do, then tmc.mooc.fi might be",
-		       "currently unreachable. You should try resubmitting again later,",
-		       "but if you are in a hurry, contact the course teacher"),
-		 paste("Host tmc.mooc.fi could not be reached. Do you have a working",
-		       "network connection? If you do, then tmc.mooc.fi might be",
-		       "currently unreachable. You should try resubmitting again later,",
-		       "but if you are in a hurry, contact the course teacher")),
+               c("Could not resolve host: tmc.mooc.fi",
+                 paste("Host tmc.mooc.fi could not be reached. Do you have a working",
+                       "network connection? If you do, then tmc.mooc.fi might be",
+                       "currently unreachable. You should try resubmitting again later,",
+                       "but if you are in a hurry, contact the course teacher"),
+                 paste("Host tmc.mooc.fi could not be reached. Do you have a working",
+                       "network connection? If you do, then tmc.mooc.fi might be",
+                       "currently unreachable. You should try resubmitting again later,",
+                       "but if you are in a hurry, contact the course teacher")),
                c(pre_error,
-		 paste(pre_error, "<p>Please contact the course instructors in this case."),
-		 paste(pre_error, "<p>Please contact the course instructors in this case."))))
+                 paste(pre_error, "<p>Please contact the course instructors in this case."),
+                 paste(pre_error, "<p>Please contact the course instructors in this case."))))
     errormsgs <- list(keys      = messages_tmp[ , 1],
-		      msgs_win  = messages_tmp[ , 2],
-		      msgs_unix = messages_tmp[ , 3])
+                      msgs_win  = messages_tmp[ , 2],
+                      msgs_unix = messages_tmp[ , 3])
     if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
       errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
     } else {

@@ -2,7 +2,7 @@
   .dprint(".zip")
   old_wd <- getwd()
   setwd(folder)
-  if ( file.exists(zip_path) ) {
+  if (file.exists(zip_path)) {
     cat("Zip was already created. This should not happen.\n")
     setwd(old_wd)
     stop("Zip file already exists")
@@ -16,7 +16,7 @@
     stop(e)
   })
   setwd(old_wd)
-  if ( !file.exists(zip_path) ) {
+  if (!file.exists(zip_path)) {
     cat("Zip has not not been created.\n")
     stop("Zip file not created")
   }
