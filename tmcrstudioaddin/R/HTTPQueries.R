@@ -123,56 +123,79 @@ download_exercise <- function(exercise_id,
          url_config         = url_config)
   }
 
-  .upload_exercise2 <- function(url_data, project_path, remove_zip) {
-    exercises_response <- list()
-    exercises_url      <- url_data$exercises_url
-    url_config         <- url_data$url_config
-
-    .dprint("upload_exercise()")
+  .create_submission_zip_file <- function(project_path) {
     zip_path <- paste0(tempfile(), ".zip")
     tryCatch({
       .tmc_zip(project_path, zip_path)
-    }, error = function(e) {
+      # TODO. check .tmc_zip is working properly
+    }, error = function(err) {
       cat("Creating submission failed.\n")
-      stop(e)
+      stop(err)
     })
-    tryCatch({
+    return(zip_path)
+  }
+
+    .prepare_httr_upload_content <- function(zip_path) {
       cat("Sending submission package to server...\n")
       if (!is.null(shiny::getDefaultReactiveDomain())) {
         shiny::setProgress(message = "Sending submission package",
                            value = 1/4)
       }
-      .dprint(paste("Project path", project_path))
-      .dprint(paste0("Sending zip to server ", zip_path))
-      .dprint(paste0("file.exists(zip_path) ", file.exists(zip_path)))
       submission_file <- httr::upload_file(zip_path)
-    }, error = function(e) {
-      cat("Uploading failed.\n")
-      stop(e)
-    })
-
-    .dprint("exercises_response")
-    exercises_response <- tryCatch({
-      exercises_response$data <-
-        httr::stop_for_status(httr::POST(exercises_url,
-                                         config = url_config,
-                                         encode = "multipart",
-                                         body = list("submission[file]" = submission_file)))
-      .ddprint(str(exercises_response))
-      if (!is.null(exercises_response$error)) {
-        stop(exercises_response$error)
-      }
-      exercises_response
-    }, error = function(e) {
-      .dprint(str(e))
-      exercises_response$error <- e
-      exercises_response
-    })
-    .dprint("exercises_response2")
-    if (remove_zip) {
-      file.remove(zip_path)
+      return(submission_file)
     }
 
+    .upload_content_to_server <- function(url_data, submission_file) {
+      exercises_url      <- url_data$exercises_url
+      url_config         <- url_data$url_config
+      POST_body          <- list("submission[file]" = submission_file)
+      tryCatch({
+        response <- httr::POST(url      = exercises_url,
+                               config   = url_config,
+                               encode   = "multipart",
+                               body     = POST_body)
+        list(data = response)
+      }, error = function(err) {
+        cat("Upload content uploading failed.\n")
+        stop(err)
+      })
+    }
+
+    .check_upload_status <- function(response) {
+      tryCatch({
+        response$data <- httr::stop_for_status(response$data)
+        response
+      },
+      error = function(err) {
+        cat("Upload was not accepted by server.\n")
+        response$error <- err
+        return(response)
+      })
+    }
+
+    .clean_up_submission <- function(zip_path, remove_zip) {
+      if (remove_zip) {
+        cat("Cleaning up submission zip package.\n")
+        file.remove(zip_path)
+      }
+    }
+
+  .upload_with_zip_package <- function(zip_path, url_data) {
+    submission_file     <- .prepare_httr_upload_content(zip_path)
+    exercises_response  <- .upload_content_to_server(url_data, submission_file)
+    .check_upload_status(exercises_response)
+  }
+
+  .upload_exercise2 <- function(url_data, project_path, remove_zip) {
+    zip_path            <- .create_submission_zip_file(project_path)
+    tryCatch({
+      exercises_response <- .upload_with_zip_package(zip_path, url_data)
+      .clean_up_submission(zip_path, remove_zip)
+    },
+    error = function(err) {
+      .clean_up_submission(zip_path, remove_zip)
+      stop(err)
+    })
     return(exercises_response)
   }
 

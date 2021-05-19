@@ -161,16 +161,15 @@ upload_current_exercise <- function(credentials,
 #' \code{\link{upload_current_exercise}},
 #' \code{\link{getExerciseFromServer}}
 submit_current <- function(path, credentials) {
-  submitJson <- list()
-  .dprint("submit_current()")
-  token <- credentials$token
+  token    <- credentials$token
   response <- upload_current_exercise(credentials, project_path = path)
   if (is.null(response$error)) {
     .ddprint("upload_response..")
     .ddprint(str(response))
     submitJson <- getExerciseFromServer(response$data, token, 10)
-  } else {
-    .dprint("HERE NOW. NO CONNECTION TO SERVER")
+    return(submitJson)
+  }
+  if (is.null(response$data) || is.na(response$data) || length(response$data) == 0) {
     cat("No access to server.\n")
     submitJson2 <- list()
     submitJson2$error <- response$error
@@ -178,6 +177,14 @@ submit_current <- function(path, credentials) {
     submitJson <- list(error = list(message         = response$error$message,
                                     call            = response$error$call,
                                     server_access   = FALSE))
+  } else {
+    cat("Error response from server.\n")
+    submitJson2 <- list()
+    submitJson2$error <- response$error
+    submitJson2$error$server_access <- TRUE
+    submitJson <- list(error = list(message         = response$error$message,
+                                    call            = response$error$call,
+                                    server_access   = TRUE))
   }
   return(submitJson)
 }
