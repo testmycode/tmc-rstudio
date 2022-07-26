@@ -74,7 +74,9 @@ tmcGadget <- function() {
     FALSE
   }
 #
-  rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+  if (rstudioapi::isAvailable()) {
+    rstudioapi::executeCommand("refreshEnvironment")
+  }
   tabs_data_list <- list(login_tab_data  =  .loginTabUI(id = "login"),
                          course_tab_data = .courseTabUI(id = "courses"),
                          submit_tab_data = .submitTabUI(id = "testAndSubmit"))
@@ -285,7 +287,9 @@ tmcGadget <- function() {
     cat("RTMC session ended.\n")
     if (rstudioapi::isAvailable()) {
       .restore_host_global_env(.global_env_copy)
-      rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+      if (rstudioapi::isAvailable()) {
+	rstudioapi::executeCommand("refreshEnvironment")
+      }
     }
   }
 }

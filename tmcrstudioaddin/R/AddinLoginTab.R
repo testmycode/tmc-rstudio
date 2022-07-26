@@ -99,9 +99,11 @@
                                               input$serverAddress)
     # showDialog() needs RStudio version > 1.1.67
     if (!is.null(response$error)) {
-      rstudioapi::isAvailable(rstudioapi::showDialog(title   = response$error,
-                                                     message = response$error_description,
-                                                     url = ""))
+      if (rstudioapi::isAvailable()) {
+        rstudioapi::showDialog(title   = response$error,
+                               message = response$error_description,
+                               url = "")
+      }
       cat(response$error, "\n")
       cat(response$error_description, "\n")
     }

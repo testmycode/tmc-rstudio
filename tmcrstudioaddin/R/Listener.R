@@ -401,8 +401,12 @@
 .process_OPEN <- function(num, cmd_args) {
   if (num == 2) {
     filename <- eval(parse(text = cmd_args))
-    cat(paste0("Opening file: ", filename),"\n")
-    rstudioapi::isAvailable(rstudioapi::navigateToFile(filename))
+    if (rstudioapi::isAvailable()) {
+      cat(paste0("Opening file: ", filename),"\n")
+      rstudioapi::navigateToFile(filename)
+    } else {
+      cat(paste0("No working RStudio connection", "\n"))
+    }
     # FIX: should reopen with encoding if it does not match
     # the default on the system
     TRUE

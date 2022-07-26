@@ -273,7 +273,9 @@
     reactive$error_state   <- FALSE
     enable_tab_UI()
 #
-    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+    if (rstudioapi::isAvailable()) {
+      rstudioapi::executeCommand("refreshEnvironment")
+    }
   }
 
   .help_text_for_serious_error <- function(message) {
@@ -633,7 +635,9 @@
     })
     .send_listener_unlock(lock_code)
     enable_tab_UI()
-    rstudioapi::isAvailable(rstudioapi::executeCommand("refreshEnvironment"))
+    if (rstudioapi::isAvailable()) {
+      rstudioapi::executeCommand("refreshEnvironment")
+    }
   }
   ST_observer7 <- function() {
     .dprint("ST_observer7 launching...")

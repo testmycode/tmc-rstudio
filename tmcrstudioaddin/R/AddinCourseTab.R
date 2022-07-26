@@ -578,9 +578,9 @@
                 "exercises successfully", sep = " ")
         }
       cat(download_success_message, "\n")
-      rstudioapi::isAvailable(rstudioapi::showDialog("Success",
-                                                     download_success_message,
-                                                     ""))
+      if (rstudioapi::isAvailable()) {
+	rstudioapi::showDialog("Success", download_success_message, "")
+      }
     },
     error = function(e) {
       pre_error <- e$message
@@ -619,9 +619,9 @@ pre_error)
       cat(" : ")
       cat(pre_error)
       cat("\n")
-      rstudioapi::isAvailable(rstudioapi::showDialog("Error",
-                                                     download_error_message,
-                                                     ""))
+      if (rstudioapi::isAvailable()) {
+	rstudioapi::showDialog("Error", download_error_message, "")
+      }
     })
 
     #Call submitTab module, which updates exercises
