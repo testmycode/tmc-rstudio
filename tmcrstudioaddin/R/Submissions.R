@@ -508,9 +508,9 @@ getDialogMessage <- function(submitResults) {
                c(pre_error,
                  paste(pre_error, "<p>Please contact the course instructors in this case."),
                  paste(pre_error, "<p>Please contact the course instructors in this case."))))
-    errormsgs <- list(keys      = messages_tmp[ , 1],
-                      msgs_win  = messages_tmp[ , 2],
-                      msgs_unix = messages_tmp[ , 3])
+    errormsgs <- list(keys      = messages_tmp[, 1],
+                      msgs_win  = messages_tmp[, 2],
+                      msgs_unix = messages_tmp[, 3])
     if (!is.null(.Platform$OS.type) && .Platform$OS.type == "windows") {
       errormsg <- errormsgs$msgs_win[errormsgs$keys == pre_error][1]
     } else {

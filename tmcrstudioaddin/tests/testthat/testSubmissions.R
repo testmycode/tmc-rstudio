@@ -136,7 +136,7 @@ processSubmissionJson_mocksi <- function(submitJson) {
   }
   submitRes <- list()
   submitRes$submitted_at          <- submitted_at(submitJson$submitted_at)
-  submitRes$submission_id         <- submission_id(submitJson$submission_url)
+  submitRes$submission_id         <- names(submitJson)
   submitRes[["tests"]]            <- processSubmission(submitJson)
   submitRes[["exercise_name"]]    <- submitJson$exercise_name
   submitRes[["all_tests_passed"]] <- submitJson$all_tests_passed
