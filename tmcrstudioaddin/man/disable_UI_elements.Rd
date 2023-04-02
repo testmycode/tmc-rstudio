@@ -4,10 +4,13 @@
 \alias{disable_UI_elements}
 \title{Disable Shiny input elements using UI elements}
 \usage{
-disable_UI_elements(UI_list)
+disable_UI_elements(UI_list = NULL, running = FALSE)
 }
 \arguments{
 \item{UI_list}{A named list of input element vectors or NULL.}
+
+\item{running}{A boolean that enables Stop button when tests are
+running}
 }
 \description{
 Disable \code{Shiny} input elements given by UI elements

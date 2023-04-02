@@ -7,8 +7,8 @@
 tmcGadget_nonblock()
 }
 \value{
-A processx object corresponding the R session running the
-the shiny application
+An listener environment with access to the R session running the
+the shiny application and to the listener status
 }
 \description{
 Run the nonblocking TMC addin on the \code{RStudio} viewer pane.

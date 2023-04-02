@@ -35,4 +35,4 @@ Collate:
   'TestResultsStats.R'
   'TMC_plugin.R'
   'Zipper.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1

@@ -184,12 +184,15 @@ tmcGadget <- function() {
   login_tab_data  <- tabs_data_list[["login_tab_data"]]
   course_tab_data <- tabs_data_list[["course_tab_data"]]
   submit_tab_data <- tabs_data_list[["submit_tab_data"]]
+  gtb		  <- miniUI::gadgetTitleBar
+  title_bar	  <- gtb(title = "TMC RStudio",
+			 right = miniUI::miniTitleBarButton(inputId = "stop",
+							    label   = "Stop"),
+			 left  = miniUI::miniTitleBarCancelButton(inputId = "exit",
+								  label   = "Exit"))
   miniUI::miniPage(shinyjs::useShinyjs(),
                    theme = used_theme,
-                   miniUI::gadgetTitleBar(title = "TMC RStudio",
-                                          right = NULL, # Might be needed: cancel button
-                                          left  = miniUI::miniTitleBarCancelButton(inputId = "exit",
-                                                                                   label = "Exit")),
+		   title_bar,
                    miniUI::miniTabstripPanel(login_tab_data[["mini_tab_panel"]],
                                              course_tab_data[["mini_tab_panel"]],
                                              submit_tab_data[["mini_tab_panel"]]))
@@ -218,6 +221,7 @@ tmcGadget <- function() {
                           login_tab  = login_tab_ui,
                           course_tab = course_tab_ui,
                           submit_tab = submit_tab_ui)
+    UI_stop	  <- list(all_tabs   = c("stop"))
     globalReactiveValues <-
       reactiveValues(credentials = tmcrstudioaddin::getCredentials(),
                      downloadedExercises = tmcrstudioaddin::downloadedExercisesPaths(),
@@ -230,7 +234,9 @@ tmcGadget <- function() {
                      UI_elements = list(UI_limited              = UI_limited,
                                         UI_no_selected_exercise = UI_limited2,
                                         UI_nothing_to_download  = UI_limited3,
-                                        UI_normal               = UI_normal),
+                                        UI_normal               = UI_normal,
+                                        UI_stop                 = UI_stop),
+                     rx          = NULL,
                      unpublishedExercisesMap = list(),
                      downloadedExercisesMap = list(),
                      coursesInfo = list())
@@ -242,6 +248,23 @@ tmcGadget <- function() {
                     }
                     .ending_rtmc_session(.global_env_copy)
                   })
+
+    ST_observer14 <- function() {
+      rx <- globalReactiveValues$rx
+      UI_elements <- globalReactiveValues$UI_elements
+      if (is.null(rx)) {
+	cat("rx is NULL. This should not happen.\n")
+      } else {
+	if (rx$is_alive()) {
+	  disable_tab_UI_list(UI_elements$UI_stop)
+	  rx$interrupt()
+	} else {
+	  cat("rx is not alive. This should not happen.\n")
+	}
+      }
+    }
+    observeEvent(input$stop, { ST_observer14() })
+
     # Function for the exit button
     shiny::observeEvent(input$exit, { shiny::stopApp() })
     # Function for the cancel button (which we don't have)

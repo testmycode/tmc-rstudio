@@ -66,13 +66,23 @@ disable_tab_UI_list <- function(tab) {
   lapply(tab, disable_single_element)
 }
 
+.enable_tab_UI_list <- function(tab) {
+  enable_single_element <- function(element) {
+    shinyjs::enable(element, asis = TRUE)
+  }
+  lapply(tab, enable_single_element)
+}
+
 #' @title Disable Shiny input elements using UI elements
 #'
 #' @description Disable \code{Shiny} input elements given by UI elements
 #'
 #' @param UI_list A named list of input element vectors or NULL.
 #'
-#' @usage disable_UI_elements(UI_list)
+#' @param running A boolean that enables Stop button when tests are
+#' running
+#'
+#' @usage disable_UI_elements(UI_list = NULL, running = FALSE)
 #'
 #' @details Disables the \code{Shiny} input elements.
 #' This is done in order to prevent button actions while an
@@ -80,11 +90,16 @@ disable_tab_UI_list <- function(tab) {
 #'
 #' @seealso \code{\link{enable_UI_elements}}
 
-disable_UI_elements <- function(UI_list = NULL) {
+disable_UI_elements <- function(UI_list = NULL, running = FALSE) {
   .dprint("Disabling...")
   .ddprint(str(UI_list))
 
-  lapply(UI_list$UI_normal, disable_tab_UI_list)
+  if (running) {
+    lapply(UI_list$UI_normal, disable_tab_UI_list)
+    lapply(UI_list$UI_stop,   .enable_tab_UI_list)
+  } else {
+    lapply(c(UI_list$UI_normal, UI_list$UI_stop), disable_tab_UI_list)
+  }
 }
 
 #' @title Enable Shiny input elements using UI list
@@ -108,13 +123,6 @@ enable_UI_elements <- function(UI_list  = NULL,
                                UI_state = c("not_logged_in"   = FALSE,
                                             "not_selected"    = FALSE,
                                             "not_downloading" = FALSE)) {
-  enable_single_element <- function(element) {
-    shinyjs::enable(element, asis = TRUE)
-  }
-  enable_tab_UI_list <- function(tab) {
-    .ddprint(str(tab))
-    lapply(tab, enable_single_element)
-  }
   .dprint("Enabling...")
   .ddprint(str(UI_list))
   not_logged_in    <- UI_state["not_logged_in"]
@@ -122,7 +130,8 @@ enable_UI_elements <- function(UI_list  = NULL,
   not_downloading  <- UI_state["not_downloading"]
 
   .dprint(UI_state)
-  lapply(UI_list$UI_normal, enable_tab_UI_list)
+  lapply(UI_list$UI_normal, .enable_tab_UI_list)
+  lapply(UI_list$UI_stop, disable_tab_UI_list)
   if (not_logged_in) lapply(UI_list$UI_limited, disable_tab_UI_list)
   if (not_selected)  {
     lapply(UI_list$UI_no_selected_exercise, disable_tab_UI_list)

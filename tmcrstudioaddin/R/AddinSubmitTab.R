@@ -90,6 +90,31 @@
        mini_tab_panel = tab_panel)
 }
 
+
+
+# these are needed only for blocking versions
+#
+.collect_masked_globals <- function() {
+  test_globals_boolean <- c("points", "points_for_all_tests") %in% ls(.GlobalEnv)
+  test_globals_missing <-
+    c("points", "points_for_all_tests")[!test_globals_boolean]
+  test_globals_names <-
+    c("points", "points_for_all_tests")[test_globals_boolean]
+  test_globals_store <- mget(c("points", "points_for_all_tests")[test_globals_boolean],
+			     envir = .GlobalEnv)
+  list(globals_missing = test_globals_missing,
+       globals_names   = test_globals_names,
+       globals_store   = test_globals_store)
+}
+.restore_masked_globals <- function(tester) {
+  test_globals_missing <- tester$globals_missing
+  test_globals_names   <- tester$globals_names
+  test_globals_store   <- tester$globals_store
+  for (name in test_globals_names) {
+    assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
+  }
+}
+
 .submitTab <- function(input, output, session, globalReactiveValues) {
   .dprint(".submitTab launched")
 #
@@ -104,27 +129,152 @@
                              error_state   = FALSE,
                              showAll       = TRUE,
                              sourcing      = FALSE,
-                             sourceEcho    = TRUE)
+                             sourceEcho    = TRUE,
+                             progress_bar  = NULL,
+                             lock_code     = NULL,
+                             progress_data = NULL,
+                             tester        = NULL,
+                             wait_tick     = FALSE,
+                             wait_tock     = FALSE)
+#
+#
+
+# Let's take those here just to see if that makes a difference
+
+  display_output <- function (rx) {
+    cat(rx$read_output())
+    cat(rx$read_output())
+  }
+  wait_live_step <- function(rx, progress_data) {
+    display_output(rx)
+    progress_data$times <- progress_data$times - 1
+    progress            <- progress_data$value + progress_data$jump
+    progress_data$value <- progress
+    progress_data$bar$set(value = progress)
+    progress_data
+  }
+  wait_loop <- function(rx, progress_data) {
+    times           <- progress_data$times
+    progress_bar    <- progress_data$bar
+    if (rx$is_alive() & (times > 0)) {
+      progress_data <- wait_live_step(rx, progress_data)
+      normal_loop <- function() {
+        wait_loop(rx, progress_data)
+      }
+      Sys.sleep(progress_data$dur)
+      normal_loop()
+    } else if (times == 0) {
+      rx$interrupt()
+      dur           <- progress_data$dur
+      progress_data <- list(dur   = dur,
+                            times = 20,
+                            value = progress_data$value,
+                            jump  = 0,
+                            bar   = progress_bar)
+      timeout_init <- function() {
+        wait_loop(rx, progress_data)
+      }
+      Sys.sleep(dur)
+      timeout_init()
+    } else {
+      display_output(rx)
+      progress_bar$set(value = 1)
+      done_tests_cont(rx$get_result(), progress_bar)
+    }
+  }
+  guard_interruptable_test_runner <- function(project_path, tester, progress_bar) {
+    runner_fn    <- function(project_path) {
+      tmcRtestrunner::run_tests(project_path = project_path,
+                                print        = TRUE,
+                                addin_data   = list(only_test_names = FALSE))
+    }
+#  tryCatch({
+      rx <- callr::r_bg(runner_fn,
+                        args = list(project_path),
+                        stdout = "|", stderr = "2>&1", poll_connection = TRUE)
+      reactive$tester         <- tester
+      grv$rx                  <- rx
+
+      dur           <- 0.1
+      times         <- 8 / dur
+      init_value    <- 1/3
+      progress_data <- list(dur   = dur,
+                            times = times,
+                            value = init_value,
+                            jump  = (1 - init_value) / times,
+                            bar   = progress_bar)
+      reactive$progress_data <- progress_data
+      shinyjs::delay(ms = 1000 * progress_data$dur,
+                     expr = {
+                       reactive$wait_tick <- TRUE
+                     })
+# }, error = function(e) {
+#   rstudioapi::showDialog("Cannot run tests",
+#                         "tmcRtestrunner errored while running tests")
+#   run_results <- list(run_results = list(), run_status = "run_failed")
+#   return(done_tests_cont(run_results, tester, progress_bar))
+# })
+  }
+
+  run_interruptble_tests <- function(grv) {
+    cat("Running local tests...\n")
+    tester       <- .collect_masked_globals()
+    lock_code    <- .send_listener_lock()
+    session      <- shiny::getDefaultReactiveDomain()
+    progress_bar <- shiny::Progress$new(session, min = 0, max = 1)
+    progress_bar$set(message = "Running tests", value = 1/3)
+    project_path        <- grv$selectedExercisePath
+    reactive$lock_code  <- lock_code
+    guard_interruptable_test_runner(project_path, tester, progress_bar)
+  }
+
+  done_tests_cont <- function(run_results, progress_bar) {
+    progress_bar$close()
+    .send_listener_unlock(reactive$lock_code)
+    .restore_masked_globals(reactive$tester)
+    #
+    grv$rx                 <- NULL
+    reactive$progress_data <- NULL
+    reactive$tester        <- NULL
+    reactive$lock_code     <- NULL
+    reactive$runResults    <- run_results
+    reactive$testResults   <- run_results$test_results
+    reactive$test_names    <- do_the_computation(run_results$test_results)
+    reactive$runStatus     <- run_results$run_status
+    reactive$submitResults <- NULL
+    reactive$sourcing      <- FALSE
+    reactive$error_state   <- FALSE
+    enable_tab_UI()
+#
+    if (rstudioapi::isAvailable()) {
+      rstudioapi::executeCommand("refreshEnvironment")
+    }
+  }
+
+
+# Let's take those here just to see if that makes a difference
+
+#
+#
+
 #
 # normal functions
 #
   enable_tab_UI <- function() {
-    .dprint("Enabling new way")
-    .ddprint("Ready to do this SubmitTab")
     # Ok. This is just an ad hoc way to do it and is caused by mixing
     # responsibilities. Actually we should just enable and disable ALL the
     # buttons.
     shinyjs::delay(ms = 10,
                    expr = {
-                     .ddprint("Launching new way...")
                      not_logged_in      <- is.null(grv$credentials$token)
                      course_tab_UI_list <- grv$UI_elements$course_tab
                      tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
+                     # tmcrstudioaddin::disable_UI_elements(grv$UI_elements$UT_stop)
                    })
   }
   disable_tab_UI <- function() {
     .ddprint("Disabling new way SubmitTab")
-    tmcrstudioaddin::disable_UI_elements(grv$UI_elements)
+    tmcrstudioaddin::disable_UI_elements(grv$UI_elements, running = TRUE)
     globalReactiveValues$UI_disabled <- TRUE
   }
 
@@ -144,68 +294,16 @@
                     run_status = "run_failed"))
       })
     }
-    test_globals_boolean <- c("points", "points_for_all_tests") %in% ls(.GlobalEnv)
-    .ddprint(test_globals_boolean)
-    test_globals_missing <-
-      c("points", "points_for_all_tests")[!test_globals_boolean]
-    test_globals_names <-
-      c("points", "points_for_all_tests")[test_globals_boolean]
-    test_globals_store <- mget(c("points", "points_for_all_tests")[test_globals_boolean],
-                               envir = .GlobalEnv)
-    .ddprint(test_globals_missing)
-    .ddprint(test_globals_names)
-    .ddprint(test_globals_store)
+    tester <- .collect_masked_globals()
     cat("Getting local tests... ")
     run_results <- withProgress(message = "Getting tests",
                                 value   = 1/3,
                                 { guard_test_run() })
-    rm(list = test_globals_missing, envir = .GlobalEnv)
-    for (name in test_globals_names) {
-      assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
-    }
+    .restore_masked_globals(tester)
     cat("done\n")
     run_results
   }
 
-  silent_run_tests <- function() {
-    guard_test_run <- function() {
-      tryCatch({
-        .ddprint("Run when tests are launched.")
-        test_results <- tmcRtestrunner::run_tests(project_path = grv$selectedExercisePath,
-                                                  print        = TRUE,
-                                                  addin_data   = list(only_test_names = FALSE))
-        shiny::setProgress(value = 1)
-        return(test_results)
-      }, error = function(e) {
-        rstudioapi::showDialog("Cannot run tests",
-                               "tmcRtestrunner errored while running tests")
-        return(list(run_results = list(),
-                    run_status = "run_failed"))
-      })
-    }
-    test_globals_boolean <- c("points", "points_for_all_tests") %in% ls(.GlobalEnv)
-    # .ddprint(test_globals_boolean)
-    test_globals_missing <-
-      c("points", "points_for_all_tests")[!test_globals_boolean]
-    test_globals_names <-
-      c("points", "points_for_all_tests")[test_globals_boolean]
-    test_globals_store <- mget(c("points", "points_for_all_tests")[test_globals_boolean],
-                               envir = .GlobalEnv)
-    # .ddprint(test_globals_missing)
-    # .ddprint(test_globals_names)
-    # .ddprint(test_globals_store)
-    cat("Running local tests...\n")
-    lock_code <- .send_listener_lock()
-    run_results <- withProgress(message = "Running tests",
-                                value   = 1/3,
-                                { guard_test_run() })
-    rm(list = test_globals_missing, envir = .GlobalEnv)
-    for (name in test_globals_names) {
-      assign(name, value = test_globals_store[[name]], envir = .GlobalEnv)
-    }
-    .send_listener_unlock(lock_code)
-    run_results
-  }
   group_exercises <- function(exercise_paths) {
     .ddprint("group_exercises")
     .ddprint("exercise_paths")
@@ -258,24 +356,9 @@
 # observer functions
 #
 
-  ST_observer1 <- function() {
-    .dprint("ST_observer1 launching...")
-    # This function is run when the Run tests -button is pressed
+  handle_run_test_button <- function() {
     disable_tab_UI()
-    # cat("Run when tests are launched.", "\n"))
-    run_results            <- silent_run_tests()
-    reactive$runResults    <- run_results
-    reactive$testResults   <- run_results$test_results
-    reactive$test_names    <- do_the_computation(run_results$test_results)
-    reactive$runStatus     <- run_results$run_status
-    reactive$submitResults <- NULL
-    reactive$sourcing      <- FALSE
-    reactive$error_state   <- FALSE
-    enable_tab_UI()
-#
-    if (rstudioapi::isAvailable()) {
-      rstudioapi::executeCommand("refreshEnvironment")
-    }
+    run_interruptble_tests(grv)
   }
 
 
@@ -304,31 +387,22 @@
     next_line
   }
 
-  ST_observer2 <- function() {
-    # print("ST_observer2 launching...")
+  handle_submit_button <- function() {
     parse_single_test <- function(test_result) {
-      # print("Parsing...")
       tmp <- test_result$message
       test_result$message <- gsub("\\\\\"",
                                   "\"",
                                   gsub("\\\\n", "\n", tmp))
       # this is fixed on the server side now
-      # print("After...")
-      # print(str(test_result))
       test_result
     }
-   do_the_computation2 <- function(xx) {
-    # print("do_the_computation2 launching ...")
-    test_names_all  <- c(sapply(X = xx, function(x) x$name), "")
-    # print(test_names_all)
-    # print("do_the_computation2 done")
-    test_names_all
-   }
-
+    do_the_computation2 <- function(xx) {
+      test_names_all  <- c(sapply(X = xx, function(x) x$name), "")
+      test_names_all
+    }
     parse_test_strings <- function(test_results) {
       lapply(test_results, parse_single_test)
     }
-
     translation_df <-
       as.data.frame(
         stringsAsFactors = FALSE,
@@ -395,25 +469,16 @@
         for (ind2 in seq_along(test_names_server)) {
           lname <- test_names_local[ind1]
           sname <- test_names_server[ind2]
-#           print(ind1)
-#           print(ind2)
-#           print(lname)
-#           print(sname)
-#           print(substr(lname, 1, nchar(sname)) == sname)
           if (!is.na(lname) && substr(lname, 1, nchar(sname)) == sname) {
             ind1 <- ind1 + 1
             test_names_server[ind2] <- lname
           } else {
             temp_bool <- translation_df$key == sname
             if (sum(temp_bool)) {
-#               print(which(temp_bool))
-#               print(translation_df$translation[which(temp_bool)])
               test_names_server[ind2] <- translation_df$translation[which(temp_bool)]
             }
           }
         }
-#         print(test_names_local)
-#         print(test_names_server)
         resolved_tests <-
           mapply(function(x, name) {
                    x$name <- name
@@ -422,8 +487,6 @@
                  submitRes$data$tests,
                  test_names_server,
                  SIMPLIFY = FALSE)
-#         print(str(resolved_tests))
-#         print(str(translation_df))
         submitRes$data$tests <- resolved_tests
       }
       reactive$submitResults <- submitRes$data
@@ -433,12 +496,10 @@
       reactive$sourcing      <- FALSE
       reactive$error_state   <- FALSE
     } else {
-#       print("NOW AN ERROR OCCURED")
-#       print(str(submitRes))
+      # AN ERROR OCCURED
       reactive$error_state <- TRUE
       if (is.character(submitRes$error)) {
-#         print("This came from the server.")
-#         print(str(submitRes))
+        # This came from the server.
         backtrace_message   <- .print_compilation_error(submitRes$error)
         help_text           <- .help_text_for_error(backtrace_message)
         reactive$runResults <- list(run_status     = "server_failed",
@@ -449,7 +510,7 @@
                                     help_text      = list(help_text),
                                     test_results   = list())
       } else {
-#         print("We did not get to the server at all")
+        # We did not get to the server at all
         if (submitRes$error$server_access) {
           run_state_message <- "submission_failed_partially"
           disclaimer        <- "Submission state on the server uncertain :"
@@ -465,11 +526,8 @@
                                     help_text     = list(help_text),
                                     test_results  = list())
       }
-
       reactive$submitResults <- list(call = "server", message = submitRes$error)
-      # reactive$test_names    <- reactive$test_names # this stays as is
-      reactive$testResults   <- list() # this prevents the crash, but needs to be fixed
-#      reactive$runStatus <- "success"
+      reactive$testResults   <- list()  # this prevents the crash, but needs to be fixed
       reactive$sourcing      <- FALSE
     }
     enable_tab_UI()
@@ -483,7 +541,7 @@
     reactive$sourceEcho <- input$toggleEcho
   }
   ST_observer5 <- function() {
-    .dprint("ST_observer5 launching...")
+    .dprint("ST_observer5 launching...\n")
     # reactive$test_names      <- NULL # this would be optimal place for quick computation
     # testing just running the tests...
     .dprint("Running the tests for names...")
@@ -573,60 +631,66 @@
                       choices  = grouped_downloaded_exercises,
                       selected = grv$selectedExercisePath)
   }
-   ST_observer11 <- function() {
-     .dprint("ST_observer11 launched...")
-     not_selected  <- input$selectExercise == ""
-     grv$UI_state["not_selected"] <- not_selected
-     tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
-     .dprint("ST_observer11 done")
-   }
+  ST_observer11 <- function() {
+    .dprint("ST_observer11 launched...")
+    not_selected  <- input$selectExercise == ""
+    grv$UI_state["not_selected"] <- not_selected
+    tmcrstudioaddin::enable_UI_elements(grv$UI_elements, grv$UI_state)
+    .dprint("ST_observer11 done")
+  }
+  ST_do_tock <- function(dur) {
+    shinyjs::delay(ms = 1000 * dur,
+                   expr = {
+                     reactive$wait_tock <- TRUE
+                   })
+  }
+  ST_do_tick <- function(dur) {
+    shinyjs::delay(ms = 1000 * dur,
+                   expr = {
+                     reactive$wait_tick <- TRUE
+                   })
+  }
+  ST_do_wait_step <- function(do_delayed_flip) {
+    rx            <- grv$rx
+    progress_data <- reactive$progress_data
+    if (rx$is_alive() & (progress_data$times > 0)) {
+      progress_data <- wait_live_step(rx, progress_data)
+      reactive$progress_data <- progress_data
+      do_delayed_flip(progress_data$dur)
+    } else {
+      wait_loop(rx, progress_data)
+    }
+  }
+  ST_observer12 <- function() {
+    if (reactive$wait_tick) {
+      reactive$wait_tick <- FALSE
+      ST_do_wait_step(ST_do_tock)
+    }
+  }
+  ST_observer13 <- function() {
+    if (reactive$wait_tock) {
+      reactive$wait_tock <- FALSE
+      ST_do_wait_step(ST_do_tick)
+    }
+  }
+
 #
 # observer initializers
 #
 
-  .dprint("ST_observer1...")
-  runTestrunner <- observeEvent(input$runTests, ST_observer1())
-  .dprint("..initialised")
-
-  .dprint("ST_observer2...")
-  submitExercise2 <- observeEvent(input$submit, ST_observer2())
-  .dprint("..initialised")
-
-  .dprint("ST_observer3...")
-  showResults <- observeEvent(input$showAllResults, ST_observer3())
-  .dprint("..initialised")
-
-  .dprint("ST_observer4 ...")
-  sourceEcho <- observeEvent(input$toggleEcho, ST_observer4())
-  .dprint("..initialised")
-
-  .dprint("ST_observer5 ...")
-  selectedExercises <- observeEvent(input$selectExercise, ST_observer5(), ignoreInit = TRUE)
-  .dprint("..initialised")
-
-  .dprint("ST_observer6 ...")
-  sourceExercise <- observeEvent(input$source, ST_observer6())
-  .dprint("..initialised")
-
-  .dprint("ST_observer7 ...")
-  observeEvent(input$refreshExercises, ST_observer7())
-  .dprint("..initialised")
-
-  .dprint("ST_observer8 ...")
-  observeEvent(input$openFiles, ST_observer8())
-  .dprint("..initialised")
-
-  .dprint("ST_observer9 ...")
-  observeEvent(input$saveFiles, ST_observer9())
-  .dprint("..initialised")
-
-  .dprint("ST_observer10 (update_exercises) ...")
-  observeEvent(globalReactiveValues$downloadedExercises, update_exercises())
-  .dprint("..initialised")
-
-  .dprint("ST_observer11 ...")
-  observeEvent(input$selectExercise, { ST_observer11() })
-  .dprint("..initialised")
+  observeEvent(input$runTests,          handle_run_test_button())
+  observeEvent(input$submit,            handle_submit_button())
+  observeEvent(input$showAllResults,    ST_observer3())
+  observeEvent(input$toggleEcho,        ST_observer4())
+  observeEvent(input$selectExercise,    ST_observer5(), ignoreInit = TRUE)
+  observeEvent(input$source,            ST_observer6())
+  observeEvent(input$refreshExercises,  ST_observer7())
+  observeEvent(input$openFiles,         ST_observer8())
+  observeEvent(input$saveFiles,         ST_observer9())
+  observeEvent(grv$downloadedExercises, update_exercises())
+  observeEvent(input$selectExercise,    ST_observer11())
+  observeEvent(reactive$wait_tick,      ST_observer12())
+  observeEvent(reactive$wait_tock,      ST_observer13())
 
 #
 # rendering

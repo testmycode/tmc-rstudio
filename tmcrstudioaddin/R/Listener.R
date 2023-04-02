@@ -64,9 +64,18 @@
       if (server_port != "") {
         cat("RTMC has started.\n")
         listener_env$port <- server_port
-        rstudioapi::viewer(server_port)
+	if (rstudioapi::isAvailable()) {
+	  rstudioapi::viewer(server_port)
+	} else {
+	  cat("Experimental: There is no RStudio running. You can access the
+addin via browser.\nOpen a web browser and use the following address\n\n")
+	  cat(listener_env$port)
+	  cat("\n\nThe address 127.0.0.1 means local host, i.e. the addin is running
+on your computer and there is no access outside. Once you finish, click the 'Exit'
+button in the window to properly close the addin.\n")
+	}
       } else {
-        cat("RTMC failed to start. This happens sometimes. Just try again.\n")
+        cat("RTMC failed to start. This just happens sometimes. Just try again.\n")
       }
       normal_loop <- function() {
         lock_data <- list(cmd_mode = cmd_mode, unlock_code = "")
@@ -405,7 +414,9 @@
       cat(paste0("Opening file: ", filename),"\n")
       rstudioapi::navigateToFile(filename)
     } else {
-      cat(paste0("No working RStudio connection", "\n"))
+      cat(paste0("Trying to open file: ", filename),"\n")
+      cat(paste0("No working RStudio connection. You should open these ",
+		 "files with your preferred editor.", "\n"))
     }
     # FIX: should reopen with encoding if it does not match
     # the default on the system
