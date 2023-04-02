@@ -91,10 +91,10 @@ login <- function(clientID, secret, username, password, serverAddress) {
                "password" = password)
   # Authenticate
   url <- paste(serverAddress, "/oauth/token", sep = "")
-  req <- .vpf(httr::POST(url = url,
-			 body = body,
-			 config = httr::timeout(30),
-			 encode = "form"))
+  req <- httr::POST(url = url,
+                    body = body,
+                    config = httr::timeout(30),
+                    encode = "form")
   # if http status is ok return token
 #   cat("req\n")
 #   print(req)
@@ -125,11 +125,6 @@ login <- function(clientID, secret, username, password, serverAddress) {
   return(response)
 }
 
-.vpf <- function(expr) {
-  val <- httr::with_config(config = httr::config(ssl_verifypeer = FALSE),
-			   expr)
-  val
-}
 
 #' @title Fetch client id and secret from the server
 #'
@@ -149,7 +144,7 @@ fetchClientIdAndSecret <- function(serverAddress) {
   url <- paste(serverAddress,
                "/api/v8/application/rstudio_plugin/credentials.json",
                sep = "")
-  req <- .vpf(httr::GET(url = url, config = httr::timeout(30)))
+  req <- httr::GET(url = url, config = httr::timeout(30))
   return(req)
 }
 

@@ -68,10 +68,10 @@ download_exercise <- function(exercise_id,
 
   exercises_url <- paste(sep = "", serverAddress, "/", "api/v8/core/exercises/",
                         exercise_id, "/", "download")
-  exercises_response <- .vpf(httr::GET(exercises_url,
+  exercises_response <- httr::GET(exercises_url,
                                   httr::add_headers(Authorization = token),
                                   config = timeout(10),
-                                  write_disk(zip_path, overwrite = FALSE)))
+                                  write_disk(zip_path, overwrite = FALSE))
 
   .dprint("exercises_response")
   .ddprint(str(exercises_response))
@@ -161,10 +161,10 @@ upload_exercise <- function(token, exercise_id, project_path,
   .dprint("exercises_response")
   exercises_response <- tryCatch({
     exercises_response$data <-
-      httr::stop_for_status(.vpf(httr::POST(exercises_url,
+      httr::stop_for_status(httr::POST(exercises_url,
                                        config = url_config,
                                        encode = "multipart",
-                                       body = list("submission[file]" = submission_file))))
+                                       body = list("submission[file]" = submission_file)))
     .ddprint(str(exercises_response))
     if (!is.null(exercises_response$error)) {
       stop(exercises_response$error)
@@ -208,7 +208,7 @@ get_submission_json <- function(token, url) {
   url_config <- httr::add_headers(Authorization = token)
 
 #  exercises_response <- httr::GET(url, config = url_config, timeout(30))
-  exercises_response <- .vpf(httr::GET(url, config = url_config, timeout(5)))
+  exercises_response <- httr::GET(url, config = url_config, timeout(5))
 
   return(exercises_response)
 }
@@ -286,12 +286,6 @@ upload_current_exercise <- function(credentials,
   return(response)
 }
 
-.vpf <- function(expr) {
-  val <- httr::with_config(config = httr::config(ssl_verifypeer = FALSE),
-			   expr)
-  val
-}
-
 #' @title Get all TMC organizations
 #'
 #' @description Get all TMC organizations.
@@ -312,7 +306,6 @@ upload_current_exercise <- function(credentials,
 #' @seealso \code{\link{getCredentials}},
 #' \code{\link[httr]{stop_for_status}}, \code{\link[httr]{add_headers}},
 #' \code{\link[jsonlite]{fromJSON}}
-
 get_all_organizations <- function(credentials) {
   .dprint("get_all_organizations launched...")
   organizations <- tryCatch({
@@ -323,10 +316,10 @@ get_all_organizations <- function(credentials) {
                         {
                           headers <- httr::add_headers(Authorization = token)
                           req <-
-                            httr::stop_for_status(.vpf(httr::GET(url = url,
+                            httr::stop_for_status(httr::GET(url = url,
                                                             headers,
                                                             config = httr::timeout(10),
-                                                            encode = "json")))
+                                                            encode = "json"))
                           Sys.sleep(0.1)
                           shiny::setProgress(message = "Connected to server",
                                              value = 0.9)
@@ -383,10 +376,10 @@ get_all_courses <- function(organization, credentials) {
                         {
                           headers <- httr::add_headers(Authorization = token)
                           req <-
-                            httr::stop_for_status(.vpf(httr::GET(url = url,
+                            httr::stop_for_status(httr::GET(url = url,
                                                             config = headers,
                                                             encode = "json",
-                                                            timeout(10))))
+                                                            timeout(10)))
                           Sys.sleep(0.1)
                           shiny::setProgress(message = "Getting courses",
                                              value = 0.9)
@@ -441,10 +434,10 @@ get_all_exercises <- function(course, credentials) {
     #
     headers <- httr::add_headers(Authorization = token)
     # Sys.sleep(3)
-    req <- httr::stop_for_status(.vpf(httr::GET(url = url,
+    req <- httr::stop_for_status(httr::GET(url = url,
                                            headers,
                                            config = httr::timeout(10),
-                                           encode = "json")))
+                                           encode = "json"))
     # print(str(req))
     jsonlite::fromJSON(httr::content(req, "text"))
   }, error = function(e) {
