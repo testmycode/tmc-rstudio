@@ -165,7 +165,7 @@ submit_current <- function(path, credentials) {
     is.null(response$error)
   }
   .no_server_access <- function(response) {
-    is.null(response$data) || is.na(response$data) || length(response$data) == 0
+    is.null(response$data) || all(is.na(response$data)) || (length(response$data) == 0)
   }
 
   token    <- credentials$token
@@ -217,9 +217,11 @@ getExerciseFromServer <- function(response, token, sleepTime) {
   if (is.null(submitJson$error)) {
     timeout_happened <- FALSE
     first_time       <- TRUE
-    while (submitJson$results$status == "processing" |
-           (submitJson$results$status == "timeout" & !timeout_happened)) {
-      if (submitJson$results$status == "timeout") {
+    status	     <- submitJson$results$status
+    while (length(status) > 0 &&
+	   (status == "processing" |
+           (status == "timeout" & !timeout_happened))) {
+      if (status == "timeout") {
         cat("Connection problems...\nWaiting for 10 seconds and trying again...\n")
         shiny::setProgress(message = "Lost connection. Waiting 10 secs")
         timeout_happened <- TRUE
@@ -245,17 +247,24 @@ getExerciseFromServer <- function(response, token, sleepTime) {
         Sys.sleep(1)
       }
       submitJson <- get_json_from_submission_url(response, token)
+      status	 <- submitJson$results$status
     }
     if (!is.null(shiny::getDefaultReactiveDomain())) {
       cat("Server results from the submission are ready.\n")
       shiny::setProgress(message = "Results from submission ready",
                          value = 1)
     }
-    if (submitJson$results$status == "error") {
+    cat("after while...\n")
+    if (length(status) == 0 || status == "error") {
+      status	       <- "error"
       submitJson$error <- submitJson$results$error
       if (!is.character(submitJson$error))
         submitJson$error$server_access <- TRUE
-      .dprint("HERE WE GOT AN ERROR")
+    }
+    if (status == "timeout") {
+      submitJson$error <- submitJson$results$error
+      if (!is.character(submitJson$error))
+        submitJson$error$server_access <- TRUE
     }
   }
   return(submitJson)
@@ -393,7 +402,6 @@ showMessage <- function(submitResults) {
 
 getDialogMessage <- function(submitResults) {
   message <- list()
-  .ddprint("NOW parsing submit Results")
   .ddprint(str(submitResults))
   message$title <- "Results"
   if (!is.null(submitResults$error)) {
@@ -546,7 +554,8 @@ code. Please try to fix your code or ask help from course instructors.")
            "Very nice! ",
            "Almost there! ",
            "Almost there! ",
-           "Almost there! ")
+           "Almost there! ",
+	   "Not all is correct, but you received 8 points. ")
     points <- paste(submitResults$data$points, collapse = ", ")
     num_of_points <- length(submitResults$data$points)
     message_1 <- message_data[[num_of_points + 1]]
