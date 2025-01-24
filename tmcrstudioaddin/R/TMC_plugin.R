@@ -66,8 +66,31 @@
 #' @details The TMC \code{RStudio} addin was made using
 #' \code{\link[shiny]{shiny-package}}, which allows making web
 #' applications and \code{RStudio} addins using \code{R}.
+no_tmcRtestrunner <- function() {
+  return(system.file(package = "tmcRtestrunner") == "")
+}
+tmcRtestrunner_version <- function() {
+  sum(unlist(packageVersion("tmcRtestrunner")) * c(100, 10, 1))
+}
+minimum_version <- "0.2.9"
 tmcGadget <- function() {
   .starting_messages()
+  if (no_tmcRtestrunner()) {
+    cat("-------------\n")
+    cat(.in_red("ERROR: "))
+    cat("No tmcRtestrunner package is installed.\n")
+    cat("Please install tmcRtestrunner before trying again\n")
+    return(FALSE)
+  }
+  if (tmcRtestrunner_version() < 29) {
+    cat("-------------\n")
+    cat(.in_red("ERROR: "))
+    cat("The version tmcRtestrunner package is too old.\n")
+    cat(paste0("Please install tmcRtestrunner with version >= ",
+               minimum_version,
+               " before trying again\n"))
+    return(FALSE)
+  }
   .global_env_copy <- if (rstudioapi::isAvailable()) {
     .initialising_global_env()
   } else {
