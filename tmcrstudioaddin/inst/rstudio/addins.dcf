@@ -1,9 +1,4 @@
-Name: TMC R 0.8.9
-Description: Enables login to TMC server
-Binding: tmcGadget
-Interactive: true
-
-Name: TMC R 0.8.9 nonblocking
+Name: TMC R 0.9.0 nonblocking
 Description: Nonblocking login to TMC server
 Binding: tmcGadget_nonblock
 Interactive: true

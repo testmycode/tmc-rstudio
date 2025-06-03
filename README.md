@@ -14,8 +14,8 @@
 How to install the package: 
 
 1. Install the `tmcRtestrunner` package
-   i. On the terminal, navigate to the folder where `tmcrstudioaddin_0.2.9.tar.gz` is located,
-   and run the command `R CMD INSTALL tmcrstudioaddin_0.2.9.tar.gz`
+   i. On the terminal, navigate to the folder where `tmcRtestrunner_0.3.0.tar.gz` is located,
+   and run the command `R CMD INSTALL tmcRtestrunner_0.3.0.tar.gz`
    ii. Alternatively, one can enter the R command 
    `devtools::install_github("testmycode/tmc-r-tester/tmcRtestrunner", build = FALSE)` in the R console
    to directly download from GitHub
@@ -26,12 +26,12 @@ How to install the package:
    If this fails, install RStudio version that is at least 1.3.10731 (from
    https://www.rstudio.com/products/rstudio/download/).
    Also install the required packages manually (with `install.packages("package_name")`).
-   ii. Alternatively, on the terminal, navigate to the folder where `tmcrstudioaddin_0.8.9.tar.gz` is located,
-   and run the command `R CMD INSTALL tmcrstudioaddin_0.8.9.tar.gz`. You still
+   ii. Alternatively, on the terminal, navigate to the folder where `tmcrstudioaddin_0.9.0.tar.gz` is located,
+   and run the command `R CMD INSTALL tmcrstudioaddin_0.9.0.tar.gz`. You still
    need to install the required packages manually (with `install.packages("package_name")`).
 
 3. Once the package `tmcrstudioaddin` is installed, open RStudio and select "Addins" from upper bar and there
-   `TMC R 0.8.9`.
+   `TMC R 0.9.0`.
 
 ### Credits
 

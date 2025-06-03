@@ -3,7 +3,7 @@
   old_wd <- getwd()
   setwd(folder)
   if (file.exists(zip_path)) {
-    cat("Zip was already created. This should not happen.\n")
+    cat("Zip file was already created. This should not happen.\n")
     setwd(old_wd)
     stop("Zip file already exists")
   }
@@ -11,7 +11,17 @@
     files_to_zip <- dir(folder, recursive = TRUE, include.dirs = TRUE)
     zip(zipfile = zip_path, files = files_to_zip, flags = "-q")
   }, error = function(e) {
-    print("Could not Zip")
+    cat("Could not zip using normal zip functionality.\n")
+    if (.Platform$OS.type == "windows") {
+      cat("This is Windows, trying another method for zip\n")
+      tryCatch({
+        system2("tar", c("acf", zip_path, folder), stdout = TRUE)
+      }, error = function(e2) {
+        cat("Still could not zip. Giving up.\n")
+        setwd(old_wd)
+        stop(e2)
+      })
+    }
     setwd(old_wd)
     stop(e)
   })
