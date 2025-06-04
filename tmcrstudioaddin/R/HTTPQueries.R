@@ -133,6 +133,8 @@ download_exercise <- function(exercise_id,
     }, error = function(err) {
       cat("Creating submission failed.\n")
       stop(err)
+    }, warning = function(warn) {
+      cat("Creating submission failed with warning.\n")
     })
     return(zip_path)
   }

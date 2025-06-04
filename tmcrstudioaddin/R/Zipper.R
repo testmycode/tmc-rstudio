@@ -1,3 +1,26 @@
+.zip_warn <- function(old_wd, zip_path, files_to_zip) {
+  function(e) {
+    cat("Could not zip using normal zip functionality.\n")
+    if (.Platform$OS.type == "windows") {
+      cat("This is Windows, trying another method for zip\n")
+      tryCatch({
+        system2("tar", c("acf", zip_path, files_to_zip), stdout = TRUE)
+      }, warning = function(e2) {
+        cat("Still could not zip due to a warning. Giving up.\n")
+      }, error   = function(e2) {
+        cat("Still could not zip due to an error. Giving up.\n")
+      })
+    }
+    setwd(old_wd)
+  }
+}
+.zip_error <- function(old_wd) {
+  function(e) {
+    cat("Could not zip due to an error\n")
+    setwd(old_wd)
+    stop(e)
+  }
+}
 .tmc_zip <- function(folder, zip_path) {
   .dprint(".zip")
   old_wd <- getwd()
@@ -10,21 +33,8 @@
   tryCatch({
     files_to_zip <- dir(folder, recursive = TRUE, include.dirs = TRUE)
     zip(zipfile = zip_path, files = files_to_zip, flags = "-q")
-  }, error = function(e) {
-    cat("Could not zip using normal zip functionality.\n")
-    if (.Platform$OS.type == "windows") {
-      cat("This is Windows, trying another method for zip\n")
-      tryCatch({
-        system2("tar", c("acf", zip_path, folder), stdout = TRUE)
-      }, error = function(e2) {
-        cat("Still could not zip. Giving up.\n")
-        setwd(old_wd)
-        stop(e2)
-      })
-    }
-    setwd(old_wd)
-    stop(e)
-  })
+  }, warning = .zip_warn(old_wd, zip_path, files_to_zip),
+     error   = .zip_error(old_wd))
   setwd(old_wd)
   if (!file.exists(zip_path)) {
     cat("Zip has not not been created.\n")

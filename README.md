@@ -26,12 +26,12 @@ How to install the package:
    If this fails, install RStudio version that is at least 1.3.10731 (from
    https://www.rstudio.com/products/rstudio/download/).
    Also install the required packages manually (with `install.packages("package_name")`).
-   ii. Alternatively, on the terminal, navigate to the folder where `tmcrstudioaddin_0.9.0.tar.gz` is located,
-   and run the command `R CMD INSTALL tmcrstudioaddin_0.9.0.tar.gz`. You still
+   ii. Alternatively, on the terminal, navigate to the folder where `tmcrstudioaddin_0.9.1.tar.gz` is located,
+   and run the command `R CMD INSTALL tmcrstudioaddin_0.9.1.tar.gz`. You still
    need to install the required packages manually (with `install.packages("package_name")`).
 
 3. Once the package `tmcrstudioaddin` is installed, open RStudio and select "Addins" from upper bar and there
-   `TMC R 0.9.0`.
+   `TMC R 0.9.1`.
 
 ### Credits
 
